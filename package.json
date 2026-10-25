@@ -1,0 +1,12 @@
+{
+  "name": "axomic-prometheus-deobfuscator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "deobfuscator.js",
+  "scripts": {
+    "start": "node deobfuscator.js web",
+    "web": "node deobfuscator.js web",
+    "test": "node deobfuscator.js --test && node tests/paste.test.js"
+  }
+}
