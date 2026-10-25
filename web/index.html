@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Axomic Prometheus-Deobfuscator</title>
+<style>
+:root {
+  --bg: #171513;
+  --surface: #201c18;
+  --surface-2: #29231d;
+  --ink: #f2eadb;
+  --muted: #a99b89;
+  --line: #4a3d31;
+  --accent: #ed762d;
+  --accent-2: #ffb04a;
+  --accent-ink: #1d1209;
+  --good: #adc66b;
+  --shadow: rgba(0,0,0,.38);
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: .01em;
+  overflow-x: hidden;
+  transition: background-color .22s ease, color .22s ease;
+}
+body[data-theme="paper"] { --bg: #eee1c4; --surface: #f7eedb; --surface-2: #e5d3ad; --ink: #2b2118; --muted: #756452; --line: #c6ae84; --accent: #a84425; --accent-2: #d17a32; --accent-ink: #fff5e4; --good: #59774f; --shadow: rgba(94,61,30,.18); }
+body[data-theme="ember"] { --bg: #1c1210; --surface: #281916; --surface-2: #38211b; --ink: #f6e7d5; --muted: #b99b86; --line: #684033; --accent: #f0783c; --accent-2: #ffc06b; --accent-ink: #291007; --good: #b8d37a; --shadow: rgba(0,0,0,.44); }
+body[data-theme="moss"] { --bg: #111a14; --surface: #18251b; --surface-2: #203321; --ink: #e5ecd7; --muted: #9aae91; --line: #38523a; --accent: #b8ce68; --accent-2: #d9e991; --accent-ink: #18200f; --good: #a8d082; --shadow: rgba(0,0,0,.42); }
+body[data-theme="copper"] { --bg: #221914; --surface: #2d211a; --surface-2: #39281e; --ink: #f1dfc9; --muted: #b79c80; --line: #654532; --accent: #d88b45; --accent-2: #efb16b; --accent-ink: #28150b; --good: #a9bf74; --shadow: rgba(0,0,0,.42); }
+body[data-theme="crimson"] { --bg: #210f10; --surface: #2d1516; --surface-2: #3c1c1b; --ink: #f4e2d9; --muted: #ba9288; --line: #67312d; --accent: #ee5b48; --accent-2: #ff9a5c; --accent-ink: #2b0c0a; --good: #b8c477; --shadow: rgba(0,0,0,.44); }
+body[data-theme="solar"] { --bg: #f2e4b9; --surface: #fbf2d8; --surface-2: #e7d18c; --ink: #2d2418; --muted: #776645; --line: #c9ab57; --accent: #a55224; --accent-2: #d58d28; --accent-ink: #fff4d5; --good: #55744c; --shadow: rgba(83,57,14,.18); }
+body[data-theme="ocean"] { --bg: #d9edf0; --surface: #f1fbfb; --surface-2: #c5e1e5; --ink: #12313a; --muted: #52727b; --line: #8cbac2; --accent: #167d8d; --accent-2: #46b8c0; --accent-ink: #efffff; --good: #42785c; --shadow: rgba(24,82,94,.18); }
+body[data-theme="lavender"] { --bg: #211b2c; --surface: #2d243b; --surface-2: #3b2f4d; --ink: #f3ebff; --muted: #b9a9cc; --line: #5d4a76; --accent: #c7a4ff; --accent-2: #ebd9ff; --accent-ink: #241632; --good: #a9d59e; --shadow: rgba(0,0,0,.42); }
+body[data-theme="forest"] { --bg: #e2eedf; --surface: #f4faf0; --surface-2: #cfe2c8; --ink: #1c3421; --muted: #5f7964; --line: #9dbb96; --accent: #3c7a4e; --accent-2: #73a964; --accent-ink: #f4fff1; --good: #3d7751; --shadow: rgba(35,83,42,.18); }
+body[data-theme="terminal"] { --bg: #07120d; --surface: #0b1c14; --surface-2: #10281b; --ink: #d7ffe2; --muted: #76aa86; --line: #245b39; --accent: #54d477; --accent-2: #a5ffb6; --accent-ink: #07150b; --good: #8ee6a0; --shadow: rgba(0,0,0,.5); }
+body[data-theme="mono"] { --bg: #171717; --surface: #202020; --surface-2: #2b2b2b; --ink: #eeeeea; --muted: #a4a4a0; --line: #4b4b48; --accent: #e6e1d3; --accent-2: #ffffff; --accent-ink: #1a1a1a; --good: #c5d0a1; --shadow: rgba(0,0,0,.46); }
+body[data-theme="paper"], body[data-theme="solar"], body[data-theme="ocean"], body[data-theme="forest"] { color-scheme: light; }
+body[data-theme="ember"], body[data-theme="moss"], body[data-theme="copper"], body[data-theme="crimson"], body[data-theme="lavender"], body[data-theme="terminal"], body[data-theme="mono"] { color-scheme: dark; }
+button, input, textarea, select { font: inherit; }
+button, select, .upload { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+.app { position: relative; z-index: 1; width: min(1480px, calc(100% - 40px)); margin: 0 auto; padding: 28px 0 36px; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 0 0 22px; border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 14px; }
+.mark { display: grid; place-items: center; width: 45px; height: 45px; color: var(--accent-ink); background: var(--accent); border: 1px solid var(--accent-2); box-shadow: 5px 5px 0 var(--shadow); font-weight: 900; font-size: 21px; }
+.eyebrow, .panel-label, .theme-label { margin: 0; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+h1 { margin: 3px 0 0; font-size: clamp(26px, 4vw, 43px); line-height: .95; letter-spacing: -.06em; font-weight: 900; }
+.tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.theme-picker { display: grid; gap: 5px; min-width: 165px; padding: 6px 7px 7px; border: 1px solid var(--line); background: var(--surface); }
+select { min-width: 145px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 0; padding: 9px 12px; outline: 0; transition: background-color .22s ease, color .22s ease, border-color .22s ease; }
+select:focus { border-color: var(--accent); }
+.option { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 8px 10px; color: var(--ink); border: 1px solid var(--line); font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.option input { width: 14px; height: 14px; accent-color: var(--accent); }
+.intro { display: flex; align-items: end; justify-content: space-between; gap: 30px; padding: 34px 0 28px; }
+.intro h2 { max-width: 760px; margin: 0; font-size: clamp(23px, 4vw, 48px); line-height: .98; letter-spacing: -.055em; }
+.intro p { max-width: 330px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+.workspace { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.panel { min-width: 0; border: 1px solid var(--line); background: var(--surface); box-shadow: 8px 8px 0 var(--shadow); }
+.panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 13px 15px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+.panel-label { color: var(--accent); }
+.counter { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.editor-wrap { position: relative; padding: 0; }
+textarea { display: block; width: 100%; min-height: 495px; resize: vertical; padding: 18px; color: var(--ink); background: transparent; border: 0; outline: 0; font: 13px/1.65 "SFMono-Regular", Consolas, "Liberation Mono", monospace; tab-size: 2; }
+textarea::placeholder { color: var(--muted); opacity: .72; }
+textarea:focus { box-shadow: inset 0 0 0 1px var(--accent); }
+.output textarea { background: rgba(0, 0, 0, .09); }
+.drop-hint { position: absolute; right: 15px; bottom: 13px; color: var(--muted); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; pointer-events: none; }
+.panel-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 61px; padding: 12px 15px; border-top: 1px solid var(--line); }
+.bar-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.paste-link { max-width: min(42vw, 420px); overflow: hidden; color: var(--accent); font-size: 11px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+.paste-link:hover { color: var(--accent-2); }
+button, .upload { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 36px; padding: 8px 13px; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 0; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; transition: background .16s ease, color .16s ease, border-color .16s ease, transform .16s ease; }
+button:hover, .upload:hover { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); transform: translate(-1px, -1px); }
+button:active, .upload:active { transform: translate(0, 0); }
+button.primary { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+button.primary:hover { background: var(--accent-2); border-color: var(--accent-2); }
+button:disabled { cursor: wait; opacity: .55; transform: none; }
+.upload input { display: none; }
+.dragging { outline: 2px solid var(--accent); outline-offset: -2px; }
+@media (max-width: 900px) { .topbar, .intro { align-items: flex-start; flex-direction: column; } .tools { justify-content: flex-start; } .workspace { grid-template-columns: 1fr; } textarea { min-height: 340px; } }
+@media (max-width: 520px) { .app { width: min(100% - 24px, 1480px); padding-top: 16px; } .panel-bar { align-items: flex-start; flex-direction: column; } .bar-actions { justify-content: flex-start; } .drop-hint { display: none; } }
+</style>
+</head>
+<body data-theme="paper">
+<main class="app">
+<header class="topbar">
+  <div class="brand">
+    <div class="mark">⌁</div>
+    <div>
+      <p class="eyebrow">Prometheus tool</p>
+      <h1>Axomic Prometheus-Deobfuscator</h1>
+    </div>
+  </div>
+  <div class="tools">
+    <label class="theme-picker">
+      <span class="theme-label">Theme</span>
+      <select id="theme">
+        <option value="paper">Light</option>
+        <option value="ember">Ember Forge</option>
+        <option value="moss">Moss Field</option>
+        <option value="copper">Copper Console</option>
+        <option value="crimson">Crimson Signal</option>
+        <option value="solar">Solar Desk</option>
+        <option value="ocean">Ocean Glass</option>
+        <option value="lavender">Lavender Night</option>
+        <option value="forest">Forest Paper</option>
+        <option value="terminal">Terminal Green</option>
+        <option value="mono">Monochrome</option>
+      </select>
+    </label>
+    <label class="option"><input id="show-ms" type="checkbox"> Show ms</label>
+    <label class="option"><input id="rename" type="checkbox"> Rename</label>
+  </div>
+</header>
+<section class="intro">
+  <h2>turn Prometheus obfuscation into readable source</h2>
+  <p>Drop a file or paste raw text. The local service processes it on this machine and returns clean source without sending it anywhere.</p>
+</section>
+<section class="workspace">
+  <article class="panel">
+    <div class="panel-head">
+      <span class="panel-label">01 Input</span>
+      <span class="counter" id="input-count">0 chars</span>
+    </div>
+    <div class="editor-wrap" id="drop-zone">
+      <textarea id="input" spellcheck="false" wrap="off" placeholder="Paste raw Lua or Luau here..."></textarea>
+      <span class="drop-hint">Drop a file anywhere in this panel</span>
+    </div>
+    <div class="panel-bar">
+      <label class="upload">Upload from device<input id="file" type="file" accept=".lua,.luau,.txt,text/plain"></label>
+      <div class="bar-actions">
+        <button id="clear" type="button">Clear</button>
+        <button id="run" class="primary" type="button">Run deobfuscator</button>
+      </div>
+    </div>
+  </article>
+  <article class="panel output">
+    <div class="panel-head">
+      <span class="panel-label">02 Output</span>
+      <span class="counter" id="output-count">0 chars</span>
+    </div>
+    <div class="editor-wrap">
+      <textarea id="output" spellcheck="false" wrap="off" readonly placeholder="Your recovered source will appear here..."></textarea>
+    </div>
+    <div class="panel-bar">
+      <div class="bar-actions">
+        <a id="paste-link" class="paste-link" hidden target="_blank" rel="noopener noreferrer"></a>
+        <button id="copy" type="button">Copy</button>
+        <button id="download" type="button">Download</button>
+        <button id="paste" type="button">Paste Output</button>
+      </div>
+    </div>
+  </article>
+</section>
+
+</main>
+<script>
+const input = document.getElementById("input");
+const output = document.getElementById("output");
+const file = document.getElementById("file");
+const dropZone = document.getElementById("drop-zone");
+const run = document.getElementById("run");
+const clear = document.getElementById("clear");
+const copy = document.getElementById("copy");
+const download = document.getElementById("download");
+const paste = document.getElementById("paste");
+const pasteLink = document.getElementById("paste-link");
+const theme = document.getElementById("theme");
+const showMs = document.getElementById("show-ms");
+const rename = document.getElementById("rename");
+const inputCount = document.getElementById("input-count");
+const outputCount = document.getElementById("output-count");
+function updateCounts() {
+  inputCount.textContent = input.value.length.toLocaleString() + " chars";
+  outputCount.textContent = output.value ? output.value.length.toLocaleString() + " chars" : "0 chars";
+}
+function setTheme(name) {
+  document.body.dataset.theme = name;
+  theme.value = name;
+  try { window.localStorage.setItem("deobfuscator-theme", name); } catch (error) {}
+}
+function readText(blob) {
+  const reader = new FileReader();
+  reader.onload = () => { input.value = String(reader.result || ""); updateCounts(); };
+  reader.onerror = () => {};
+  reader.readAsText(blob);
+}
+async function runTransform() {
+  if (!input.value.trim()) { input.focus(); return; }
+  run.disabled = true;
+  try {
+    const response = await fetch("/api/deobfuscate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ source: input.value, options: { ms: showMs.checked, rename: rename.checked } }) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Request failed");
+    output.value = data.output || "";
+    pasteLink.hidden = true;
+    pasteLink.removeAttribute("href");
+    updateCounts();
+  } catch (error) {
+    output.value = "";
+    pasteLink.hidden = true;
+    pasteLink.removeAttribute("href");
+    updateCounts();
+  } finally {
+    run.disabled = false;
+  }
+}
+async function copyOutput() {
+  if (!output.value) return;
+  try {
+    await navigator.clipboard.writeText(output.value);
+  } catch (error) {
+    output.focus();
+    output.select();
+    document.execCommand("copy");
+  }
+}
+async function publishOutput() {
+  if (!output.value) return;
+  paste.disabled = true;
+  paste.textContent = "Publishing...";
+  try {
+    const response = await fetch("/api/paste", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: output.value }) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Every paste service failed");
+    pasteLink.href = data.url;
+    pasteLink.textContent = data.url;
+    pasteLink.title = data.service ? `Published with ${data.service}` : data.url;
+    pasteLink.hidden = false;
+  } catch (error) {
+    alert(error.message || "Every paste service failed");
+  } finally {
+    paste.disabled = false;
+    paste.textContent = "Paste Output";
+  }
+}
+function downloadOutput() {
+  if (!output.value) return;
+  const blob = new Blob([output.value], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "deobfuscated.luau";
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  window.setTimeout(() => {
+    URL.revokeObjectURL(url);
+    link.remove();
+  }, 1000);
+}
+input.addEventListener("input", updateCounts);
+file.addEventListener("change", () => { if (file.files[0]) readText(file.files[0]); });
+["dragenter", "dragover"].forEach(name => dropZone.addEventListener(name, event => { event.preventDefault(); dropZone.classList.add("dragging"); }));
+["dragleave", "drop"].forEach(name => dropZone.addEventListener(name, event => { event.preventDefault(); dropZone.classList.remove("dragging"); }));
+dropZone.addEventListener("drop", event => { const dropped = event.dataTransfer.files[0]; if (dropped) readText(dropped); });
+run.addEventListener("click", runTransform);
+clear.addEventListener("click", () => { input.value = ""; output.value = ""; pasteLink.hidden = true; pasteLink.removeAttribute("href"); updateCounts(); });
+copy.addEventListener("click", copyOutput);
+download.addEventListener("click", downloadOutput);
+paste.addEventListener("click", publishOutput);
+theme.addEventListener("change", () => setTheme(theme.value));
+let savedTheme = "";
+try { savedTheme = window.localStorage.getItem("deobfuscator-theme") || ""; } catch (error) {}
+const themeNames = ["paper", "ember", "moss", "copper", "crimson", "solar", "ocean", "lavender", "forest", "terminal", "mono"];
+setTheme(themeNames.includes(savedTheme) ? savedTheme : "paper");
+updateCounts();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a500127cda055729',t:'MTc5MjkxOTI1OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
