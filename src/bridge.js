@@ -1,93 +1,116 @@
-'use strict';
+"use strict";
 
-const { key, simple } = require('./base');
-const { deobfuscate } = require('./flow');
-const { normalize } = require('./name');
-
-function roles(source) {
-  let output = '';
-  let at = 0;
-  while (at < source.length) {
-    const ch = source[at];
-    const next = source[at + 1];
-    if (ch === '-' && next === '-') {
-      const end = source.indexOf('\n', at + 2);
-      const stop = end < 0 ? source.length : end;
-      output += source.slice(at, stop);
-      at = stop;
+const {
+  key: a,
+  simple: b
+} = require("./base");
+const {
+  deobfuscate: c
+} = require("./flow");
+const {
+  recover: d,
+  identify: e
+} = require("./newvm");
+const {
+  normalize: f
+} = require("./name");
+function g(a) {
+  let b = "";
+  let c = 0;
+  while (c < a.length) {
+    const d = a[c];
+    const e = a[c + 1];
+    if (d === "-" && e === "-") {
+      const d = a["indexOf"]("\n", c + 2);
+      const e = d < 0 ? a.length : d;
+      b += a.slice(c, e);
+      c = e;
       continue;
     }
-    if (ch === '"' || ch === "'") {
-      const quote = ch;
-      let end = at + 1;
-      while (end < source.length) {
-        if (source[end] === '\\') {
-          end += 2;
+    if (d === '"' || d === "'") {
+      const e = d;
+      let f = c + 1;
+      while (f < a.length) {
+        if (a[f] === "\\") {
+          f += 2;
           continue;
         }
-        if (source[end] === quote) {
-          end += 1;
+        if (a[f] === e) {
+          f += 1;
           break;
         }
-        end += 1;
+        f += 1;
       }
-      output += source.slice(at, end);
-      at = end;
+      b += a.slice(c, f);
+      c = f;
       continue;
     }
-    if (ch === '[' && next === '[') {
-      const end = source.indexOf(']]', at + 2);
-      const stop = end < 0 ? source.length : end + 2;
-      output += source.slice(at, stop);
-      at = stop;
+    if (d === "[" && e === "[") {
+      const d = a["indexOf"]("]]", c + 2);
+      const e = d < 0 ? a.length : d + 2;
+      b += a.slice(c, e);
+      c = e;
       continue;
     }
-    if (/[A-Za-z_]/.test(ch)) {
-      let end = at + 1;
-      while (end < source.length && /[A-Za-z0-9_]/.test(source[end])) end += 1;
-      const word = source.slice(at, end);
-      output += /^p\d+$/.test(word) ? `fp${word.slice(1)}` : word;
-      at = end;
+    if (/[A-Za-z_]/.test(d)) {
+      let d = c + 1;
+      while (d < a.length && /[A-Za-z0-9_]/.test(a[d])) d += 1;
+      const e = a.slice(c, d);
+      b += /^p\d+$/.test(e) ? `fp${e.slice(1)}` : e;
+      c = d;
       continue;
     }
-    output += ch;
-    at += 1;
+    b += d;
+    c += 1;
   }
-  return output;
+  return b;
 }
-
-class bridge {
+class h {
   constructor() {
     this.cache = new Map();
   }
-
-  ask(source, options) {
-    const hash = key(source + JSON.stringify(options || {}));
-    if (this.cache.has(hash)) return Promise.resolve(this.cache.get(hash));
-    const fast = simple(source);
-    let output = fast;
-    let recovered = false;
+  ask(h, i) {
+    const j = a(h + JSON.stringify(i || {}));
+    if (this.cache.has(j)) return Promise.resolve(this.cache.get(j));
+    const k = b(h);
+    let l = k;
+    let m = false;
     try {
-      output = deobfuscate(source, { detect: true, name: 'chunk', x: 2000000 }).code;
-      recovered = true;
-    } catch (error) {
-      if (fast === null) {
+      const a = d(h);
+      if (a && a.code) {
+        l = a.code;
+        m = true;
+      } else {
+        l = c(h, {
+          detect: true,
+          name: "chunk",
+          x: 2e6
+        }).code;
+        m = true;
+      }
+    } catch (a) {
+      if (k === null || e(h)) {
         try {
-          output = deobfuscate(source, { detect: false, name: 'chunk', x: 2000000 }).code;
-          recovered = true;
-        } catch (fallbackError) {
-          output = source;
+          l = c(h, {
+            detect: false,
+            name: "chunk",
+            x: 2e6
+          }).code;
+          m = true;
+        } catch (a) {
+          l = h;
         }
       }
     }
-    output = normalize(recovered ? roles(output) : output);
-    this.cache.set(hash, output);
-    return Promise.resolve(output);
+    l = f(m ? g(l) : l);
+    this.cache.set(j, l);
+    return Promise.resolve(l);
   }
-
   close() {
     this.cache.clear();
   }
 }
-
-module.exports = { bridge, roles };
+module.exports = {
+  bridge: h,
+  roles: g
+};
