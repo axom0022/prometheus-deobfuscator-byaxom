@@ -1,33 +1,13947 @@
-"use strict";var F=(t,e)=>()=>{try{return e||t((e={exports:{}}).exports,e),e.exports}catch(n){throw e=0,n}};var cr=F((_y,wo)=>{"use strict";var wf={Eof:"Eof",Name:"Name",Keyword:"Keyword",Number:"Number",String:"String",Symbol:"Symbol"},yf=new Set(["and","break","do","else","elseif","end","false","for","function","goto","if","in","local","nil","not","or","repeat","return","then","true","until","while","continue"]),vf=["...","..=","==","~=","<=",">=","..","::","->","//","<<",">>","+=","-=","*=","/=","%=","^=","+","-","*","/","%","^","#","=","<",">","(",")","{","}","[","]",";",":",",",".","?","|","&","~"];wo.exports={TokenKind:wf,KEYWORDS:yf,SYMBOLS:vf}});var Ms=F((By,No)=>{"use strict";var yo=t=>t>="0"&&t<="9",xf=t=>t>="0"&&t<="9"||t>="a"&&t<="f"||t>="A"&&t<="F",vo=t=>t>="a"&&t<="z",xo=t=>t>="A"&&t<="Z",So=t=>vo(t)||xo(t)||t==="_",Sf=t=>So(t)||yo(t),Nf=t=>t===" "||t==="	"||t==="\r"||t===`
-`||t==="\v"||t==="\f",Cf=t=>t===`
-`||t==="\r",Ff={a:"\x07",b:"\b",f:"\f",n:`
-`,r:"\r",t:"	",v:"\v","\\":"\\",'"':'"',"'":"'"};function qf(t){let e=t.slice(2),n=e.search(/[pP]/),r=n===-1?e:e.slice(0,n),s=n===-1?void 0:e.slice(n+1),i=r.indexOf("."),o=i===-1?r:r.slice(0,i),u=i===-1?"":r.slice(i+1),l=o?parseInt(o,16):0;for(let c=0;c<u.length;c+=1)l+=parseInt(u[c],16)/16**(c+1);return s!==void 0&&s!==""&&(l*=2**Number(s)),l}function Mf(t){return t<128?String.fromCharCode(t):t<2048?String.fromCharCode(192|t>>6,128|t&63):t<65536?String.fromCharCode(224|t>>12,128|t>>6&63,128|t&63):String.fromCharCode(240|t>>18,128|t>>12&63,128|t>>6&63,128|t&63)}No.exports={m:yo,Me:xf,bt:vo,mt:xo,wt:So,yt:Sf,hn:Nf,A:Cf,ESCAPES:Ff,vt:qf,utf8Encode:Mf}});var $s=F((Ry,Fo)=>{"use strict";var{TokenKind:wn,KEYWORDS:$f,SYMBOLS:Co}=cr(),fe=Ms(),fr=class extends Error{constructor(e,n,r){super(`${e} (line ${n}, col ${r})`),this.name="LuaSyntaxError",this.line=n,this.column=r}},dr=class{constructor(e){this.src=e,this.len=e.length,this.pos=0,this.line=1,this.$e=0}error(e){throw new fr(e,this.line,this.pos-this.$e+1)}peek(e=0){let n=this.pos+e;return n<this.len?this.src[n]:""}newline(){let e=this.src[this.pos];this.pos+=1;let n=this.src[this.pos];(n===`
-`||n==="\r")&&n!==e&&(this.pos+=1),this.line+=1,this.$e=this.pos}xt(){for(;;){let e=this.peek();if(e==="")return;if(fe.A(e)){this.newline();continue}if(fe.hn(e)){this.pos+=1;continue}if(e==="-"&&this.peek(1)==="-"){this.pos+=2;let n=this.gn();if(n!==null){this.pn(n);continue}for(;this.pos<this.len&&!fe.A(this.src[this.pos]);)this.pos+=1;continue}return}}gn(){if(this.peek()!=="[")return null;let e=this.pos+1,n=0;for(;e<this.len&&this.src[e]==="=";)n+=1,e+=1;return this.src[e]!=="["?null:(this.pos=e+1,n)}pn(e){fe.A(this.peek())&&this.newline();let n=`]${"=".repeat(e)}]`,r="";for(;;){if(this.pos>=this.len&&this.error("unterminated long string/comment"),this.src.startsWith(n,this.pos))return this.pos+=n.length,r;let s=this.src[this.pos];if(fe.A(s)){this.newline(),r+=`
-`;continue}r+=s,this.pos+=1}}St(e){this.pos+=1;let n="";for(;;){this.pos>=this.len&&this.error("unterminated string");let r=this.src[this.pos];if(r===e)return this.pos+=1,n;if(fe.A(r)&&this.error("unterminated string"),r!=="\\"){n+=r,this.pos+=1;continue}this.pos+=1,n+=this.Nt()}}Nt(){let e=this.peek();if(e===""&&this.error("unterminated escape sequence"),fe.A(e))return this.newline(),`
-`;if(Object.prototype.hasOwnProperty.call(fe.ESCAPES,e))return this.pos+=1,fe.ESCAPES[e];if(e==="x"||e==="X"){this.pos+=1;let n="";for(;n.length<2&&fe.Me(this.peek());)n+=this.src[this.pos],this.pos+=1;return n.length===0&&this.error("hex digit expected"),String.fromCharCode(parseInt(n,16))}if(e==="z"){for(this.pos+=1;this.pos<this.len&&fe.hn(this.src[this.pos]);)fe.A(this.src[this.pos])?this.newline():this.pos+=1;return""}if(e==="u"){this.pos+=1,this.peek()!=="{"&&this.error("expected '{' after \\u"),this.pos+=1;let n="";for(;fe.Me(this.peek());)n+=this.src[this.pos],this.pos+=1;return this.peek()!=="}"&&this.error("expected '}'"),this.pos+=1,fe.utf8Encode(parseInt(n,16))}if(fe.m(e)){let n="";for(;n.length<3&&fe.m(this.peek());)n+=this.src[this.pos],this.pos+=1;let r=parseInt(n,10);return r>255&&this.error("decimal escape out of range"),String.fromCharCode(r)}return this.error(`invalid escape '\\${e}'`)}Ct(){let e=this.pos;if(this.peek()==="0"&&(this.peek(1)==="x"||this.peek(1)==="X")){for(this.pos+=2;fe.Me(this.peek())||this.peek()===".";)this.pos+=1;if(this.peek()==="p"||this.peek()==="P")for(this.pos+=1,(this.peek()==="+"||this.peek()==="-")&&(this.pos+=1);fe.m(this.peek());)this.pos+=1;let s=this.src.slice(e,this.pos);return{text:s,value:fe.vt(s)}}if(this.peek()==="0"&&(this.peek(1)==="b"||this.peek(1)==="B")){for(this.pos+=2;this.peek()==="0"||this.peek()==="1";)this.pos+=1;let s=this.src.slice(e,this.pos);return{text:s,value:parseInt(s.slice(2),2)}}for(;fe.m(this.peek());)this.pos+=1;if(this.peek()===".")for(this.pos+=1;fe.m(this.peek());)this.pos+=1;if(this.peek()==="e"||this.peek()==="E")for(this.pos+=1,(this.peek()==="+"||this.peek()==="-")&&(this.pos+=1);fe.m(this.peek());)this.pos+=1;let n=this.src.slice(e,this.pos),r=Number(n);return Number.isNaN(r)&&this.error(`malformed number '${n}'`),{text:n,value:r}}next(){this.xt();let e=this.line,n=this.pos-this.$e+1,r=this.pos;if(this.pos>=this.len)return{kind:wn.Eof,value:null,line:e,column:n,offset:r};let s=this.src[this.pos];if(fe.wt(s)){let i=this.pos;for(;i<this.len&&fe.yt(this.src[i]);)i+=1;let o=this.src.slice(this.pos,i);return this.pos=i,{kind:$f.has(o)?wn.Keyword:wn.Name,value:o,line:e,column:n,offset:r}}if(fe.m(s)||s==="."&&fe.m(this.peek(1))){let i=this.Ct();return{kind:wn.Number,value:i.value,text:i.text,line:e,column:n,offset:r}}if(s==='"'||s==="'")return{kind:wn.String,value:this.St(s),line:e,column:n,offset:r};if(s==="["){let i=this.gn();if(i!==null){let o=this.pn(i);return{kind:wn.String,value:o,long:!0,level:i,line:e,column:n,offset:r}}}for(let i=0;i<Co.length;i+=1){let o=Co[i];if(this.src.startsWith(o,this.pos))return this.pos+=o.length,{kind:wn.Symbol,value:o,line:e,column:n,offset:r}}return this.error(`unexpected char '${s}'`)}tokenize(){let e=[];for(;;){let n=this.next();if(e.push(n),n.kind===wn.Eof)return e}}};function Lf(t){return new dr(t).tokenize()}Fo.exports={Lexer:dr,tokenize:Lf,LuaSyntaxError:fr,TokenKind:wn}});var B=F((Dy,Mo)=>{"use strict";var M={Chunk:"Chunk",Block:"Block",LocalDeclaration:"LocalDeclaration",LocalFunction:"LocalFunction",FunctionDeclaration:"FunctionDeclaration",Assignment:"Assignment",CallStatement:"CallStatement",Return:"Return",Break:"Break",Continue:"Continue",Do:"Do",While:"While",Repeat:"Repeat",If:"If",NumericFor:"NumericFor",GenericFor:"GenericFor",Goto:"Goto",Label:"Label",Nil:"Nil",True:"True",False:"False",Number:"Number",String:"String",Vararg:"Vararg",Function:"Function",Table:"Table",Binary:"Binary",Unary:"Unary",Index:"Index",Call:"Call",MethodCall:"MethodCall",Name:"Name",Paren:"Paren"},Ef=new Set([M.Nil,M.True,M.False,M.Number,M.String,M.Vararg,M.Function,M.Table,M.Binary,M.Unary,M.Index,M.Call,M.MethodCall,M.Name,M.Paren]),qo=new Set([M.Nil,M.True,M.False,M.Number,M.String]),Af=new Set([M.Name,M.Index]),If=new Set([M.Call,M.MethodCall,M.Vararg]),Ls=(t=[])=>({kind:M.Block,statements:t}),Of=t=>({kind:M.Chunk,body:t||Ls()}),Tf=()=>({kind:M.Nil}),_f=t=>({kind:t?M.True:M.False}),Bf=t=>({kind:M.Number,value:t}),Rf=t=>({kind:M.String,value:t}),Df=()=>({kind:M.Vararg}),Pf=t=>({kind:M.Name,name:t}),jf=t=>({kind:M.Paren,expression:t}),zf=(t,e,n)=>({kind:M.Binary,operator:t,lhs:e,rhs:n}),Gf=(t,e)=>({kind:M.Unary,operator:t,argument:e}),Kf=(t,e,n=!1)=>({kind:M.Index,base:t,index:e,dot:n}),Uf=(t,e=[])=>({kind:M.Call,base:t,args:e}),Wf=(t,e,n=[])=>({kind:M.MethodCall,base:t,method:e,args:n}),Vf=(t=[])=>({kind:M.Table,entries:t}),Hf=(t,e,n=!1)=>({kind:M.Function,params:t,body:e||Ls(),w:n}),Yf=(t,e=[])=>({kind:M.LocalDeclaration,names:t,expressions:e}),Xf=(t,e)=>({kind:M.Assignment,targets:t,expressions:e}),Zf=t=>({kind:M.CallStatement,expression:t}),Jf=(t=[])=>({kind:M.Return,expressions:t}),Qf=()=>({kind:M.Break}),ed=t=>({kind:M.Do,body:t}),nd=(t,e)=>({kind:M.While,condition:t,body:e}),td=(t,e)=>({kind:M.Repeat,body:t,condition:e}),rd=(t,e,n=[],r=null)=>({kind:M.If,condition:t,body:e,s:n,e:r}),sd=(t,e,n,r,s)=>({kind:M.NumericFor,variable:t,start:e,limit:n,step:r,body:s}),id=(t,e,n)=>({kind:M.GenericFor,variables:t,expressions:e,body:n}),od=t=>{let e=t;for(;e&&e.kind===M.Paren;)e=e.expression;return e},ud=t=>!!t&&qo.has(t.kind),ld=t=>!!t&&If.has(t.kind),ad=t=>!!t&&Ef.has(t.kind);Mo.exports={Kind:M,LITERALS:qo,ASSIGNABLE:Af,Y:ud,unparen:od,d:ld,kn:ad,block:Ls,chunk:Of,nil:Tf,boolean:_f,number:Bf,string:Rf,vararg:Df,name:Pf,paren:jf,binary:zf,unary:Gf,index:Kf,call:Uf,Le:Wf,table:Vf,func:Hf,R:Yf,assignment:Xf,X:Zf,I:Jf,Ee:Qf,N:ed,ae:nd,bn:td,Z:rd,mn:sd,wn:id}});var Ao=F((Py,Eo)=>{"use strict";var{tokenize:cd,LuaSyntaxError:Lo}=$s(),{TokenKind:se}=cr(),P=B(),{Kind:Un}=P,$o={or:[1,1],and:[2,2],"<":[3,3],">":[3,3],"<=":[3,3],">=":[3,3],"~=":[3,3],"==":[3,3],"|":[4,4],"~":[5,5],"&":[6,6],"<<":[7,7],">>":[7,7],"..":[9,8],"+":[10,10],"-":[10,10],"*":[11,11],"/":[11,11],"//":[11,11],"%":[11,11],"^":[14,13]},fd=12,dd=new Set(["-","not","#","~"]),hd={"+=":"+","-=":"-","*=":"*","/=":"/","%=":"%","^=":"^","..=":".."},gd=new Set(["end","else","elseif","until"]),Es=class{constructor(e){this.tokens=cd(e),this.index=0}get token(){return this.tokens[this.index]}peek(e=1){let n=this.index+e;return n<this.tokens.length?this.tokens[n]:this.tokens[this.tokens.length-1]}advance(){let e=this.tokens[this.index];return this.index<this.tokens.length-1&&(this.index+=1),e}error(e,n=this.token){throw new Lo(e,n.line,n.column)}at(e){let n=this.token;return(n.kind===se.Symbol||n.kind===se.Keyword)&&n.value===e}accept(e){return this.at(e)?(this.advance(),!0):!1}expect(e){return this.at(e)||this.error(`expected '${e}', got '${hr(this.token)}'`),this.advance()}g(){return this.token.kind!==se.Name&&this.error(`expected identifier, got '${hr(this.token)}'`),this.advance().value}Ft(){let e=this.k();return this.token.kind!==se.Eof&&this.error(`expected EOF, got '${hr(this.token)}'`),P.chunk(e)}k(){let e=[];for(;this.token.kind!==se.Eof&&!(this.token.kind===se.Keyword&&gd.has(this.token.value));)if(!this.accept(";")){if(this.token.kind===se.Keyword&&this.token.value==="return"){e.push(this.qt()),this.accept(";");break}e.push(this.Mt())}return P.block(e)}qt(){this.expect("return");let e=this.$t()||this.at(";")?[]:this.J();return P.I(e)}$t(){let e=this.token;return e.kind===se.Eof?!0:e.kind===se.Keyword&&BLOCK_TERMINATORS.has(e.value)}Mt(){let e=this.token;if(e.kind===se.Keyword)switch(e.value){case"local":return this.Lt();case"if":return this.Et();case"while":return this.At();case"do":{this.advance();let n=this.k();return this.expect("end"),P.N(n)}case"for":return this.It();case"repeat":return this.Ot();case"function":return this.Tt();case"break":return this.advance(),P.Ee();case"continue":return this.advance(),{kind:Un.Continue};case"goto":return this.advance(),{kind:Un.Goto,label:this.g()};default:break}if(this.at("::")){this.advance();let n=this.g();return this.expect("::"),{kind:Un.Label,name:n}}return this._t()}Lt(){if(this.expect("local"),this.accept("function")){let r=this.g(),s=this.Ae();return{kind:Un.LocalFunction,name:r,body:s}}let e=[this.Q()];for(;this.accept(",");)e.push(this.Q());let n=this.accept("=")?this.J():[];return P.R(e,n)}Q(){let e=this.g();return this.at("<")?(this.advance(),this.g(),this.expect(">")):this.at(":")&&(this.advance(),this.Ie()),e}Ie(){let e=0;for(;;){let n=this.token;if(n.kind===se.Eof)return;if(n.kind===se.Symbol){if(n.value==="("||n.value==="{"||n.value==="<")e+=1;else if(n.value===")"||n.value==="}"||n.value===">"){if(e===0)return;e-=1}else if(e===0&&(n.value===","||n.value==="="||n.value===";"))return}else if(n.kind===se.Keyword&&e===0&&n.value!=="nil")return;this.advance()}}Et(){this.expect("if");let e=this.u();this.expect("then");let n=this.k(),r=[],s=null;for(;;){if(this.accept("elseif")){let i=this.u();this.expect("then"),r.push({condition:i,body:this.k()});continue}this.accept("else")&&(s=this.k());break}return this.expect("end"),P.Z(e,n,r,s)}At(){this.expect("while");let e=this.u();this.expect("do");let n=this.k();return this.expect("end"),P.ae(e,n)}Ot(){this.expect("repeat");let e=this.k();return this.expect("until"),P.bn(e,this.u())}It(){this.expect("for");let e=this.Q();if(this.accept("=")){let i=this.u();this.expect(",");let o=this.u(),u=this.accept(",")?this.u():null;this.expect("do");let l=this.k();return this.expect("end"),P.mn(e,i,o,u,l)}let n=[e];for(;this.accept(",");)n.push(this.Q());this.expect("in");let r=this.J();this.expect("do");let s=this.k();return this.expect("end"),P.wn(n,r,s)}Tt(){this.expect("function");let e=P.name(this.g()),n=!1;for(;;){if(this.accept(".")){e=P.index(e,P.string(this.g()));continue}this.accept(":")&&(e=P.index(e,P.string(this.g())),n=!0);break}let r=this.Ae(n);return{kind:Un.FunctionDeclaration,target:e,ee:n,body:r}}Ae(e=!1){this.at("<")&&this.Bt(),this.expect("(");let n=e?["self"]:[],r=!1;if(!this.at(")"))do{if(this.accept("...")){r=!0,this.accept(":")&&this.Ie();break}n.push(this.Q())}while(this.accept(","));this.expect(")"),this.accept(":")&&this.Ie();let s=this.k();return this.expect("end"),P.func(n,s,r)}Bt(){this.expect("<");let e=1;for(;e>0&&this.token.kind!==se.Eof;)this.at("<")?e+=1:this.at(">")&&(e-=1),this.advance()}_t(){let e=this.Oe();if(this.at("=")||this.at(",")){let r=[e];for(;this.accept(",");)r.push(this.Oe());this.expect("=");let s=this.J();for(let i of r)P.ASSIGNABLE.has(i.kind)||this.error("invalid assignment target");return P.assignment(r,s)}let n=this.token.kind===se.Symbol?hd[this.token.value]:void 0;if(n){this.advance();let r=this.u();return P.assignment([e],[P.binary(n,e,r)])}return e.kind!==Un.Call&&e.kind!==Un.MethodCall&&this.error("unexpected expression statement"),P.X(e)}J(){let e=[this.u()];for(;this.accept(",");)e.push(this.u());return e}u(e=0){let n,r=this.token;if(r.kind===se.Symbol&&dd.has(r.value)||r.kind===se.Keyword&&r.value==="not"){let i=this.advance().value;n=P.unary(i,this.u(fd))}else n=this.Rt();for(;;){let i=this.token;if(!((i.kind===se.Symbol||i.kind===se.Keyword)&&Object.prototype.hasOwnProperty.call($o,i.value)))break;let[u,l]=$o[i.value];if(u<=e)break;this.advance(),n=P.binary(i.value,n,this.u(l))}return n}Rt(){let e=this.token;switch(e.kind){case se.Number:return this.advance(),P.number(e.value);case se.String:return this.advance(),P.string(e.value);case se.Keyword:if(e.value==="nil")return this.advance(),P.nil();if(e.value==="true")return this.advance(),P.boolean(!0);if(e.value==="false")return this.advance(),P.boolean(!1);if(e.value==="function")return this.advance(),this.Ae();break;case se.Symbol:if(e.value==="...")return this.advance(),P.vararg();if(e.value==="{")return this.yn();break;default:break}return this.Oe()}Dt(){if(this.accept("(")){let e=this.u();return this.expect(")"),P.paren(e)}return this.token.kind===se.Name?P.name(this.advance().value):this.error(`unexpected token '${hr(this.token)}'`)}Oe(){let e=this.Dt();for(;;){if(this.accept(".")){e=P.index(e,P.string(this.g()),!0);continue}if(this.accept("[")){let n=this.u();this.expect("]"),e=P.index(e,n);continue}if(this.at(":")&&this.peek().kind===se.Name){this.advance();let n=this.g();e=P.Le(e,n,this.vn());continue}if(this.at("(")||this.at("{")||this.token.kind===se.String){e=P.call(e,this.vn());continue}return e}}vn(){if(this.token.kind===se.String)return[P.string(this.advance().value)];if(this.at("{"))return[this.yn()];if(this.expect("("),this.accept(")"))return[];let e=this.J();return this.expect(")"),e}yn(){this.expect("{");let e=[];for(;!this.at("}");){if(this.accept("[")){let n=this.u();this.expect("]"),this.expect("="),e.push({type:"key",key:n,value:this.u()})}else if(this.token.kind===se.Name&&this.peek().kind===se.Symbol&&this.peek().value==="="){let n=P.string(this.advance().value);this.advance(),e.push({type:"key",key:n,value:this.u()})}else e.push({type:"item",value:this.u()});if(!this.accept(",")&&!this.accept(";"))break}return this.expect("}"),P.table(e)}};function hr(t){return t.kind===se.Eof?"<eof>":t.kind===se.String?`"${t.value}"`:String(t.value)}function pd(t){return new Es(t).Ft()}Eo.exports={parse:pd,LuaSyntaxError:Lo}});var Tn=F((jy,Io)=>{"use strict";var{Kind:Mt}=B(),{KEYWORDS:kd}=cr(),bd={or:[1,"left"],and:[2,"left"],"<":[3,"left"],">":[3,"left"],"<=":[3,"left"],">=":[3,"left"],"~=":[3,"left"],"==":[3,"left"],"|":[4,"left"],"~":[5,"left"],"&":[6,"left"],"<<":[7,"left"],">>":[7,"left"],"..":[8,"right"],"+":[9,"left"],"-":[9,"left"],"*":[10,"left"],"/":[10,"left"],"//":[10,"left"],"%":[10,"left"],"^":[12,"right"]},md=11,wd=100,yd=new Set([Mt.Name,Mt.Index,Mt.Call,Mt.MethodCall,Mt.Paren]),vd=/[A-Za-z_]/,xd=/[A-Za-z0-9_]/;function Sd(t){if(typeof t!="string"||t.length===0||!vd.test(t[0]))return!1;for(let e=1;e<t.length;e+=1)if(!xd.test(t[e]))return!1;return!kd.has(t)}function Nd(t){return typeof t!="number"?String(t):Number.isNaN(t)?"(0 / 0)":t===1/0?"math.huge":t===-1/0?"-math.huge":Object.is(t,-0)?"0":(Number.isInteger(t)&&Math.abs(t)<1e15,String(t))}var Cd={"\n":"\\n","\r":"\\r","	":"\\t","\\":"\\\\",'"':'\\"'},Fd=new Set([160,173,8232,8233,65279]);function qd(t,e){let n=t.charCodeAt(e),r=t.charCodeAt(e+1),s=u=>{for(let l=1;l<=u;l+=1){let c=t.charCodeAt(e+l);if(!(c>=128&&c<=191))return!1}return!0},i=0,o=0;if(n>=194&&n<=223&&s(1))i=2,o=(n&31)<<6|r&63;else if(n>=224&&n<=239&&s(2)){if(i=3,o=(n&15)<<12|(r&63)<<6|t.charCodeAt(e+2)&63,o<2048||o>=55296&&o<=57343)return 0}else if(n>=240&&n<=244&&s(3)){if(i=4,o=(n&7)<<18|(r&63)<<12|(t.charCodeAt(e+2)&63)<<6|t.charCodeAt(e+3)&63,o<65536||o>1114111)return 0}else return 0;return o<=159||Fd.has(o)?0:i}function Md(t){let e='"';for(let n=0;n<t.length;n+=1){let r=t[n],s=Cd[r];if(s!==void 0){e+=s;continue}let i=t.charCodeAt(n);if(i>=32&&i<=126){e+=r;continue}if(i>=194&&i<=244){let l=qd(t,n);if(l){e+=t.slice(n,n+l),n+=l-1;continue}}let o=t[n+1],u=o!==void 0&&o>="0"&&o<="9";e+=`\\${u?String(i).padStart(3,"0"):String(i)}`}return`${e}"`}function $d(t){if(!t.includes(`
-`)||t.includes("]]")||t.startsWith(`
-`)||t.endsWith("]"))return!1;for(let e=0;e<t.length;e+=1){let n=t.charCodeAt(e);if(!(n>=32&&n<=126||n===10||n===9))return!1}return!0}function Ld(t){return $d(t)?`[[
-${t}]]`:Md(t)}Io.exports={BINARY:bd,UNARY_PREC:md,ATOM_PREC:wd,PREFIXES:yd,y:Sd,Pt:Nd,jt:Ld}});var To=F((zy,Oo)=>{"use strict";var{Kind:on}=B(),Ed=4,Ad=4;function gr(t){let e=t;for(let n=0;n<1e3&&e;n+=1)switch(e.kind){case on.Name:return e.name;case on.Paren:e=e.expression;break;case on.Index:e=e.base;break;case on.Call:case on.MethodCall:e=e.base;break;default:return null}return null}function Id(t){if(!t)return null;switch(t.kind){case on.LocalDeclaration:return(t.names||[])[0]||null;case on.LocalFunction:return t.name||null;case on.FunctionDeclaration:return gr(t.target);case on.Assignment:return gr((t.targets||[])[0]);case on.CallStatement:return gr(t.expression);default:return null}}function Od(t){let e=[],n=[],r=-1,s=null;return(t||[]).forEach((i,o)=>{let u=Id(i);(o===0||u===null||s===null||u!==s)&&(r+=1,n.push(0)),e.push(r),n[r]+=1,s=u}),{index:e,sizes:n,count:e.length}}function Td(t,e,n,r){if(!e)return!1;if(n||r)return!0;if(t.count<Ed)return!1;let s=t.index[e],i=t.index[e-1];return s===i?!1:t.sizes[s]>=2||t.sizes[i]>=2}function _d(t){let e=0;for(let n of t)n.type==="key"&&(e+=1);return e>=Ad}Oo.exports={ai:gr,groups:Od,record:_d,separates:Td}});var Os=F((Gy,Bo)=>{"use strict";var{Kind:$}=B(),He=Tn(),As=To(),Bd={indent:"  ",ne:96},Rd=new Set(["do","then","else","repeat"]),_o=new Set(["and","or"]);function Dd(t){let e=t.trimEnd();if(!e)return"";let n=i=>i>="a"&&i<="z"||i>="A"&&i<="Z"||i>="0"&&i<="9"||i==="_",r=e.length;if(!n(e[r-1]))return e[r-1];let s=r;for(;s>0&&n(e[s-1]);)s-=1;return e.slice(s,r)}var Is=class t{constructor(e={}){this.options={...Bd,...e},this.lines=[],this.depth=0,this.tail="",this.column=0,this.tight=!1}push(e){this.lines.push(e===""?"":this.options.indent.repeat(this.depth)+e),e!==""&&(this.tail=Dd(e))}continues(){return this.lines.length?!(Rd.has(this.tail)||this.tail===";"||this.tail===":"):!1}blank(){this.lines.length&&this.lines[this.lines.length-1]!==""&&this.lines.push("")}indented(e){this.depth+=1,e(),this.depth-=1}from(e,n){let r=this.column;this.column=e;let s=n();return this.column=r,s}after(e,n){return e+this.from(this.zt(e),n)}packed(e){let n=this.tight;this.tight=!0;let r=e();return this.tight=n,r}zt(e){return this.column+e.length}wrap(e,n){let r=e+n.join(", ");if(this.fits(r))return r;let s=this.options.indent.repeat(this.depth+1),i=[],o=e.trimEnd(),u=this.column;for(let l=0;l<n.length;l+=1){let c=l===n.length-1?n[l]:`${n[l]},`,a=o?`${o} ${c}`:c;u+a.length<=this.options.ne?o=a:(i.push(o),o=c,u=s.length)}return i.push(o),i.join(`
-${s}`)}fits(e){return!e.includes(`
-`)&&this.column+e.length<=this.options.ne}inner(){let e=new t(this.options);return e.tight=this.tight,e.depth=this.depth+1,e.column=this.options.indent.length*e.depth,e}toString(){return`${this.lines.join(`
-`).replace(/\s+$/,"")}
-`}block(e){if(!e||!e.statements)return;let n=e.statements,r=As.groups(n),s=!1;for(let i=0;i<n.length;i+=1){let o=this.lines.length;this.statement(n[i]);let u=this.lines.length-o,l=u>1||u===1&&this.lines[o].indexOf(`
-`)>=0;As.separates(r,i,l,s)&&this.lines.splice(o,0,""),s=l}}statement(e){switch(this.column=this.options.indent.length*this.depth,e.kind){case $.LocalDeclaration:{let n=e.names.join(", ");!e.expressions||e.expressions.length===0?this.push(this.wrap("local ",e.names)):this.push(this.after(`local ${n} = `,()=>this.F(e.expressions)));return}case $.LocalFunction:this.xn(`local function ${e.name}`,e.body);return;case $.FunctionDeclaration:{let n=this.Gt(e.target,e.ee);this.xn(`function ${n}`,e.body,e.ee);return}case $.Assignment:{let n=this.after(`${this.F(e.targets)} = `,()=>this.F(e.expressions));this.push(n.startsWith("(")&&this.continues()?`;${n}`:n);return}case $.CallStatement:{let n=this.expression(e.expression);this.push(n.startsWith("(")&&this.continues()?`;${n}`:n);return}case $.Return:!e.expressions||e.expressions.length===0?this.push("return"):this.push(this.after("return ",()=>this.F(e.expressions)));return;case $.Break:this.push("break");return;case $.Continue:this.push("continue");return;case $.Goto:this.push(`goto ${e.label}`);return;case $.Label:this.push(`::${e.name}::`);return;case $.Do:this.push("do"),this.indented(()=>this.block(e.body)),this.push("end");return;case $.While:this.push(`${this.after("while ",()=>this.expression(e.condition))} do`),this.indented(()=>this.block(e.body)),this.push("end");return;case $.Repeat:this.push("repeat"),this.indented(()=>this.block(e.body)),this.push(this.after("until ",()=>this.expression(e.condition)));return;case $.If:this.Z(e);return;case $.NumericFor:{let n=[e.start,e.limit];e.step&&n.push(e.step),this.push(`${this.after(`for ${e.variable} = `,()=>this.F(n))} do`),this.indented(()=>this.block(e.body)),this.push("end");return}case $.GenericFor:this.push(`${this.after(`for ${e.variables.join(", ")} in `,()=>this.F(e.expressions))} do`),this.indented(()=>this.block(e.body)),this.push("end");return;default:this.push(`--[[ unsupported statement ${e.kind} ]]`)}}Z(e){this.push(`${this.after("if ",()=>this.expression(e.condition))} then`),this.indented(()=>this.block(e.body));for(let n of e.s||[])this.push(`${this.after("elseif ",()=>this.expression(n.condition))} then`),this.indented(()=>this.block(n.body));e.e&&(this.push("else"),this.indented(()=>this.block(e.e))),this.push("end")}Gt(e,n){if(e.kind!==$.Index)return this.expression(e);let r=e.index;return n&&r.kind===$.String&&He.y(r.value)?`${this.expression(e.base)}:${r.value}`:this.expression(e)}xn(e,n,r=!1){let s=(n.params||[]).slice();r&&s[0]==="self"&&s.shift(),n.w&&s.push("..."),this.push(`${e}(${s.join(", ")})`),this.indented(()=>this.block(n.body)),this.push("end")}F(e){return e.map(n=>this.expression(n)).join(", ")}static ce(e){let n=e.expression;return!!n&&(n.kind===$.Call||n.kind===$.MethodCall||n.kind===$.Vararg)}static Sn(e){if(e.kind===$.Paren)return t.ce(e)?He.ATOM_PREC:t.Sn(e.expression||e);if(e.kind===$.Binary){let n=He.BINARY[e.operator];return n?n[0]:0}return e.kind===$.Unary?He.UNARY_PREC:He.ATOM_PREC}expression(e){if(!e)return"nil";switch(e.kind){case $.Nil:return"nil";case $.True:return"true";case $.False:return"false";case $.Vararg:return"...";case $.Number:return He.Pt(e.value);case $.String:return He.jt(e.value);case $.Name:return e.name;case $.Function:return this.te(e);case $.Table:return this.Kt(e);case $.Binary:return this.Ut(e);case $.Unary:return this.Wt(e);case $.Index:return this.Vt(e);case $.Call:{let n=this.prefix(e.base);return n+this.from(this.column+n.length,()=>this.arguments(e.args))}case $.MethodCall:{let n=`${this.prefix(e.base)}:${e.method}`;return n+this.from(this.column+n.length,()=>this.arguments(e.args))}case $.Paren:return t.ce(e)?`(${this.expression(e.expression)})`:this.expression(e.expression);default:return`--[[ ${e.kind} ]]nil`}}operand(e,n,r,s){let i=this.expression(e),o=t.Sn(e),u=e;for(;u.kind===$.Paren&&!t.ce(u);)u=u.expression;let l=o<n;return o===n&&u.kind===$.Binary&&!_o.has(u.operator)&&(r==="left"&&s==="right"&&(l=!0),r==="right"&&s==="left"&&(l=!0)),l?`(${i})`:i}Ut(e){let n=He.BINARY[e.operator]||[0,"left"],[r,s]=n,i=[];this.chain(e,e.operator,s,i);let o=this.packed(()=>this.operands(this,i,r,s).join(` ${e.operator} `));return this.tight||o.includes(`
-`)||this.fits(o)?o:this.spread(i,e.operator,r,s)}chain(e,n,r,s){let i=e;for(;i.kind===$.Paren&&!t.ce(i);)i=i.expression;if(i.kind!==$.Binary||i.operator!==n){s.push(e);return}let o=_o.has(n);o||r==="left"?this.chain(i.lhs,n,r,s):s.push(i.lhs),o||r==="right"?this.chain(i.rhs,n,r,s):s.push(i.rhs)}operands(e,n,r,s,i){let o=n.length-1,u=s==="right"?l=>l!==o:l=>l===0;return n.map((l,c)=>{let a=u(c)?"left":"right",f=()=>e.operand(l,r,a,s);return i?e.from(i(c),f):f()})}spread(e,n,r,s){let i=this.inner(),o=this.options.indent.repeat(i.depth),u=`${n} `,l=this.operands(i,e,r,s,d=>d===0?this.column:o.length+u.length).map((d,g)=>g===0?d:`${u}${d}`),c=l.some(d=>d.includes(`
-`)),a=[],f=l[0],h=this.column;for(let d=1;d<l.length;d+=1){let g=`${f} ${l[d]}`;!c&&h+g.length<=this.options.ne?f=g:(a.push(f),f=l[d],h=o.length)}return a.push(f),a.join(`
-${o}`)}Wt(e){let n=this.operand(e.argument,He.UNARY_PREC,"right","right");if(e.operator==="not")return`not ${n}`;let r=e.operator==="-"&&n.startsWith("-")?" ":"";return`${e.operator}${r}${n}`}prefix(e){if(e.kind===$.Paren){let r=e.expression;return r&&(r.kind===$.Name||r.kind===$.Index)?this.prefix(r):`(${this.expression(r)})`}let n=this.expression(e);return He.PREFIXES.has(e.kind)?n:`(${n})`}Vt(e){let n=e.index;return n&&n.kind===$.String&&He.y(n.value)?`${this.prefix(e.base)}.${n.value}`:`${this.prefix(e.base)}[${this.expression(n)}]`}arguments(e){let n=e||[];if(!n.length)return"()";let r=`(${this.F(n)})`;if(n.length<2||r.includes(`
-`)||this.fits(r))return r;let s=this.hug(n);if(s)return s;let i=this.inner(),o=this.options.indent.repeat(i.depth),u=n.map(c=>({text:i.expression(c),alone:!1})),l=this.options.indent.repeat(this.depth);return`(
-${this.filled(u,o,"").join(`
-`)}
-${l})`}hug(e){let n=e[e.length-1];if(n.kind!==$.Table&&n.kind!==$.Function)return null;let r=`(${this.F(e.slice(0,-1))}, `,s=this.column+r.length;return r.includes(`
-`)||s>this.options.ne?null:`${r}${this.from(s,()=>this.expression(n))})`}te(e){let n=(e.params||[]).slice();e.w&&n.push("...");let r=`function(${n.join(", ")})`,s=this.inner();if(s.block(e.body),s.lines.length<2){let u=s.lines.length?s.lines[0].trim():"",l=u?`${r} ${u} end`:`${r} end`;if(this.fits(l))return l}let i=this.options.indent.repeat(this.depth),o=s.lines.length?`
-${s.lines.join(`
-`)}`:"";return`${r}${o}
-${i}end`}filled(e,n,r=","){let s=[],i="",o=()=>{i&&s.push(i),i=""};return e.forEach((u,l)=>{let c=l===e.length-1?r:",",a=`${n}${u.text}${c}`,f=i?`${i} ${u.text}${c}`:a;u.alone?(o(),s.push(a)):i&&f.length>this.options.ne?(o(),i=a):i=f}),o(),s}Kt(e){let n=e.entries||[];if(n.length===0)return"{}";let s=`{ ${n.map(c=>this.Nn(c,!1)).join(", ")} }`;if(!As.record(n)&&this.fits(s))return s;let i=this.inner(),o=n.map(c=>{let a=i.Nn(c,!0);return{text:a,alone:c.type==="key"||a.includes(`
-`)}}),u=this.options.indent.repeat(i.depth),l=this.options.indent.repeat(this.depth);return`{
-${this.filled(o,u).join(`
-`)}
-${l}}`}Nn(e){if(e.type==="key"){let n=e.key,r=n.kind===$.String&&He.y(n.value)?`${n.value} = `:`[${this.expression(n)}] = `;return this.after(r,()=>this.expression(e.value))}return this.expression(e.value)}};function Pd(t,e){let n=new Is(e);if(!t)return"";if(t.kind===$.Chunk)n.block(t.body);else if(t.kind===$.Block)n.block(t);else{if(t.kind&&B().kn(t))return n.expression(t);n.statement(t)}return n.toString()}Bo.exports={unparse:Pd}});var Ne=F((Ky,Do)=>{"use strict";var{Kind:ce}=B(),Ro=0,pr=class{constructor(e,n,r={}){Ro+=1,this.id=Ro,this.name=e,this.kind=n,this.declaration=r.declaration||null,this.l=r.l||0,this.reads=[],this.writes=[],this.initializer=r.initializer||null,this.captured=!1}get ci(){return this.writes.length+(this.initializer?1:0)}get fi(){return this.writes.length===0}},yn=class{constructor(e,n){this.parent=e,this.l=n,this.bindings=new Map}declare(e,n,r){let s=new pr(e,n,{...r,l:this.l});return this.bindings.set(e,s),s}lookup(e){let n=this;for(;n;){let r=n.bindings.get(e);if(r)return r;n=n.parent}return null}},Ts=class{constructor(){this.globals=new Map,this.Cn=[],this.l=0}global(e){let n=this.globals.get(e);return n||(n=new pr(e,"global",{}),this.globals.set(e,n),this.Cn.push(n)),n}declare(e,n,r,s){let i=e.declare(n,r,s);return this.Cn.push(i),i}reference(e,n,r){let s=e.lookup(n.name)||this.global(n.name);return n.binding=s,s.l!==void 0&&s.kind!=="global"&&s.l<this.l&&(s.captured=!0),r==="write"?s.writes.push(n):s.reads.push(n),s}block(e,n){let r=new yn(n,this.l);e.scope=r;for(let s of e.statements)this.statement(s,r);return r}statement(e,n){switch(e.kind){case ce.LocalDeclaration:{for(let r of e.expressions)this.expression(r,n);e.bindings=e.names.map(r=>this.declare(n,r,"local",{declaration:e,initializer:e}));return}case ce.LocalFunction:{let r=this.declare(n,e.name,"local",{declaration:e,initializer:e});e.binding=r,this.te(e.body,n);return}case ce.FunctionDeclaration:this.expression(e.target,n,"write"),this.te(e.body,n);return;case ce.Assignment:for(let r of e.expressions)this.expression(r,n);for(let r of e.targets)this.expression(r,n,"write");return;case ce.CallStatement:this.expression(e.expression,n);return;case ce.Return:for(let r of e.expressions)this.expression(r,n);return;case ce.Break:case ce.Continue:case ce.Goto:case ce.Label:return;case ce.Do:this.block(e.body,n);return;case ce.While:this.expression(e.condition,n),this.block(e.body,n);return;case ce.Repeat:{let r=new yn(n,this.l);e.body.scope=r;for(let s of e.body.statements)this.statement(s,r);this.expression(e.condition,r);return}case ce.If:{this.expression(e.condition,n),this.block(e.body,n);for(let r of e.s||[])this.expression(r.condition,n),this.block(r.body,n);e.e&&this.block(e.e,n);return}case ce.NumericFor:{this.expression(e.start,n),this.expression(e.limit,n),e.step&&this.expression(e.step,n);let r=new yn(n,this.l);e.binding=this.declare(r,e.variable,"local",{declaration:e}),e.body.scope=r;for(let s of e.body.statements)this.statement(s,r);return}case ce.GenericFor:{for(let s of e.expressions)this.expression(s,n);let r=new yn(n,this.l);e.bindings=e.variables.map(s=>this.declare(r,s,"local",{declaration:e})),e.body.scope=r;for(let s of e.body.statements)this.statement(s,r);return}default:throw new Error(`unsupported statement: ${e.kind}`)}}te(e,n){this.l+=1;let r=new yn(n,this.l);e.bindings=(e.params||[]).map(s=>this.declare(r,s,"param",{declaration:e})),e.body.scope=r;for(let s of e.body.statements)this.statement(s,r);this.l-=1}expression(e,n,r="read"){if(e)switch(e.kind){case ce.Name:this.reference(n,e,r);return;case ce.Index:this.expression(e.base,n),this.expression(e.index,n);return;case ce.Call:this.expression(e.base,n);for(let s of e.args)this.expression(s,n);return;case ce.MethodCall:this.expression(e.base,n);for(let s of e.args)this.expression(s,n);return;case ce.Function:this.te(e,n);return;case ce.Table:for(let s of e.entries)s.key&&this.expression(s.key,n),this.expression(s.value,n);return;case ce.Binary:this.expression(e.lhs,n),this.expression(e.rhs,n);return;case ce.Unary:this.expression(e.argument,n);return;case ce.Paren:this.expression(e.expression,n);return;default:return}}};function jd(t){let e=new Ts,n=new yn(null,0);e.Te=n;let r=t.kind===ce.Chunk?t.body:t;return e.block(r,n),e}function zd(t){return!t||t.kind!==ce.Name?!1:!t.binding||t.binding.kind==="global"}function Gd(t){return!!t&&t.kind!=="global"}Do.exports={resolve:jd,Scope:yn,D:zd,c:Gd}});var _s=F((Uy,jo)=>{"use strict";var{Kind:$t}=B();function Po(t){if(!t||!t.statements.length)return null;let e=t.statements[t.statements.length-1];if(e.kind!==$t.Return||e.expressions.length!==1)return null;let n=e.expressions[0];if(!n||n.kind!==$t.Call)return null;let r=n.base;for(;r&&r.kind===$t.Paren;)r=r.expression;if(!r||r.kind!==$t.Function||(r.params||[]).length!==0)return null;for(let s of n.args)if(s.kind!==$t.Vararg)return null;return n.args.length>1?null:r}function Kd(t){let e=0;for(;;){let n=t.chunk.body,r=Po(n);if(!r||(n.statements.splice(n.statements.length-1,1,...r.body.statements),e+=1,e>64))break}e&&(t.note(`removed ${e} WrapInFunction layer(s)`,e),t.bump("unwrap.layers",e))}jo.exports={name:"01-wrap",run:Kd,Ht:Po}});var ee=F((Wy,Uo)=>{"use strict";var{Kind:J}=B(),Bs={[J.Chunk]:{body:"node"},[J.Block]:{statements:"list"},[J.LocalDeclaration]:{expressions:"list"},[J.LocalFunction]:{body:"node"},[J.FunctionDeclaration]:{target:"node",body:"node"},[J.Assignment]:{targets:"list",expressions:"list"},[J.CallStatement]:{expression:"node"},[J.Return]:{expressions:"list"},[J.Break]:{},[J.Continue]:{},[J.Goto]:{},[J.Label]:{},[J.Do]:{body:"node"},[J.While]:{condition:"node",body:"node"},[J.Repeat]:{body:"node",condition:"node"},[J.If]:{condition:"node",body:"node",s:"clauses",e:"node"},[J.NumericFor]:{start:"node",limit:"node",step:"node",body:"node"},[J.GenericFor]:{expressions:"list",body:"node"},[J.Nil]:{},[J.True]:{},[J.False]:{},[J.Number]:{},[J.String]:{},[J.Vararg]:{},[J.Name]:{},[J.Function]:{body:"node"},[J.Table]:{entries:"entries"},[J.Binary]:{lhs:"node",rhs:"node"},[J.Unary]:{argument:"node"},[J.Index]:{base:"node",index:"node"},[J.Call]:{base:"node",args:"list"},[J.MethodCall]:{base:"node",args:"list"},[J.Paren]:{expression:"node"}},Lt={};for(let t of Object.keys(Bs))Lt[t]=Object.entries(Bs[t]);var zo=[];function Rs(t){let e=t?Lt[t.kind]:null;if(!e||e.length===0)return zo;let n=[];for(let r=0;r<e.length;r+=1){let s=e[r][0],i=t[s];if(i==null)continue;let o=e[r][1];if(o==="node")n.push({parent:t,key:s,index:null,node:i});else if(o==="list")for(let u=0;u<i.length;u+=1)n.push({parent:t,key:s,index:u,node:i[u]});else if(o==="clauses")for(let u=0;u<i.length;u+=1){let l=i[u];n.push({parent:l,key:"condition",index:null,node:l.condition}),n.push({parent:l,key:"body",index:null,node:l.body})}else for(let u=0;u<i.length;u+=1){let l=i[u];l.key&&n.push({parent:l,key:"key",index:null,node:l.key}),n.push({parent:l,key:"value",index:null,node:l.value})}}return n}function Ud(t){let e=t?Lt[t.kind]:null;if(!e||e.length===0)return zo;let n=[];for(let r=0;r<e.length;r+=1){let s=t[e[r][0]];if(s==null)continue;let i=e[r][1];if(i==="node")n.push(s);else if(i==="list")for(let o=0;o<s.length;o+=1)n.push(s[o]);else if(i==="clauses")for(let o=0;o<s.length;o+=1)n.push(s[o].condition),n.push(s[o].body);else for(let o=0;o<s.length;o+=1)s[o].key&&n.push(s[o].key),n.push(s[o].value)}return n}function Wd(t){return t.enter&&t.enter.length>1||t.leave&&t.leave.length>1}function Go(t,e){if(!t||!t.kind||e.enter&&e.enter(t)===!1)return;let n=Ud(t);for(let r=0;r<n.length;r+=1)Go(n[r],e);e.leave(t)}function Vd(t,e){if(e.leave){Go(t,e);return}let n=e.enter;if(!n)return;let r=[t],s=1;for(;s>0;){s-=1;let i=r[s];if(!i||!i.kind||n(i)===!1)continue;let o=Lt[i.kind];if(o)for(let u=o.length-1;u>=0;u-=1){let l=i[o[u][0]];if(l==null)continue;let c=o[u][1];if(c==="node")r[s]=l,s+=1;else if(c==="list")for(let a=l.length-1;a>=0;a-=1)r[s]=l[a],s+=1;else if(c==="clauses")for(let a=l.length-1;a>=0;a-=1)r[s]=l[a].body,s+=1,r[s]=l[a].condition,s+=1;else for(let a=l.length-1;a>=0;a-=1)r[s]=l[a].value,s+=1,l[a].key&&(r[s]=l[a].key,s+=1)}}}function Hd(t,e){let n=[t],r=[null],s=1;for(;s>0;){s-=1;let i=n[s],o=r[s];if(!i||!i.kind)continue;if(e(i,o),i.kind===J.Block){let l=i.statements,c=o?o.depth+1:1;for(let a=l.length-1;a>=0;a-=1)n[s]=l[a],r[s]={block:i,at:a,up:o,depth:c},s+=1;continue}let u=Lt[i.kind];if(u)for(let l=u.length-1;l>=0;l-=1){let c=i[u[l][0]];if(c==null)continue;let a=u[l][1];if(a==="node")n[s]=c,r[s]=o,s+=1;else if(a==="list")for(let f=c.length-1;f>=0;f-=1)n[s]=c[f],r[s]=o,s+=1;else if(a==="clauses")for(let f=c.length-1;f>=0;f-=1)n[s]=c[f].body,r[s]=o,s+=1,n[s]=c[f].condition,r[s]=o,s+=1;else for(let f=c.length-1;f>=0;f-=1)n[s]=c[f].value,r[s]=o,s+=1,c[f].key&&(n[s]=c[f].key,r[s]=o,s+=1)}}}function Ds(t,e,n=null){if(n===null&&!Wd(e)){Vd(t,e);return}if(!t||!t.kind||e.enter&&e.enter(t,n)===!1)return;let r=Rs(t);for(let s=0;s<r.length;s+=1)Ds(r[s].node,e,r[s]);e.leave&&e.leave(t,n)}function Ko(t,e){if(!t||!t.kind)return t;let n=Rs(t);for(let s=0;s<n.length;s+=1){let i=n[s],o=Ko(i.node,e);o!==i.node&&(i.index===null?i.parent[i.key]=o:i.parent[i.key][i.index]=o)}let r=e(t);return r===void 0?t:r}function Yd(t,e){let n=[];return Ds(t,{enter(r){e(r)&&n.push(r)}}),n}Uo.exports={CHILDREN:Bs,children:Rs,framed:Hd,walk:Ds,transform:Ko,collect:Yd}});var vn=F((Hy,Xo)=>{"use strict";var{Kind:E,unparen:ve}=B(),{walk:Ye,children:Vy,collect:Xd}=ee(),Zd=t=>!!t&&t.kind===E.Name,ae=t=>{let e=ve(t);return Zd(e)&&e.binding||null};function Ho(t){let e=new Map;return Ye(t,{enter(n,r){r&&e.set(n,r.parent)}}),e}function Jd(t){let e=new Map,n=new Map,r=(s,i)=>{if(!s)return;let o=e.get(s)||[];o.push(i||null),e.set(s,o);let u=i?ae(i):null;if(!u)return;let l=n.get(u)||[];l.push(s),n.set(u,l)};return Ye(t,{enter(s){if(s.kind===E.Assignment){let i=s.targets||[],o=s.expressions||[],u=i.length===o.length;i.forEach((l,c)=>{r(ae(l),u?o[c]:null)})}else if(s.kind===E.LocalDeclaration){let i=s.expressions||[];if(!i.length)return;let o=i.length===(s.names||[]).length;(s.bindings||[]).forEach((u,l)=>{r(u,o?i[l]:null)})}else if(s.kind===E.LocalFunction)r(s.binding,s.body);else if(s.kind===E.NumericFor)r(s.binding,null);else if(s.kind===E.GenericFor)for(let i of s.bindings||[])r(i,null)}}),{writes:e,moves:n}}function Qd(t,e){if(!e||!t)return null;e.carriers||(e.carriers=new Map);let n=e.carriers.get(t);if(n)return n;let r=new Set([t]),s=[t];for(;s.length;){let i=s.pop();for(let o of e.moves.get(i)||[])r.has(o)||(r.add(o),s.push(o))}return e.carriers.set(t,r),r}function mr(t,e,n){if(!t)return!1;if(t===e)return!0;let r=Qd(e,n);return!!r&&r.has(t)}function Et(t,e,n){return mr(ae(t),e,n)}function kr(t,e){return t?n=>mr(ae(n),t,e):()=>!1}function eh(t,e){let n=[...t].filter(Boolean);return n.length?r=>{let s=ae(r);return s?n.some(i=>mr(s,i,e)):!1}:()=>!1}function Yo(t,e,n,r=new Set){let s=ve(t);if(!s)return!1;if(s.kind===e)return!0;let i=ae(s);if(!i||!n||r.has(i))return!1;r.add(i);for(let o of n.writes.get(i)||[])if(o&&Yo(o,e,n,r))return!0;return!1}function br(t,e){let n=t;for(let r=0;e&&n&&r<8&&(n.reads||[]).length===1;r+=1){let s=e.moves.get(n)||[];if(s.length!==1)break;let i=e.writes.get(s[0])||[];if(i.length!==1||!i[0])break;n=s[0]}return n}function nh(t,e){let n=t;for(let r=0;e&&n&&r<8;r+=1){let s=e.writes.get(n)||[];if(s.length!==1||!s[0])break;let i=ae(s[0]);if(!i||i===n)break;n=i}return n}var th=[["env",["getfenv","_ENV","getfenv2"]],["unpack",["unpack"]],["newproxy",["newproxy"]],["setmetatable",["setmetatable"]],["getmetatable",["getmetatable"]],["select",["select"]]];function rh(t){let e=new Set;return Ye(t,{enter(n){n.kind===E.Name&&n.binding&&n.binding.kind==="global"&&e.add(n.binding.name)}}),e}function Wo(t){let e=ve(t);if(!e)return null;if(e.kind===E.Table)return"varargs";let n=rh(e);for(let[r,s]of th)for(let i of s)if(n.has(i))return r;return n.has("table")?"unpack":null}function sh(t,e){let n=Wo(t);if(n)return n;let r=ae(ve(t));if(!r||!e)return null;let s=new Set([r]),i=[r];for(;i.length;){let o=i.shift(),u=e.writes.get(o)||[];for(let l=u.length-1;l>=0;l-=1){let c=u[l];if(!c)continue;let a=Wo(c);if(a)return a;let f=ae(c);f&&!s.has(f)&&(s.add(f),i.push(f))}}return null}function Ps(t){if(!t||!t.w)return!1;let e=!1;return Ye(t.body,{enter(n){if(e||n.kind===E.Function)return!1;n.kind===E.Vararg&&(e=!0)}}),e}function ih(t){let e=ve(t);return!e||e.kind!==E.Table?!1:(e.entries||[]).some(n=>!n.key&&n.value&&ve(n.value).kind===E.Vararg)}function oh(t,e){if(!t||t.kind!==E.Function||Ps(t)||!t.params||t.params.length!==4||!t.bindings)return null;let n=t.body.statements;if(n.length<2)return null;let r=new Set([t.bindings[0]]);for(let w of e&&e.moves.get(t.bindings[0])||[])r.add(w);let s=-1;for(let w=0;w<n.length;w+=1){let A=n[w];if(A.kind===E.While&&r.has(ae(A.condition))){s=w;break}}if(s<0)return null;let i=ae(n[s].condition),o=new Set,u=[],l=null;for(let w=0;w<s;w+=1){let A=n[w];if(A.kind===E.LocalDeclaration&&A.bindings){let X=A.expressions||[];for(let ye=0;ye<A.bindings.length;ye+=1){let ke=A.bindings[ye];o.add(ke);let be=ve(X[ye]);be&&be.kind===E.Table?l=ke:u.push(ke)}continue}if(A.kind===E.Assignment){let X=A.targets||[],ye=A.expressions||[];if(X.length!==ye.length)return null;for(let ke=0;ke<X.length;ke+=1){let be=ae(X[ke]);if(!be||!o.has(be))return null;let y=ve(ye[ke]);y&&y.kind===E.Table&&(l=be)}continue}return null}let c=n[n.length-1];if(!c||c.kind!==E.Return||c.expressions.length!==1)return null;let a=ve(c.expressions[0]);if(!a||a.kind!==E.Call||a.args.length!==1)return null;let f=ae(a.base),h=ae(a.args[0]);if(!f||!h)return null;let d=br(t.bindings[1],e),g=br(t.bindings[2],e),p=br(t.bindings[3],e),k=new Set([l,d,g,p]);return{fn:t,dispatch:n[s],registers:u.filter(w=>!k.has(w)),spill:l,Fn:f,Yt:h,pos:i,args:d,upvals:g,qn:p}}function uh(t,e,n){if(!t||t.kind!==E.Function||Ps(t)||!t.params||t.params.length!==2||!t.bindings)return null;let[r,s]=t.bindings,i=null;if(Ye(t.body,{enter(u){if(u.kind!==E.Function)return;let l=u.body.statements,c=l[l.length-1];if(!c||c.kind!==E.Return||c.expressions.length!==1)return;let a=ve(c.expressions[0]);if(!(!a||a.kind!==E.Call||a.args.length!==4)&&Et(a.base,e,n)&&Et(a.args[0],r,n)&&Et(a.args[2],s,n)&&Yo(a.args[1],E.Table,n))return i={inner:u,table:a.args[1],di:a.args[3]},!1}}),!i)return null;let o=null;return Ye(t.body,{enter(u){if(o)return!1;u.kind!==E.Call||u.args.length!==1||Et(u.args[0],s,n)&&(o=ae(u.base))}}),{fn:t,arity:(i.inner.params||[]).length,vararg:ih(i.table),_e:o}}function lh(t){if(!t||t.kind!==E.Function||Ps(t)||(t.params||[]).length!==0)return null;let e=t.body.statements;if(e.length!==3)return null;let[n,r,s]=e;if(n.kind!==E.Assignment||n.targets.length!==1)return null;let i=ae(n.targets[0]);if(!i)return null;let o=ve(n.expressions[0]);if(!o||o.kind!==E.Binary||o.operator!=="+"||![ae(o.lhs),ae(o.rhs)].includes(i)||r.kind!==E.Assignment||r.targets.length!==1)return null;let l=ve(r.targets[0]);if(!l||l.kind!==E.Index||ae(l.index)!==i)return null;let c=ae(l.base);return!c||s.kind!==E.Return||ae(s.expressions[0])!==i?null:{counter:i,refs:c}}function ah(t,e,n){let r=[];Ye(t,{enter(i){if(i.kind===E.Assignment&&i.expressions.every(o=>ve(o).kind===E.Nil))for(let o of i.targets||[]){let u=ve(o);if(!u||u.kind!==E.Index)continue;let l=nh(ae(u.base),n),c=ae(u.index);l&&c&&r.push({base:l,key:c})}}});let s=new Set;for(let i of r)i.base===e&&s.add(i.key);for(let i of r)if(i.base!==e&&s.has(i.key))return i.base;return null}function ch(t,e,n){let r=new Set;for(let s of t){let i=!1;if(Ye(s.body,{enter(u){if(u.kind===E.Assignment)for(let l of u.targets||[]){let c=ve(l);c&&c.kind===E.Index&&e(c.base)&&(i=!0)}}}),!i)continue;let o=At(s,n);o&&r.add(o)}return r}function js(t,e){let n=t,r=e.get(n);for(;r&&r.kind===E.Paren;)n=r,r=e.get(n);return{node:n,parent:r}}function At(t,e){let{node:n,parent:r}=js(t,e);if(!r)return null;if(r.kind===E.Assignment){let s=r.expressions.indexOf(n);return s<0?null:ae(r.targets[s])}if(r.kind===E.LocalDeclaration){let s=r.expressions.indexOf(n);return s<0||!r.bindings?null:r.bindings[s]||null}return r.kind===E.LocalFunction&&r.binding||null}function fh(t,e){let n=e.get(t);for(;n;){if(n.kind===E.Function)return n;n=e.get(n)}return null}function dh(t){let e=new Set;return Ye(t,{enter(n){e.add(n)}}),e}function hh(t,e){let n=[];return Ye(t,{enter(r){if(r===e)return!1;r.kind===E.Function&&r!==t&&n.push(r)}}),n}function wr(t,e){let n=t,r=e.get(n);for(;r&&r.kind!==E.Block;)n=r,r=e.get(n);if(!r)return null;let s=r.statements.indexOf(n);return s<0?null:{block:r,index:s}}function gh(t,e,n,r){if(!t||!e||t.block!==e.block||e.index<=t.index)return!1;for(let s of n&&n.writes||[]){let i=wr(s,r);if(!(!i||i.block!==t.block)&&i.index>t.index&&i.index<e.index)return!1}return!0}function Vo(t,e,n){let r=null;for(let s of t.reads||[]){let{node:i,parent:o}=js(s,n);if(!o||o.kind!==E.Call||ve(o.base)!==i)continue;let u=wr(s,n);gh(e,u,t,n)&&(!r||u.index<r.index)&&(r={call:o,index:u.index})}return r?r.call:null}function ph(t,e){let n=[],r=new Set([t]),s=[t];for(;s.length&&n.length<16;){let i=s.pop();for(let o of e&&e.moves.get(i)||[])r.has(o)||(r.add(o),(e.writes.get(o)||[]).length===1&&(n.push(o),s.push(o)))}return n}function kh(t,e,n){let r=e&&e.writes.get(t)||[];return r.length!==1||!r[0]?null:wr(r[0],n)}function bh(t,e,n){let{parent:r}=js(t,e);if(r&&r.kind===E.Call&&ve(r.base)===t)return r;let s=At(t,e);if(!s)return null;let i=wr(t,e);if(!i)return null;let o=Vo(s,i,e);if(o)return o;for(let u of ph(s,n)){let l=kh(u,n,e),c=l?Vo(u,l,e):null;if(c)return c}return null}function mh(t){let e=new Map;return Ye(t,{enter(n){if(n.kind!==E.Index)return;let r=ae(n.base);r&&e.set(r,(e.get(r)||0)+1)}}),e}function wh(t,e){let n=new Set([t.spill,t.pos,t.args,t.upvals,t.qn,...t.registers,...t.fn.bindings||[]]),r=null,s=0;for(let[i,o]of mh(t.fn))n.has(i)||e.has(i)||o>s&&(r=i,s=o);return r}function yh(t,e,n){let r=fh(t.fn,e);if(!r)return{ok:!1,reason:"container is not wrapped"};let s=bh(r,e,n);if(!s)return{ok:!1,reason:"wrapper is not invoked"};let i=At(t.fn,e);if(!i)return{ok:!1,reason:"container is not bound to a name"};let o={};for(let p=0;p<s.args.length;p+=1){let k=sh(s.args[p],n),w=(r.bindings||[])[p];k&&w&&!o[k]&&(o[k]=br(w,n))}!o.unpack&&t.Fn&&(o.unpack=t.Fn);let u=hh(r,t.fn),l=new Map,c=new Set,a=null,f=null;for(let p of u){let k=uh(p,i,n);if(k){c.add(p);let w=At(p,e);w&&(l.set(w,k),k._e&&(f=k._e));continue}if(!a){let w=lh(p);w&&(a={alloc:At(p,e),counter:w.counter,refs:w.refs,table:ah(r,w.refs,n)})}}if(l.size===0)return{ok:!1,reason:"no closure creator"};a&&(a.Xt=kr(a.alloc,n),a.Zt=kr(a.table,n),a.Mn=kr(a.refs,n),a.helpers=ch(u.filter(p=>!c.has(p)),a.Mn,e),a.Jt=eh(a.helpers,n)),t.Qt=kr(t.upvals,n);let h=p=>{let k=ae(p);if(!k)return null;let w=l.get(k);if(w)return w;for(let[A,X]of l)if(mr(k,A,n))return X;return null};if(!o.env){let p=new Set([...Object.values(o),...l.keys(),f,a&&a.alloc,a&&a.counter,a&&a.refs,a&&a.table]);o.env=wh(t,p)}if(!o.env)return{ok:!1,reason:"no environment argument"};let d=null,g=dh(t.fn);return Ye(r,{enter(p){if(d||g.has(p))return!1;if(p.kind!==E.Call)return;let k=ve(p.base);if(!k||k.kind!==E.Call)return;let w=ae(k.base),A=h(k.base);if(!A)return;let X=ve(k.args[0]);if(!(!X||X.kind!==E.Number))return d={O:X.value,gi:w,vararg:A.vararg,arity:A.arity,er:k.args[1]||null,call:p},!1}}),d?{ok:!0,vm:{wrapper:r,fe:s,container:t,nr:i,roles:o,creators:l,T:h,upvalues:a,_e:f,entry:d}}:{ok:!1,reason:"no entry closure"}}function vh(t){let e=Ho(t),n=Jd(t),r=[],s=[];for(let i of Xd(t,o=>o.kind===E.Function)){let o=oh(i,n);if(!o)continue;let u=yh(o,e,n);u.ok?r.push(u.vm):s.push({fn:i,reason:u.reason})}return{instances:r,rejected:s,parents:e}}Xo.exports={unparen:ve,de:ae,tr:Ho,carries:Et,detect:vh}});var It=F((Yy,Jo)=>{"use strict";var yr=0,xn=[],zs={meta:!0};function xh(){return yr+=1,yr}function Sh(t,e,n){for(let r=0;r<xn.length;r+=1){let s=xn[r];if(s.writes&&s.writes.add(e),t<=s.since&&(s.escaped=!0,s.older&&s.last!==e&&(s.last=e,s.older.add(e))),s.slots&&n!==void 0){let i=s.slots.get(e);i||(i=new Map,s.slots.set(e,i)),i.has(n)||i.set(n,n===zs?e.metatable:e.map.get(n))}!s.saved||s.saved.has(e)||(e&&e.map?s.tables.add(e):e&&s.saved.set(e,e.value))}}function Zo(t){for(let[e,n]of t.saved)e.value=n;for(let[e,n]of t.slots)for(let[r,s]of n)r===zs?e.metatable=s:s===void 0?e.map.delete(r):e.map.set(r,s);t.saved.clear(),t.slots.clear()}function Nh(t){for(let[e,n]of t.saved)e.value=n;t.saved.clear(),t.slots.clear()}function Ch(t){let e={since:yr,escaped:!1,value:void 0,saved:new Map,tables:new Set,slots:new Map};xn.push(e);try{e.value=t()}catch(n){throw xn.pop(),Zo(e),n}return xn.pop(),e}function Fh(t){let e={since:yr,escaped:!1,older:new Set,last:null};xn.push(e);try{return{value:t(),escaped:e.escaped,older:e.older}}finally{xn.pop()}}function qh(t){let e={since:-1,escaped:!1,writes:new Set};xn.push(e);try{return{value:t(),writes:e.writes}}finally{xn.pop()}}Jo.exports={META:zs,fresh:xh,touch:Sh,attempt:Ch,undo:Zo,commit:Nh,record:qh,witness:Fh}});var un=F((Xy,eu)=>{"use strict";var vr=It(),Gs=class extends Error{constructor(e,n){super(typeof e=="string"?e:"(error object)"),this.name="LuaError",this.value=e,this.pi=n}},xr=class t{constructor(){this.map=new Map,this.metatable=void 0,this.stamp=vr.fresh()}static from(e){let n=new t;for(let r=0;r<e.length;r+=1)n.set(r+1,e[r]);return n}static ki(e){let n=new t;for(let[r,s]of e)n.set(r,s);return n}get(e){return typeof e=="number"&&Object.is(e,-0)?this.map.get(0):this.map.get(e)}set(e,n){let r=typeof e=="number"&&Object.is(e,-0)?0:e;vr.touch(this.stamp,this,r),n===void 0?this.map.delete(r):this.map.set(r,n)}$n(e){vr.touch(this.stamp,this,vr.META),this.metatable=e}length(){let e=0;for(;this.map.get(e+1)!==void 0;)e+=1;return e}rr(){let e=[],n=this.length();for(let r=1;r<=n;r+=1)e.push(this.map.get(r));return e}keys(){return[...this.map.keys()]}},Ot=class{constructor(e,n,r){this.node=e,this.closure=n,this.name=r||null}},Mh=t=>typeof t=="function"||t instanceof Ot;function $h(t){if(t==null)return"nil";switch(typeof t){case"boolean":return"boolean";case"number":return"number";case"string":return"string";case"function":return"function";default:break}return t instanceof xr?"table":t instanceof Ot?"function":"userdata"}var Lh=t=>t!=null&&t!==!1;function Qo(t,e=14){if(Number.isNaN(t))return"nan";if(t===1/0)return"inf";if(t===-1/0)return"-inf";if(t===0)return Object.is(t,-0)?"-0":"0";let n=Math.floor(Math.log10(Math.abs(t)));if(n<-4||n>=e){let s=(t/10**n).bi(e);s.includes(".")&&(s=s.replace(/0+$/,"").replace(/\.$/,""));let i=n<0?"-":"+",o=String(Math.abs(n)).padStart(2,"0");return`${s}e${i}${o}`}let r=t.Ln(Math.max(0,e-1-n));return r.includes(".")&&(r=r.replace(/0+$/,"").replace(/\.$/,"")),r}function Eh(t){return Number.isInteger(t)&&Math.abs(t)<1e15?String(t):Qo(t)}function Ah(t){let e=t.replace(/^[\s\f]+|[\s\f]+$/g,"");if(e==="")return;if(/^[-+]?0[xX][0-9a-fA-F]+$/.test(e)){let r=e[0]==="-",s=e.replace(/^[-+]/,""),i=parseInt(s.slice(2),16);return r?-i:i}if(!/^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(e))return;let n=Number(e);return Number.isNaN(n)?void 0:n}function Ih(t){if(typeof t=="number")return t;if(typeof t=="string")return Ah(t)}eu.exports={LuaError:Gs,LuaTable:xr,LuaFunction:Ot,_:Mh,he:$h,truthy:Lh,sr:Qo,re:Eh,o:Ih}});var lt=F((Zy,tu)=>{"use strict";var Wn=un(),{LuaError:ot,LuaTable:Cr,he:Sn,truthy:Sr,o:Nr}=Wn,Oh={"+":"__add","-":"__sub","*":"__mul","/":"__div","%":"__mod","^":"__pow","..":"__concat"};function ut(t,e){throw new ot(`cannot perform ${t} on ${Sn(e)}`)}function Th(t,e,n,r){let s=Oh[e],i=t.metamethod(n,s)||t.metamethod(r,s);if(i)return t.call(i,[n,r])[0];let o=Nr(n)===void 0?n:r;return ut(`arithmetic (${e})`,o)}function _h(t,e,n,r){let s=Nr(n),i=Nr(r);if(s===void 0||i===void 0)return Th(t,e,n,r);switch(e){case"+":return s+i;case"-":return s-i;case"*":return s*i;case"/":return s/i;case"%":return s-Math.floor(s/i)*i;case"^":return s**i;case"//":return Math.floor(s/i);default:throw new ot(`unknown operator '${e}'`)}}function Bh(t,e){let n=Nr(e);if(n!==void 0)return-n;let r=t.metamethod(e,"__unm");return r?t.call(r,[e,e])[0]:ut("arithmetic (-)",e)}function Rh(t,e){if(typeof e=="string")return e.length;let n=t.metamethod(e,"__len");return n?t.call(n,[e])[0]:e instanceof Cr?e.length():ut("get length of",e)}function Dh(t,e,n){let r=typeof e=="string"||typeof e=="number";if(r&&(typeof n=="string"||typeof n=="number"))return Tt(e)+Tt(n);let i=t.metamethod(e,"__concat")||t.metamethod(n,"__concat");return i?t.call(i,[e,n])[0]:ut("concatenation",r?n:e)}function Tt(t){return typeof t=="number"?Wn.re(t):t}function nu(t,e){return t==null?e==null:t===e}function Ph(t,e,n){if(nu(e,n))return!0;if(Sn(e)!==Sn(n)||!(e instanceof Cr)&&Sn(e)!=="userdata")return!1;let r=t.metamethod(e,"__eq")||t.metamethod(n,"__eq");return r?Sr(t.call(r,[e,n])[0]):!1}function jh(t,e,n){if(typeof e=="number"&&typeof n=="number"||typeof e=="string"&&typeof n=="string")return e<n;let r=t.metamethod(e,"__lt")||t.metamethod(n,"__lt");if(r)return Sr(t.call(r,[e,n])[0]);throw new ot(`cannot compare ${Sn(e)} with ${Sn(n)}`)}function zh(t,e,n){if(typeof e=="number"&&typeof n=="number"||typeof e=="string"&&typeof n=="string")return e<=n;let r=t.metamethod(e,"__le")||t.metamethod(n,"__le");if(r)return Sr(t.call(r,[e,n])[0]);let s=t.metamethod(e,"__lt")||t.metamethod(n,"__lt");if(s)return!Sr(t.call(s,[n,e])[0]);throw new ot(`cannot compare ${Sn(e)} with ${Sn(n)}`)}function Ks(t,e,n){if(e instanceof Cr){let s=e.get(n);if(s!=null)return s;let i=t.metamethod(e,"__index");return i?Wn._(i)?t.call(i,[e,n])[0]:Ks(t,i,n):void 0}let r=t.metamethod(e,"__index");return r?Wn._(r)?t.call(r,[e,n])[0]:Ks(t,r,n):ut(`index (key '${Tt(n)}')`,e)}function Us(t,e,n,r){if(e instanceof Cr){if(e.get(n)===void 0){let i=t.metamethod(e,"__newindex");if(i){if(Wn._(i)){t.call(i,[e,n,r]);return}Us(t,i,n,r);return}}if(n==null)throw new ot("table index is nil");if(typeof n=="number"&&Number.isNaN(n))throw new ot("table index is NaN");e.set(n,r);return}let s=t.metamethod(e,"__newindex");if(!s){ut(`index (key '${Tt(n)}')`,e);return}Wn._(s)?t.call(s,[e,n,r]):Us(t,s,n,r)}function Gh(t,e){let n=t.metamethod(e,"__tostring");if(n)return t.call(n,[e])[0];let r=Sn(e);switch(r){case"nil":return"nil";case"boolean":return e?"true":"false";case"number":return Wn.re(e);case"string":return e;default:return`${r}: 0x${t.En(e)}`}}tu.exports={arith:_h,Be:Bh,length:Rh,concat:Dh,equals:Ph,ir:nu,q:jh,P:zh,index:Ks,Re:Us,tostring:Gh,stringify:Tt}});var ct=F((Jy,su)=>{"use strict";var{Kind:Fn}=B(),_t=B(),Nn=lt(),Ws=un(),Cn={metamethod:()=>{},call(){throw new Error("pure eval: calls not allowed")},En:()=>"0"},Vn=Symbol("none");function at(t){if(!t)return Vn;switch(t.kind){case Fn.Nil:return;case Fn.True:return!0;case Fn.False:return!1;case Fn.Number:return t.value;case Fn.String:return t.value;case Fn.Paren:return at(t.expression);default:return Vn}}var Kh=t=>at(t)!==Vn;function ru(t){if(!t)return null;if(t.kind===Fn.Paren)return ru(t.expression);if(t.kind===Fn.Table||t.kind===Fn.Function)return!0;let e=at(t);return e===Vn?null:e!==void 0&&e!==!1}function Ke(t){return t==null?_t.nil():t===!0?_t.boolean(!0):t===!1?_t.boolean(!1):typeof t=="number"?_t.number(t):typeof t=="string"?_t.string(t):null}function Uh(t,e,n){let r=at(e),s=at(n);if(r===Vn||s===Vn)return null;try{switch(t){case"and":return Ke(Ws.truthy(r)?s:r);case"or":return Ke(Ws.truthy(r)?r:s);case"..":return typeof r!="string"&&typeof r!="number"||typeof s!="string"&&typeof s!="number"?null:Ke(Nn.concat(Cn,r,s));case"==":return Ke(Nn.equals(Cn,r,s));case"~=":return Ke(!Nn.equals(Cn,r,s));case"<":return Ke(Nn.q(Cn,r,s));case">":return Ke(Nn.q(Cn,s,r));case"<=":return Ke(Nn.P(Cn,r,s));case">=":return Ke(Nn.P(Cn,s,r));default:return typeof r=="boolean"||typeof s=="boolean"||r===void 0||s===void 0?null:Ke(Nn.arith(Cn,t,r,s))}}catch{return null}}function Wh(t,e){let n=at(e);if(n===Vn)return null;try{switch(t){case"-":return typeof n=="boolean"||n===void 0?null:Ke(Nn.Be(Cn,n));case"not":return Ke(!Ws.truthy(n));case"#":return null;default:return null}}catch{return null}}su.exports={An:Ke,j:Kh,truthiness:ru,ur:Uh,lr:Wh}});var Fr=F((Qy,lu)=>{"use strict";var{Kind:Vs}=B(),{transform:Vh}=ee(),Hs=ct(),iu=new Set(["+","-","*","/","%","^",".."]),ou=new Set(["-"]),Hh=new Set([...iu,"==","~=","<","<=",">",">=","and","or"]),Yh=new Set([...ou,"not"]);function uu(t,e={}){let n=e.binary||iu,r=e.unary||ou,s=0;return Vh(t,i=>{if(i.kind===Vs.Binary){if(!n.has(i.operator))return i;let o=Hs.ur(i.operator,i.lhs,i.rhs);return o?(s+=1,o):i}if(i.kind===Vs.Unary){if(!r.has(i.operator))return i;let o=Hs.lr(i.operator,i.argument);return o?(s+=1,o):i}if(i.kind===Vs.Paren){let o=i.expression;return o&&Hs.j(o)?(s+=1,o):i}return i}),s}function Xh(t){let e=uu(t.chunk);e&&(t.note(`folded ${e} constant expression(s)`,e),t.bump("fold.count",e))}lu.exports={name:"02-fold",run:Xh,ar:uu,BINARY:Hh,LOGIC:Yh}});var gu=F((ev,hu)=>{"use strict";var{LuaError:Zh}=un(),Bt="%",au=32,Jh=-1,cu=-2,qr=t=>t>=48&&t<=57,fu=t=>t>=65&&t<=90||t>=97&&t<=122,Qh=t=>t>=97&&t<=122,eg=t=>t>=65&&t<=90,ng=t=>t===32||t>=9&&t<=13,tg=t=>t<32||t===127,rg=t=>t>=33&&t<=47||t>=58&&t<=64||t>=91&&t<=96||t>=123&&t<=126,sg=t=>qr(t)||t>=97&&t<=102||t>=65&&t<=70;function du(t,e){let n;switch(e.toLowerCase()){case"a":n=fu(t);break;case"c":n=tg(t);break;case"d":n=qr(t);break;case"l":n=Qh(t);break;case"p":n=rg(t);break;case"s":n=ng(t);break;case"u":n=eg(t);break;case"w":n=fu(t)||qr(t);break;case"x":n=sg(t);break;case"z":n=t===0;break;default:return e.charCodeAt(0)===t}return e>="A"&&e<="Z"?!n:n}var Mr=class{constructor(e,n){this.src=e,this.pattern=n,this.level=0,this.se=new Array(au).fill(0),this.M=new Array(au).fill(0),this.depth=0}error(e){throw new Zh(e)}In(e){let n=this.pattern,r=n[e];if(e+=1,r===Bt)return e>=n.length&&this.error("pattern ends with '%'"),e+1;if(r==="["){n[e]==="^"&&(e+=1);do{e>=n.length&&this.error("missing ']' in pattern");let s=n[e];e+=1,s===Bt&&(e>=n.length&&this.error("pattern ends with '%'"),e+=1)}while(n[e]!=="]");return e+1}return e}De(e,n,r){let s=this.pattern,i=!1;for(n+=1,s[n]==="^"&&(i=!0,n+=1);n<r;)if(s[n]===Bt){if(n+=1,du(e,s[n]))return!i;n+=1}else if(s[n+1]==="-"&&n+2<r){if(s.charCodeAt(n)<=e&&e<=s.charCodeAt(n+2))return!i;n+=3}else{if(s.charCodeAt(n)===e)return!i;n+=1}return i}Pe(e,n,r){if(e>=this.src.length)return!1;let s=this.src.charCodeAt(e),i=this.pattern[n];return i==="."?!0:i===Bt?du(s,this.pattern[n+1]):i==="["?this.De(s,n,r-1):this.pattern.charCodeAt(n)===s}cr(e,n){if(n+1>=this.pattern.length&&this.error("missing '%b' arguments"),this.src[e]!==this.pattern[n])return-1;let r=this.pattern[n],s=this.pattern[n+1],i=1,o=e+1;for(;o<this.src.length;){let u=this.src[o];if(u===s){if(i-=1,i===0)return o+1}else u===r&&(i+=1);o+=1}return-1}On(e,n,r){let s=0;for(;this.Pe(e+s,n,r);)s+=1;for(;s>=0;){let i=this.match(e+s,r+1);if(i!==-1)return i;s-=1}return-1}fr(e,n,r){for(;;){let s=this.match(e,r+1);if(s!==-1)return s;if(this.Pe(e,n,r))e+=1;else return-1}}Tn(e,n,r){let s=this.level;s>=MAX_CAPTURES&&this.error("too many captures"),this.se[s]=e,this.M[s]=r,this.level=s+1;let i=this.match(e,n);return i===-1&&(this.level-=1),i}dr(e,n){let r=this.hr();this.M[r]=e-this.se[r];let s=this.match(e,n);return s===-1&&(this.M[r]=CAP_UNFINISHED),s}hr(){for(let e=this.level-1;e>=0;e-=1)if(this.M[e]===CAP_UNFINISHED)return e;return this.error("invalid capture")}gr(e,n){let r=n-49;(r<0||r>=this.level||this.M[r]===CAP_UNFINISHED)&&this.error(`invalid capture index %${r+1}`);let s=this.M[r],i=this.src.substr(this.se[r],s);return this.src.substr(e,s)===i?e+s:-1}match(e,n){this.depth+=1,this.depth>220&&this.error("pattern too complex");try{return this.pr(e,n)}finally{this.depth-=1}}pr(e,n){let r=this.pattern;for(;;){if(n>=r.length)return e;switch(r[n]){case"(":return r[n+1]===")"?this.Tn(e,n+2,cu):this.Tn(e,n+1,Jh);case")":return this.dr(e,n+1);case"$":if(n+1===r.length)return e===this.src.length?e:-1;break;case Bt:switch(r[n+1]){case"b":{let u=this.cr(e,n+2);if(u===-1)return-1;e=u,n+=4;continue}case"f":{n+=2,r[n]!=="["&&this.error("expected '[' after '%f'");let u=this.In(n),l=e===0?0:this.src.charCodeAt(e-1),c=e<this.src.length?this.src.charCodeAt(e):0;if(!this.De(l,n,u-1)&&this.De(c,n,u-1)){n=u;continue}return-1}default:if(qr(r.charCodeAt(n+1))){let u=this.gr(e,r.charCodeAt(n+1));if(u===-1)return-1;e=u,n+=2;continue}break}break;default:break}let s=this.In(n),i=this.Pe(e,n,s),o=s<r.length?r[s]:"";if(o==="?"){if(i){let u=this.match(e+1,s+1);if(u!==-1)return u}n=s+1;continue}if(o==="+")return i?this.On(e+1,n,s):-1;if(o==="*")return this.On(e,n,s);if(o==="-")return this.fr(e,n,s);if(!i)return-1;e+=1,n=s}}captures(e,n,r=!0){if(this.level===0&&r)return[this.src.slice(e,n)];let s=[];for(let i=0;i<this.level;i+=1)this.M[i]===cu?s.push(this.se[i]+1):s.push(this.src.substr(this.se[i],this.M[i]));return s}};function ig(t,e,n=0){let r=e[0]==="^",s=r?1:0,i=n;do{let o=new Mr(t,e);o.level=0;let u=o.match(i,s);if(u!==-1)return{start:i,end:u,captures:o.captures(i,u),matcher:o};i+=1}while(i<=t.length&&!r);return null}hu.exports={find:ig,Matcher:Mr}});var wu=F((nv,mu)=>{"use strict";var qn=un(),pu=lt(),Xs=gu(),{LuaError:Dt,LuaTable:Ys,he:og}=qn,bu=(t,e,n,r)=>{throw new Dt(`${e}: arg #${t} expected ${n}, got ${og(r)}`)};function De(t,e,n){let r=t[e];return typeof r=="string"?r:typeof r=="number"?qn.re(r):bu(e+1,n,"string",r)}function tn(t,e,n){let r=qn.o(t[e]);return r===void 0?bu(e+1,n,"number",t[e]):r}function ft(t,e,n){if(t[e]===void 0||t[e]===null)return n;let r=qn.o(t[e]);return r===void 0?n:r}function Rt(t,e){return t>=0?t:-t>e?0:e+t+1}function ug(t,e,n){let r=e[e.length-1],s=e.slice(1,-1),i=/^([-+ #0]*)(\d*)(?:\.(\d+))?$/.exec(s)||["","","",void 0],[,o,u,l]=i,c=u?Number(u):0,a=l===void 0?void 0:Number(l),f;switch(r){case"d":case"i":{let h=Math.trunc(tn([n],0,"format"));f=String(Math.abs(h)),a!==void 0&&(f=f.padStart(a,"0")),h<0?f=`-${f}`:o.includes("+")&&(f=`+${f}`);break}case"u":f=String(Math.trunc(Math.abs(tn([n],0,"format"))));break;case"c":f=String.fromCharCode(tn([n],0,"format"));break;case"x":case"X":{let h=Math.trunc(tn([n],0,"format"));f=(h<0?h>>>0:h).toString(16),a!==void 0&&(f=f.padStart(a,"0")),r==="X"&&(f=f.toUpperCase()),o.includes("#")&&(f=`0${r}${f}`);break}case"o":f=Math.trunc(tn([n],0,"format")).toString(8);break;case"f":case"F":f=tn([n],0,"format").Ln(a===void 0?6:a);break;case"e":case"E":{f=tn([n],0,"format").mi(a===void 0?6:a),f=f.replace(/e([-+])(\d)$/,"e$10$2"),r==="E"&&(f=f.toUpperCase());break}case"g":case"G":{f=qn.sr(tn([n],0,"format"),a===void 0?6:a),r==="G"&&(f=f.toUpperCase());break}case"s":{f=pu.tostring(t,n),a!==void 0&&(f=f.slice(0,a));break}case"q":{let h=typeof n=="string"?n:pu.tostring(t,n),d='"';for(let g=0;g<h.length;g+=1){let p=h[g],k=h.charCodeAt(g);p==='"'||p==="\\"||p===`
-`?d+=`\\${p===`
-`?"n":p}`:k===0?d+="\\0":k<32||k===127?d+=`\\${k}`:d+=p}f=`${d}"`;break}default:throw new Dt(`format: invalid option '%${r}'`)}return c>f.length&&(f=o.includes("-")?f.padEnd(c," "):f.padStart(c,o.includes("0")&&"dioxXufFeEgG".includes(r)?"0":" ")),f}function lg(t,e){let n=De(e,0,"format"),r="",s=1,i=0;for(;i<n.length;){let o=n[i];if(o!=="%"){r+=o,i+=1;continue}if(n[i+1]==="%"){r+="%",i+=2;continue}let u=i+1;for(;u<n.length&&"-+ #0".includes(n[u]);)u+=1;for(;u<n.length&&n[u]>="0"&&n[u]<="9";)u+=1;if(n[u]===".")for(u+=1;u<n.length&&n[u]>="0"&&n[u]<="9";)u+=1;let l=n.slice(i,u+1);r+=ug(t,l,e[s]),s+=1,i=u+1}return[r]}function ag(t,e,n){let r="";for(let s=0;s<t.length;s+=1){let i=t[s];if(i!=="%"){r+=i;continue}let o=t[s+1];if(s+=1,o==="%"){r+="%";continue}if(o>="0"&&o<="9"){if(o==="0")r+=e;else{let u=n[Number(o)-1];r+=typeof u=="number"?qn.re(u):u}continue}throw new Dt("gsub: invalid '%' in replacement")}return r}function cg(t,e){let n=De(e,0,"gsub"),r=De(e,1,"gsub"),s=e[2],i=ft(e,3,1/0),o="",u=0,l=0,c=r[0]==="^";for(;l<i;){let a=new Xs.Matcher(n,r),f=a.match(u,c?1:0);if(f!==-1){l+=1;let h=n.slice(u,f),d=a.captures(u,f),g;if(typeof s=="string"||typeof s=="number")g=ag(String(s),h,d);else if(s instanceof Ys)g=s.get(d[0]);else if(qn._(s))g=t.call(s,d)[0];else throw new Dt("gsub: invalid replacement type");if(g==null||g===!1)o+=h;else if(typeof g=="number")o+=qn.re(g);else if(typeof g=="string")o+=g;else throw new Dt("gsub: invalid replacement value");f>u?u=f:(u<n.length&&(o+=n[u]),u+=1)}else u<n.length&&(o+=n[u]),u+=1;if(u>n.length||c)break}return o+=n.slice(Math.min(u,n.length)),[o,l]}function ku(t,e,n){let r=De(e,0,"find"),s=De(e,1,"find"),i=Rt(ft(e,2,1),r.length),o=qn.truthy(e[3]),u=Math.max(0,i-1);if(u>r.length)return[void 0];if(!n&&o){let c=r.indexOf(s,u);return c===-1?[void 0]:[c+1,c+s.length]}let l=Xs.find(r,s,u);return l?n?l.captures:[l.start+1,l.end,...l.matcher.captures(l.start,l.end,!1)]:[void 0]}function fg(t,e){let n=De(e,0,"gmatch"),r=De(e,1,"gmatch"),s=0;return[()=>{for(;s<=n.length;){let o=new Xs.Matcher(n,r),u=o.match(s,0);if(u!==-1){let l=o.captures(s,u);return s=u>s?u:s+1,l}s+=1}return[void 0]}]}function dg(t){let e=new Ys,n=(s,i)=>e.set(s,i);n("len",(s,i)=>[De(i,0,"len").length]),n("sub",(s,i)=>{let o=De(i,0,"sub"),u=Rt(ft(i,1,1),o.length),l=Rt(ft(i,2,-1),o.length);return u<1&&(u=1),l>o.length&&(l=o.length),[u>l?"":o.slice(u-1,l)]}),n("upper",(s,i)=>[De(i,0,"upper").toUpperCase()]),n("lower",(s,i)=>[De(i,0,"lower").toLowerCase()]),n("reverse",(s,i)=>[[...De(i,0,"reverse")].reverse().join("")]),n("rep",(s,i)=>{let o=De(i,0,"rep"),u=Math.floor(tn(i,1,"rep")),l=i[2]===void 0?"":De(i,2,"rep");return u<=0?[""]:[new Array(u).fill(o).join(l)]}),n("byte",(s,i)=>{let o=De(i,0,"byte"),u=Rt(ft(i,1,1),o.length),l=Rt(ft(i,2,u),o.length);u<1&&(u=1),l>o.length&&(l=o.length);let c=[];for(let a=u;a<=l;a+=1)c.push(o.charCodeAt(a-1));return c}),n("char",(s,i)=>{let o="";for(let u=0;u<i.length;u+=1)o+=String.fromCharCode(Math.floor(tn(i,u,"char"))&255);return[o]}),n("format",lg),n("gsub",cg),n("find",(s,i)=>ku(s,i,!1)),n("match",(s,i)=>ku(s,i,!0)),n("gmatch",fg),t.globals.set("string",e);let r=new Ys;return r.set("__index",e),t.je=r,e}mu.exports={install:dg,$:tn}});var vu=F((rv,yu)=>{"use strict";var Ce=un(),ln=lt(),Mn=wu(),{LuaError:Xe,LuaTable:xe,LuaFunction:tv,he:hg,truthy:$r}=Ce;function gg(t){let e=t.globals;e.set("_VERSION","Lua 5.1"),e.set("_G",e),e.set("print",(n,r)=>{let s=r.map(i=>ln.tostring(n,i));return n.output.push(s.join("	")),[]}),e.set("type",(n,r)=>[hg(r[0])]),e.set("tostring",(n,r)=>[ln.tostring(n,r[0])]),e.set("tonumber",(n,r)=>{if(r[1]===void 0||r[1]===null)return[Ce.o(r[0])];let s=Math.floor(Ce.o(r[1])),i=typeof r[0]=="string"?r[0].trim():void 0;if(i===void 0)return[void 0];let o=parseInt(i,s);return[Number.isNaN(o)?void 0:o]}),e.set("rawget",(n,r)=>[r[0]instanceof xe?r[0].get(r[1]):void 0]),e.set("rawset",(n,r)=>(r[0]instanceof xe&&r[0].set(r[1],r[2]),[r[0]])),e.set("rawequal",(n,r)=>[ln.ir(r[0],r[1])]),e.set("rawlen",(n,r)=>[ln.length(n,r[0])]),e.set("setmetatable",(n,r)=>{if(!(r[0]instanceof xe))throw new Xe("setmetatable: expected table");return r[0].$n(r[1]===void 0||r[1]===null?void 0:r[1]),[r[0]]}),e.set("getmetatable",(n,r)=>{let s=r[0],i=s instanceof xe?s.metatable:typeof s=="string"?n.je:s&&s.__metatable;if(!i)return[void 0];let o=i.get("__metatable");return[o===void 0?i:o]}),e.set("assert",(n,r)=>{if(!$r(r[0]))throw new Xe(r[1]===void 0?"assertion failed!":r[1]);return r}),e.set("error",(n,r)=>{let s=r[0],i=r[1]===void 0?1:Ce.o(r[1]);throw typeof s=="string"&&i!==0?new Xe(`deobf:0: ${s}`):new Xe(s)}),e.set("select",(n,r)=>{let s=r[0],i=r.slice(1);if(s==="#")return[i.length];let o=Math.floor(Ce.o(s));return o<0?i.slice(i.length+o):i.slice(o-1)}),e.set("unpack",(n,r)=>{let s=r[0];if(!(s instanceof xe))return[];let i=r[1]===void 0?1:Math.floor(Ce.o(r[1])),o=r[2]===void 0?s.length():Math.floor(Ce.o(r[2])),u=[];for(let l=i;l<=o;l+=1)u.push(s.get(l));return u}),e.set("next",(n,r)=>pg(r[0],r[1])),e.set("pairs",(n,r)=>{let s=r[0],i=n.metamethod(s,"__pairs");return i?n.call(i,[s]):[e.get("next"),s,void 0]}),e.set("ipairs",(n,r)=>{let s=r[0];return[(o,u)=>{let l=Math.floor(Ce.o(u[1]))+1,c=ln.index(o,u[0],l);return c==null?[void 0]:[l,c]},s,0]}),e.set("pcall",(n,r)=>{let s=r[0];try{return[!0,...n.call(s,r.slice(1))]}catch(i){if(i&&i.sandbox||i&&i.name==="LuaLimitError")throw i;return n.swallows=(n.swallows||0)+1,i instanceof Xe?[!1,i.value]:[!1,String(i&&i.message?i.message:i)]}}),e.set("xpcall",(n,r)=>{let[s,i]=r;try{return[!0,...n.call(s,r.slice(2))]}catch(o){if(o&&o.sandbox||!(o instanceof Xe)&&o&&o.name==="LuaLimitError")throw o;n.swallows=(n.swallows||0)+1;let u=o instanceof Xe?o.value:String(o.message||o);return[!1,...n.call(i,[u])]}}),e.set("getfenv",n=>[n.globals]),e.set("setfenv",(n,r)=>[r[0]]),e.set("collectgarbage",()=>[0]),e.set("require",()=>[]),e.set("newproxy",(n,r)=>{let s={userdata:!0,__metatable:void 0};return $r(r[0])&&(s.__metatable=new xe),[s]})}function pg(t,e){if(!(t instanceof xe))throw new Xe("next: expected table");let n=t.keys();if(e==null)return n.length===0?[void 0]:[n[0],t.get(n[0])];let r=n.indexOf(typeof e=="number"&&Object.is(e,-0)?0:e);if(r===-1||r===n.length-1)return[void 0];let s=n[r+1];return[s,t.get(s)]}function kg(t){let e=new xe;e.set("insert",(n,r)=>{let s=r[0];if(!(s instanceof xe))throw new Xe("table.insert: expected table");if(r.length<=2)return s.set(s.length()+1,r[1]),[];let i=Math.floor(Ce.o(r[1])),o=s.length();for(let u=o;u>=i;u-=1)s.set(u+1,s.get(u));return s.set(i,r[2]),[]}),e.set("remove",(n,r)=>{let s=r[0];if(!(s instanceof xe))throw new Xe("table.remove: expected table");let i=s.length(),o=r[1]===void 0?i:Math.floor(Ce.o(r[1]));if(i===0)return[void 0];let u=s.get(o);for(let l=o;l<i;l+=1)s.set(l,s.get(l+1));return s.set(i,void 0),[u]}),e.set("concat",(n,r)=>{let s=r[0],i=r[1]===void 0?"":ln.stringify(r[1]),o=r[2]===void 0?1:Math.floor(Ce.o(r[2])),u=r[3]===void 0?s.length():Math.floor(Ce.o(r[3])),l=[];for(let c=o;c<=u;c+=1){let a=s.get(c);if(typeof a!="string"&&typeof a!="number")throw new Xe(`table.concat: invalid value at index ${c}`);l.push(ln.stringify(a))}return[l.join(i)]}),e.set("unpack",t.globals.get("unpack")),e.set("pack",(n,r)=>{let s=xe.from(r);return s.set("n",r.length),[s]}),e.set("sort",(n,r)=>{let s=r[0],i=r[1],o=s.rr(),u=i?(l,c)=>$r(n.call(i,[l,c])[0])?-1:$r(n.call(i,[c,l])[0])?1:0:(l,c)=>ln.q(n,l,c)?-1:ln.q(n,c,l)?1:0;o.sort(u);for(let l=0;l<o.length;l+=1)s.set(l+1,o[l]);return[]}),e.set("getn",(n,r)=>[r[0].length()]),t.globals.set("table",e)}function bg(t){let e=new xe,n=r=>(s,i)=>[r(Mn.$(i,0,"math"))];e.set("floor",n(Math.floor)),e.set("ceil",n(Math.ceil)),e.set("abs",n(Math.abs)),e.set("sqrt",n(Math.sqrt)),e.set("sin",n(Math.sin)),e.set("cos",n(Math.cos)),e.set("tan",n(Math.tan)),e.set("asin",n(Math.asin)),e.set("acos",n(Math.acos)),e.set("atan",n(Math.atan)),e.set("exp",n(Math.exp)),e.set("log",(r,s)=>{let i=Mn.$(s,0,"log");return s[1]===void 0?[Math.log(i)]:[Math.log(i)/Math.log(Mn.$(s,1,"log"))]}),e.set("log10",n(Math.log10)),e.set("pow",(r,s)=>[Mn.$(s,0,"pow")**Mn.$(s,1,"pow")]),e.set("fmod",(r,s)=>{let i=Mn.$(s,0,"fmod"),o=Mn.$(s,1,"fmod");return[i%o]}),e.set("modf",(r,s)=>{let i=Mn.$(s,0,"modf"),o=i>=0?Math.floor(i):Math.ceil(i);return[o,i-o]}),e.set("max",(r,s)=>[Math.max(...s.map(i=>Ce.o(i)))]),e.set("min",(r,s)=>[Math.min(...s.map(i=>Ce.o(i)))]),e.set("huge",1/0),e.set("pi",Math.PI),e.set("random",(r,s)=>{let i=r.random();if(s.length===0)return[i];let o=s.length===1?1:Math.floor(Ce.o(s[0])),u=s.length===1?Math.floor(Ce.o(s[0])):Math.floor(Ce.o(s[1]));return[o+Math.floor(i*(u-o+1))]}),e.set("randomseed",(r,s)=>(r.kr(Ce.o(s[0])||0),[])),t.globals.set("math",e)}function mg(t){let e=new xe;e.set("time",()=>[16e8]),e.set("clock",u=>[u.steps/1e6]),e.set("date",(u,l)=>[typeof l[0]=="string"?l[0]:"Mon Jan  1 00:00:00 2020"]),e.set("getenv",()=>[void 0]),e.set("exit",()=>{throw new Xe("os.exit called")}),t.globals.set("os",e);let n=new xe;n.set("getinfo",(u,l)=>{let c=new xe;return c.set("currentline",1),c.set("source","@deobf"),c.set("short_src","deobf"),c.set("what","Lua"),c.set("func",l[0]),c.set("linedefined",1),[c]}),n.set("sethook",()=>[]),n.set("gethook",()=>[void 0]),n.set("traceback",(u,l)=>[typeof l[0]=="string"?l[0]:"stack traceback:"]),n.set("getlocal",()=>[void 0]),n.set("getupvalue",()=>[void 0]),n.set("setupvalue",()=>[void 0]),n.set("getmetatable",(u,l)=>[l[0]instanceof xe?l[0].metatable:void 0]),n.set("setmetatable",(u,l)=>(l[0]instanceof xe&&l[0].$n(l[1]),[l[0]])),t.globals.set("debug",n);let r=new xe;r.set("write",(u,l)=>(u.output.push(l.map(c=>ln.stringify(c)).join("")),[])),r.set("read",()=>[void 0]),t.globals.set("io",r);let s=new xe;s.set("create",(u,l)=>[l[0]]),s.set("wrap",(u,l)=>[l[0]]),s.set("resume",(u,l)=>[!0,...u.call(l[0],l.slice(1))]),s.set("yield",()=>[]),s.set("status",()=>["dead"]),t.globals.set("coroutine",s);let i=new xe,o=u=>Math.trunc(Ce.o(u))|0;i.set("band",(u,l)=>[l.map(o).reduce((c,a)=>c&a)]),i.set("bor",(u,l)=>[l.map(o).reduce((c,a)=>c|a)]),i.set("bxor",(u,l)=>[l.map(o).reduce((c,a)=>c^a)]),i.set("bnot",(u,l)=>[~o(l[0])]),i.set("lshift",(u,l)=>[o(l[0])<<o(l[1])]),i.set("rshift",(u,l)=>[o(l[0])>>>o(l[1])]),i.set("arshift",(u,l)=>[o(l[0])>>o(l[1])]),i.set("tobit",(u,l)=>[o(l[0])]),t.globals.set("bit",i),t.globals.set("bit32",i)}function wg(t){let e=625341585;t.kr=n=>{e=Math.floor(n)>>>0||1},t.random=()=>(e^=e<<13,e>>>=0,e^=e>>>17,e^=e<<5,e>>>=0,e/4294967296)}function yg(t){wg(t),gg(t),Mn.install(t),kg(t),bg(t),mg(t)}yu.exports={install:yg}});var ei=F((sv,Nu)=>{"use strict";var{Kind:j}=B(),Lr=un(),Oe=lt(),Js=It(),{LuaError:_n,LuaTable:Zs,LuaFunction:Pt,he:vg,truthy:Hn}=Lr,xu={signal:"break"},Su={signal:"continue"},Er=class extends Error{constructor(e){super(e),this.name="LuaLimitError"}},$n=class{constructor(e){this.parent=e,this.cells=new Map}declare(e,n){let r={value:n,stamp:Js.fresh()};return this.cells.set(e,r),r}lookup(e){let n=this;for(;n;){let r=n.cells.get(e);if(r)return r;n=n.parent}return null}},Qs=class t{constructor(e={}){this.x=e.x===void 0?2e7:e.x,this.ze=0,this.lenient=e.lenient===!0,this.ge=e.ge||200,this.steps=0,this.addresses=new WeakMap,this._n=4096,this.je=void 0,this.globals=new Zs,this.output=[],vu().install(this)}En(e){let n=this.addresses.get(e);return n===void 0&&(this._n+=48,n=this._n.toString(16),this.addresses.set(e,n)),n}metamethod(e,n){let r;if(e instanceof Zs?r=e.metatable:typeof e=="string"?r=this.je:e&&e.__metatable&&(r=e.__metatable),!!r)return r.get(n)}tick(e=1){if(this.steps+=e,this.x&&this.steps>this.x)throw new Er(`step limit exceeded (${this.x})`)}call(e,n){if(typeof e=="function")return this.tick(),e(this,n)||[];if(!(e instanceof Pt)){let r=this.metamethod(e,"__call");if(r)return this.call(r,[e,...n]);if(this.lenient&&e==null)return[];throw new _n(`cannot call ${vg(e)}`)}if(this.ze>=this.ge)throw new _n("stack overflow");this.ze+=1;try{return this.invoke(e,n)}finally{this.ze-=1}}invoke(e,n){let r=e.node,s=new $n(e.closure),i=r.params||[];for(let l=0;l<i.length;l+=1)s.declare(i[l],n[l]);let o={varargs:r.w?n.slice(i.length):[]};s.frame=o;let u=this.z(r.body,s);return u&&u.signal==="return"?u.values:[]}wi(e,n=[]){let r=new Pt({kind:j.Function,params:[],body:e.kind===j.Chunk?e.body:e,w:!0},this.Te(),"main chunk");return this.call(r,n)}Te(){return this.root||(this.root=new $n(null),this.root.frame={varargs:[]}),this.root}z(e,n){let r=new $n(n);return r.frame=n.frame,this.pe(e.statements,r)}pe(e,n){let r=0;for(;r<e.length;){let s=this.Bn(e[r],n);if(s){if(s.signal==="goto"){let i=e.findIndex(o=>o.kind===j.Label&&o.name===s.label);if(i!==-1){r=i+1;continue}}return s}r+=1}}Bn(e,n){switch(this.tick(),e.kind){case j.LocalDeclaration:{let r=this.G(e.expressions,n,e.names.length);for(let s=0;s<e.names.length;s+=1)n.declare(e.names[s],r[s]);return}case j.LocalFunction:{let r=n.declare(e.name,void 0);r.value=new Pt(e.body,n,e.name);return}case j.FunctionDeclaration:{let r=new Pt(e.body,n,"declared");this.assign(e.target,r,n);return}case j.Assignment:{let r=this.G(e.expressions,n,e.targets.length),s=e.targets.map(i=>this.br(i,n));for(let i=s.length-1;i>=0;i-=1)this.store(s[i],r[i]);return}case j.CallStatement:this.ie(e.expression,n);return;case j.Return:return{signal:"return",values:this.G(e.expressions,n,-1)};case j.Break:return xu;case j.Continue:return Su;case j.Goto:return{signal:"goto",label:e.label};case j.Label:return;case j.Do:return this.z(e.body,n);case j.If:return this.mr(e,n);case j.While:return this.wr(e,n);case j.Repeat:return this.yr(e,n);case j.NumericFor:return this.vr(e,n);case j.GenericFor:return this.xr(e,n);default:throw new _n(`unsupported statement: ${e.kind}`)}}mr(e,n){if(Hn(this.eval(e.condition,n)))return this.z(e.body,n);for(let r of e.s||[])if(Hn(this.eval(r.condition,n)))return this.z(r.body,n);if(e.e)return this.z(e.e,n)}static ke(e){return e?e===xu?"stop":e===Su?null:e:null}wr(e,n){for(;;){if(this.tick(),!Hn(this.eval(e.condition,n)))return;let r=t.ke(this.z(e.body,n));if(r==="stop")return;if(r)return r}}yr(e,n){for(;;){this.tick();let r=new $n(n);r.frame=n.frame;let s=this.pe(e.body.statements,r),i=t.ke(s);if(i==="stop")return;if(i)return i;if(Hn(this.eval(e.condition,r)))return}}vr(e,n){let r=Lr.o(this.eval(e.start,n)),s=Lr.o(this.eval(e.limit,n)),i=e.step?Lr.o(this.eval(e.step,n)):1;if(r===void 0||s===void 0||i===void 0)throw new _n("'for' bounds must be numbers");for(let o=r;i>0?o<=s:o>=s;o+=i){this.tick();let u=new $n(n);u.frame=n.frame,u.declare(e.variable,o);let l=t.ke(this.pe(e.body.statements,u));if(l==="stop")return;if(l)return l}}xr(e,n){let r=this.G(e.expressions,n,3),[s,i,o]=r;for(;;){this.tick();let u=this.call(s,[i,o]);if(u[0]===void 0||u[0]===null)return;o=u[0];let l=new $n(n);l.frame=n.frame;for(let a=0;a<e.variables.length;a+=1)l.declare(e.variables[a],u[a]);let c=t.ke(this.pe(e.body.statements,l));if(c==="stop")return;if(c)return c}}br(e,n){if(e.kind===j.Name){let r=n.lookup(e.name);return r?{cell:r}:{base:this.globals,key:e.name}}if(e.kind===j.Index)return{base:this.eval(e.base,n),key:this.eval(e.index,n)};throw new _n("invalid assignment target")}store(e,n){if(e.cell){Js.touch(e.cell.stamp,e.cell),e.cell.value=n;return}Oe.Re(this,e.base,e.key,n)}assign(e,n,r){if(e.kind===j.Name){let s=r.lookup(e.name);if(s){Js.touch(s.stamp,s),s.value=n;return}Oe.Re(this,this.globals,e.name,n);return}if(e.kind===j.Index){let s=this.eval(e.base,r);Oe.Re(this,s,this.eval(e.index,r),n);return}throw new _n("invalid assignment target")}G(e,n,r){let s=[];if(e)for(let i=0;i<e.length;i+=1)if(i===e.length-1){let o=this.ie(e[i],n);for(let u of o)s.push(u)}else s.push(this.eval(e[i],n));if(r>=0){for(;s.length<r;)s.push(void 0);s.length=r}return s}ie(e,n){switch(e.kind){case j.Call:{let r=this.eval(e.base,n);return this.call(r,this.G(e.args,n,-1))}case j.MethodCall:{let r=this.eval(e.base,n),s=Oe.index(this,r,e.method);return this.call(s,[r,...this.G(e.args,n,-1)])}case j.Vararg:return(n.frame?n.frame.varargs:[]).slice();default:return[this.eval(e,n)]}}eval(e,n){switch(this.tick(),e.kind){case j.Nil:return;case j.True:return!0;case j.False:return!1;case j.Number:return e.value;case j.String:return e.value;case j.Vararg:return this.ie(e,n)[0];case j.Name:{let r=n.lookup(e.name);return r?r.value:Oe.index(this,this.globals,e.name)}case j.Paren:return this.eval(e.expression,n);case j.Function:return new Pt(e,n,null);case j.Index:return Oe.index(this,this.eval(e.base,n),this.eval(e.index,n));case j.Call:case j.MethodCall:return this.ie(e,n)[0];case j.Table:return this.Sr(e,n);case j.Unary:return this.Nr(e,n);case j.Binary:return this.Cr(e,n);default:throw new _n(`unsupported expression: ${e.kind}`)}}Sr(e,n){let r=new Zs,s=1,i=e.entries||[];for(let o=0;o<i.length;o+=1){let u=i[o];if(u.type==="key"){r.set(this.eval(u.key,n),this.eval(u.value,n));continue}if(o===i.length-1)for(let l of this.ie(u.value,n))r.set(s,l),s+=1;else r.set(s,this.eval(u.value,n)),s+=1}return r}Nr(e,n){let r=this.eval(e.argument,n);switch(e.operator){case"-":return Oe.Be(this,r);case"not":return!Hn(r);case"#":return Oe.length(this,r);default:throw new _n(`unknown unary operator '${e.operator}'`)}}Cr(e,n){let r=e.operator;if(r==="and"){let o=this.eval(e.lhs,n);return Hn(o)?this.eval(e.rhs,n):o}if(r==="or"){let o=this.eval(e.lhs,n);return Hn(o)?o:this.eval(e.rhs,n)}let s=this.eval(e.lhs,n),i=this.eval(e.rhs,n);switch(r){case"..":return Oe.concat(this,s,i);case"==":return Oe.equals(this,s,i);case"~=":return!Oe.equals(this,s,i);case"<":return Oe.q(this,s,i);case">":return Oe.q(this,i,s);case"<=":return Oe.P(this,s,i);case">=":return Oe.P(this,i,s);default:return Oe.arith(this,r,s,i)}}};Nu.exports={Interpreter:Qs,Scope:$n,LuaLimitError:Er}});var Ar=F((iv,qu)=>{"use strict";var{Kind:Ze}=B(),{walk:Cu}=ee();function Fu(t){let e=new Set;return Cu(t,{enter:n=>{for(let r of n.bindings||[])r&&e.add(r);n.binding&&(n.kind===Ze.LocalFunction||n.kind===Ze.NumericFor)&&e.add(n.binding)}}),e}function xg(t){let e=t;for(;e&&e.kind===Ze.Paren;)e=e.expression;return e&&e.kind===Ze.Function?e:null}var ni=class{constructor(e,n,r){this.K=n,this.U=r,this.carriers=new Map,this.direct=new Map,this.mentions=new Map,this.resolved=new Map,this.oe=new Map,this.collect(e)}collect(e){let n=(r,s)=>{!r||!s||(this.carriers.has(r)||this.carriers.set(r,new Set),this.carriers.get(r).add(s))};Cu(e,{enter:r=>{if(r.kind===Ze.LocalFunction)n(r.binding,r.body);else if(r.kind===Ze.FunctionDeclaration)r.target&&r.target.kind===Ze.Name&&n(r.target.binding,r.body);else if(r.kind===Ze.LocalDeclaration||r.kind===Ze.Assignment){let s=r.kind===Ze.LocalDeclaration?r.bindings||[]:null;(r.expressions||[]).forEach((i,o)=>{let u=xg(i);if(!u)return;if(s){n(s[o],u);return}let l=(r.targets||[])[o];l&&l.kind===Ze.Name&&n(l.binding,u)})}r.kind===Ze.Function&&this.summarise(r)}})}summarise(e){let n=Fu(e),r=s=>{let i=new Set;for(let o of s)n.has(o)||i.add(o);return i};this.direct.set(e,r(this.K(e.body,!0))),this.mentions.set(e,r(this.U(e.body)))}close(){if(!this.closed){this.closed=!0;for(let[e,n]of this.direct)this.resolved.set(e,new Set(n));for(let[e,n]of this.mentions)this.oe.set(e,new Set(n));for(let e=!0;e;){e=!1;for(let[n,r]of this.mentions){let s=this.resolved.get(n),i=this.oe.get(n);for(let o of r)for(let u of this.carriers.get(o)||[]){for(let l of this.resolved.get(u)||[])s.has(l)||(s.add(l),e=!0);for(let l of this.oe.get(u)||[])i.has(l)||(i.add(l),e=!0)}}}}}Fr(e){this.close();let n=this.oe.get(e);if(!n)return new Set;let r=this.resolved.get(e)||new Set,s=new Set;for(let i of n)r.has(i)||s.add(i);return s}qr(e){return this.close(),this.oe.get(e)||new Set}Rn(e){return this.carriers.get(e)||new Set}Dn(e){return this.close(),this.resolved.get(e)||new Set}of(e){let n=new Set(this.K(e,!1));for(let r of this.U(e))for(let s of this.carriers.get(r)||[])for(let i of this.Dn(s))n.add(i);return n}};qu.exports={Writes:ni,Mr:Fu}});var Yn=F((ov,Mu)=>{"use strict";var{Kind:ti}=B(),{framed:Sg}=ee(),ri=class{constructor(e){this.paths=new Map,this.labelled=new Set,Sg(e,(n,r)=>{if(n.kind!==ti.Block){this.paths.set(n,r);return}n.statements.some(s=>s.kind===ti.Label)&&this.labelled.add(n)})}path(e){return this.paths.get(e)||null}precedes(e,n){let r=this.path(e),s=this.path(n);if(!r||!s)return!1;let i=r,o=s;for(;i.depth>o.depth;)i=i.up;for(;o.depth>i.depth;)o=o.up;if(i===o)return!1;for(;i.up!==o.up;)i=i.up,o=o.up;return!(i!==r||i.block!==o.block||i.at>=o.at||this.labelled.has(i.block)&&this.$r(i.block,i.at,o.at))}$r(e,n,r){let s=e.statements;for(let i=n+1;i<=r&&i<s.length;i+=1)if(s[i].kind===ti.Label)return!0;return!1}};Mu.exports={Positions:ri}});var Pe=F((uv,Au)=>{"use strict";var{Kind:ne}=B(),{walk:si}=ee(),Ng=new Set(["error"]),Cg=new Set([ne.True,ne.Number,ne.String,ne.Table,ne.Function]);function oi(t){return t?t.kind===ne.Paren?oi(t.expression):Cg.has(t.kind):!1}function jt(t){let e=t;for(;e&&e.kind===ne.Paren;)e=e.expression;return e}function ii(t){let e=!1;return si(t,{enter(n){if(e||n.kind===ne.Function)return!1;if(n.kind===ne.While||n.kind===ne.Repeat||n.kind===ne.NumericFor||n.kind===ne.GenericFor){let r=!1;return si(n.body,{enter(s){if(s.kind===ne.Function)return!1;(s.kind===ne.Return||s.kind===ne.Goto)&&(r=!0)}}),r&&(e=!0),!1}(n.kind===ne.Break||n.kind===ne.Return||n.kind===ne.Goto)&&(e=!0)}}),e}function $u(t,e){let n=jt(t);if(!n||n.kind!==ne.Call)return!1;let r=jt(n.base);return r?r.kind===ne.Name&&!r.binding&&Ng.has(r.name)?!0:r.kind===ne.Function?Xn(r.body,e+1):!1:!1}function Lu(t,e=0){if(!t||e>48)return!1;switch(t.kind){case ne.While:return oi(t.condition)&&!ii(t.body);case ne.Repeat:return Xn(t.body,e+1)||t.condition&&t.condition.kind===ne.False&&!ii(t.body);case ne.Do:return Xn(t.body,e+1);case ne.Return:return(t.expressions||[]).length===1&&$u(t.expressions[0],e);case ne.CallStatement:return $u(t.expression,e);case ne.If:{if(!t.e||!Xn(t.body,e+1))return!1;for(let n of t.s||[])if(!Xn(n.body,e+1))return!1;return Xn(t.e,e+1)}default:return!1}}function Xn(t,e=0){return!t||e>48?!1:(t.statements||[]).some(n=>Lu(n,e+1))}function Fg(t){let e=new Map,n=new Set,r=(s,i,o,u)=>{if(!(!s||s.kind==="global"||n.has(s))){if(e.has(s)||s.writes.length!==(u?1:0)){n.add(s),e.delete(s);return}e.set(s,{list:i,index:o})}};return si(t,{enter(s){if(s.kind===ne.LocalDeclaration){let i=s.bindings||[],o=s.expressions||[];i.length===o.length&&i.forEach((u,l)=>r(u,o,l,!1));return}if(s.kind===ne.LocalFunction&&s.binding){r(s.binding,[s.body],0,!1);return}if(s.kind===ne.Assignment){let i=s.targets||[],o=s.expressions||[];i.length===o.length&&i.forEach((u,l)=>{let c=jt(u);c&&c.kind===ne.Name&&r(c.binding,o,l,!0)})}}}),e}function qg(t){let e=new Map;for(let n of t.keys()){let r=n,s=new Set([n]);for(;;){let i=jt(Eu(t,r));if(!i||i.kind!==ne.Name||!i.binding||s.has(i.binding))break;s.add(i.binding),r=i.binding}r!==n&&e.set(n,r)}return e}function Eu(t,e){let n=e?t.get(e):null;return n?n.list[n.index]:null}Au.exports={W:Fg,Ge:Eu,Pn:qg,jn:oi,bare:jt,Lr:ii,diverges:Lu,zn:Xn}});var Tr=F((lv,Ou)=>{"use strict";var{Kind:S}=B(),{walk:Gt,children:ui}=ee(),{Interpreter:Mg}=ei(),Te=un(),Ue=lt(),Ln=It(),zt=ct(),{Writes:$g,Mr:Lg}=Ar(),{Positions:Eg}=Yn(),{c:Iu}=Ne(),{W:Ag,Ge:Ig,Pn:Og}=Pe(),li=new Set(["string","table","math","bit","bit32","utf8","type","tostring","tonumber","select","unpack","ipairs","pairs","next","rawget","rawset","rawequal","rawlen","setmetatable","getmetatable","assert","pcall","_VERSION","_ENV"]);function Tg(t){let e=new Te.LuaTable;for(let r of li){let s=t.globals.get(r);s!==void 0&&e.set(r,s)}let n=new Te.LuaTable;return n.set("__index",(r,s)=>{let i=new Te.LuaError(`unknown global '${String(s[1])}'`);throw i.sandbox=!0,i}),e.metatable=n,e}var Ir=t=>t===void 0||typeof t=="boolean"||typeof t=="number"||typeof t=="string",_g=2e4;function Kt(t,e,n){let r=new Set,s=i=>{let o=i;for(;o&&o.kind===S.Paren;)o=o.expression;if(!o)return;if(o.kind===S.Name){o.binding&&r.add(o.binding);return}let u=o;for(;u&&(u.kind===S.Index||u.kind===S.Paren);)u=u.base||u.expression;if(!u||u.kind!==S.Name||!u.binding)return;r.add(u.binding);let l=n?n.get(u.binding):void 0;l&&r.add(l)};return Gt(t,{enter:i=>{if(i!==t&&i.kind===S.Function&&!e)return!1;if(i.kind===S.Assignment)(i.targets||[]).forEach(s);else if(i.kind===S.LocalDeclaration||i.kind===S.GenericFor||i.kind===S.Function)for(let o of i.bindings||[])o&&r.add(o);else(i.kind===S.LocalFunction||i.kind===S.NumericFor)&&i.binding&&r.add(i.binding)}}),r}function Or(t,e=!0){let n=new Set,r=new Set,s=(o,u)=>{!o||n.has(o)||r.has(o)||(u?r.add(o):n.add(o))},i=o=>{if(!(!o||typeof o!="object")){switch(o.kind){case S.Name:s(o.binding,!1);return;case S.Assignment:(o.expressions||[]).forEach(i);for(let u of o.targets||[]){let l=u;for(;l&&l.kind===S.Paren;)l=l.expression;l&&(l.kind===S.Name?s(l.binding,!0):i(l))}return;case S.LocalDeclaration:(o.expressions||[]).forEach(i);for(let u of o.bindings||[])s(u,!0);return;case S.NumericFor:i(o.start),i(o.limit),i(o.step),s(o.binding,!0),i(o.body);return;case S.GenericFor:(o.expressions||[]).forEach(i);for(let u of o.bindings||[])s(u,!0);i(o.body);return;case S.Function:if(o!==t&&!e)return;for(let u of o.bindings||[])s(u,!0);i(o.body);return;case S.LocalFunction:s(o.binding,!0);break;default:break}for(let u of ui(o))i(u.node)}};return i(t),n}var ai=class{constructor(e,n={}){this.chunk=e,this.options=n,this.rt=new Mg({x:n.x||4e7}),this.scope=this.rt.Te(),this.values=new Map,this.declared=new Set,this.declarations=[],this.failures=[],this.be=new Set,this.mutated=new Map,this.skipped=[],this.unfoldable=new Set,this.cells=new Map,this.tainted=new Set,this.Ke=new Map,this.point=0,this.me=null,this.dirty=null,this.depth=0,this.live=!1,this.copying=!1,this.impure=new Set,this.caches=new Set,this.positions=null,this.holders=null,this.parents=null,this.W=Ag(e),this.copies=Og(this.W),this.reading=new Set,this.summary=new $g(e,(s,i)=>Kt(s,i,this.copies),Or);let r=this.rt.globals.get("table");if(r)for(let s of["insert","remove","sort"]){let i=r.get(s);i&&this.impure.add(i)}for(let s of["rawset","setmetatable","collectgarbage"]){let i=this.rt.globals.get(s);i&&this.impure.add(i)}this.rt.globals.set("_ENV",Tg(this.rt))}Gn(e){if(!e||typeof e!="object")return!1;if(e.kind===S.Vararg)return!0;if(e.kind===S.Function)return!1;for(let n of ui(e))if(this.Gn(n.node))return!0;return!1}Er(e){if(this.Gn(e))return!1;let n=Lg(e),r=!0;return Gt(e,{enter:s=>{if(!r)return!1;if(s.kind!==S.Name)return;let i=s.binding;if(!i)return r=!1,!1;if(i.kind==="global"){li.has(i.name)||(r=!1);return}if(!this.declared.has(i)&&!n.has(i))return r=!1,!1}}),r}Ar(e){if(e.kind===S.LocalDeclaration&&e.bindings)for(let n=0;n<e.bindings.length;n+=1)this.note(e.bindings[n],e.names[n]);else e.kind===S.LocalFunction&&e.binding&&this.note(e.binding,e.name)}note(e,n){if(!e)return;this.declarations.push({binding:e,name:n}),this.declared.add(e);let r=this.scope.lookup(n);r&&this.cells.set(e,r)}Ir(){let e=new Map;for(let{binding:n,name:r}of this.declarations){let s=this.scope.lookup(r);if(!s)continue;let i=e.get(r);i&&this.unfoldable.add(i),e.set(r,n),this.values.set(n,{value:s.value})}}prepare(e){let n=this.chunk.body.statements;this.Or(n),this.live=!!e;for(let r=0;r<n.length;r+=1){let s=n[r];if(this.point=r,e&&(this.depth=0,this.dirty=null,this.me=new Set([...Kt(s,!0),...this.Kn(s)]),e(s,r)),s.kind===S.Return)break;if(!this.Er(s)){this.skipped.push(s),this.Ue(s);continue}try{let i=this.rt.swallows||0,o=Ln.witness(()=>this.rt.Bn(s,this.scope));if((this.rt.swallows||0)!==i){this.skipped.push(s),this.Ue(s);continue}if(this.be.add(s),o.older.size&&this.mutated.set(s,o.older),this.Ar(s),this.Tr(s),o.value)break}catch(i){this.skipped.push(s),this.be.delete(s),this.failures.push({statement:s,error:i}),this.Ue(s);continue}}return this.live=!1,this.Ir(),this._r(),this.Br(),this}Or(e){e.forEach((n,r)=>{for(let s of Kt(n,!0))this.Ke.set(s,r)})}Ue(e){for(let n of this.Kn(e))this.tainted.add(n)}Kn(e){let n=this.summary.of(e);for(let r of Or(e)){let s=this.cells.get(r),i=s?s.value:void 0;if(!(!(i instanceof Te.LuaFunction)||!i.node))for(let o of this.summary.Dn(i.node))n.add(o)}return n}Tr(e){let n=Kt(e,!1);if(!n.size)return;let r=!1;for(let s of Or(e,!1))if(this.tainted.has(s)){r=!0;break}for(let s of n)r?this.tainted.add(s):this.tainted.delete(s)}usable(e){return!e||this.tainted.has(e)||this.me&&this.me.has(e)?!1:this.depth===0?!0:(this.Ke.has(e)?this.Ke.get(e):-1)<this.point}_r(){for(let[n]of this.values)for(let r of n.writes)if(!this.we(r)){this.unfoldable.add(n);break}let e=new Set;Gt(this.chunk,{enter:n=>{if(n.kind===S.Assignment)for(let r of n.targets){if(r.kind!==S.Index)continue;let s=r.base;for(;s&&s.kind===S.Index;)s=s.base;s&&s.kind===S.Name&&s.binding&&!this.we(n)&&e.add(s.binding)}}});for(let n of e)this.unfoldable.add(n);for(let[n,r]of this.values)if(!Ir(r.value))for(let s of n.reads){if(this.we(s))continue;let i=this.Un(s);if(!(i&&(i.kind===S.Index&&i.base===s||(i.kind===S.Call||i.kind===S.MethodCall)&&i.base===s))){this.unfoldable.add(n);break}}}Un(e){if(!this.parents){let n=new Map,r=[this.chunk];for(;r.length;){let s=r.pop();for(let i of ui(s))n.set(i.node,s),r.push(i.node)}this.parents=n}return this.parents.get(e)}we(e){for(let n=e;n;n=this.Un(n))if(this.be.has(n))return!0;return!1}lookup(e){if(!(!e||this.unfoldable.has(e)||this.tainted.has(e)))return this.values.get(e)}Wn(e,n){if(!e||e.kind==="global")return{ok:!1};if(this.reading.has(e)||this.unfoldable.has(e))return{ok:!1};if(this.tainted.has(e))return{ok:!1};let r=Ig(this.W,e);if(!r)return{ok:!1};if(!(zt.j(r)&&(e.writes||[]).length===0)&&r.kind!==S.Function&&r.kind!==S.Name)return{ok:!1};this.reading.add(e);try{return this.evaluate(r,n+1)}finally{this.reading.delete(e)}}Vn(e,n,r){if(n.ok||!this.copying)return n;let s=e.binding;if(!s||this.reading.has(s))return n;let i=this.ye(e);if(!i)return n;this.reading.add(s);try{return this.evaluate(i,r+1)}finally{this.reading.delete(s)}}evaluate(e,n=0){if(!e||n>64)return{ok:!1};switch(e.kind){case S.Nil:return{ok:!0,value:void 0};case S.True:return{ok:!0,value:!0};case S.False:return{ok:!0,value:!1};case S.Number:return{ok:!0,value:e.value};case S.String:return{ok:!0,value:e.value};case S.Paren:return this.evaluate(e.expression,n+1);case S.Function:return this.protect(()=>this.rt.eval(e,this.scope));case S.Name:{if(e.binding&&e.binding.kind==="global")return li.has(e.binding.name)?{ok:!0,value:this.rt.globals.get(e.binding.name)}:{ok:!1};if(this.live){let s=this.cells.get(e.binding);return s&&this.usable(e.binding)?{ok:!0,value:s.value}:this.Vn(e,this.Wn(e.binding,n),n)}let r=this.lookup(e.binding);return r?{ok:!0,value:r.value}:this.Vn(e,this.Wn(e.binding,n),n)}case S.Table:{let r=new Te.LuaTable,s=e.entries||[],i=1;for(let o=0;o<s.length;o+=1){let u=s[o];if(u.type==="key"){let a=this.evaluate(u.key,n+1),f=this.evaluate(u.value,n+1);if(!a.ok||!f.ok||a.value===void 0)return{ok:!1};if(!this.protect(()=>r.set(a.value,f.value)).ok)return{ok:!1};continue}let l=this.evaluate(u.value,n+1);if(!l.ok)return{ok:!1};let c=o===s.length-1&&l.values?l.values:[l.value];for(let a of c)r.set(i,a),i+=1}return{ok:!0,value:r}}case S.Index:{if(this.Hn(e.base))return{ok:!1};let r=this.evaluate(e.base,n+1),s=this.evaluate(e.index,n+1);return!r.ok||!s.ok?{ok:!1}:r.value instanceof Te.LuaTable?this.Yn(r.value)?{ok:!1}:this.protect(()=>Ue.index(this.rt,r.value,s.value)):{ok:!1}}case S.Binary:{if(e.operator==="and"||e.operator==="or"){let i=this.evaluate(e.lhs,n+1);return i.ok?(e.operator==="and"?Te.truthy(i.value):!Te.truthy(i.value))?this.evaluate(e.rhs,n+1):i:{ok:!1}}let r=this.evaluate(e.lhs,n+1),s=this.evaluate(e.rhs,n+1);return!r.ok||!s.ok?{ok:!1}:this.protect(()=>this.Rr(e.operator,r.value,s.value))}case S.Unary:{let r=this.evaluate(e.argument,n+1);return r.ok?this.protect(()=>e.operator==="-"?Ue.Be(this.rt,r.value):e.operator==="not"?!Te.truthy(r.value):Ue.length(this.rt,r.value)):{ok:!1}}case S.Call:{let r=this.evaluate(e.base,n+1);if(!r.ok||!Te._(r.value))return{ok:!1};if(this.We(r.value))return{ok:!1};let s=this.Xn(e.args,n+1);return s.ok?this.Ve(r.value,s.values):{ok:!1}}case S.MethodCall:{if(this.Hn(e.base))return{ok:!1};let r=this.evaluate(e.base,n+1);if(!r.ok||this.Yn(r.value))return{ok:!1};let s=this.Xn(e.args,n+1);if(!s.ok)return{ok:!1};let i=this.protect(()=>Ue.index(this.rt,r.value,e.method));return!i.ok||!Te._(i.value)?{ok:!1}:this.We(i.value)?{ok:!1}:this.Ve(i.value,[r.value,...s.values])}default:return{ok:!1}}}Rr(e,n,r){switch(e){case"..":return Ue.concat(this.rt,n,r);case"==":return Ue.equals(this.rt,n,r);case"~=":return!Ue.equals(this.rt,n,r);case"<":return Ue.q(this.rt,n,r);case">":return Ue.q(this.rt,r,n);case"<=":return Ue.P(this.rt,n,r);case">=":return Ue.P(this.rt,r,n);default:return Ue.arith(this.rt,e,n,r)}}Xn(e,n){let r=e||[],s=[];for(let i=0;i<r.length;i+=1){let o=this.evaluate(r[i],n);if(!o.ok)return{ok:!1};i===r.length-1&&o.values?s.push(...o.values):s.push(o.value)}return{ok:!0,values:s}}Ve(e,n){if(this.impure.has(e))return{ok:!1};let r=Ln.record(()=>this.Dr(e,n));if(r.value.ok)for(let s of r.writes)s instanceof Te.LuaTable&&this.caches.add(s);return r.value}Dr(e,n){let r=this.rt.swallows||0,s=Ln.attempt(()=>this.protect(()=>this.rt.call(e,n))),i=s.value;if(!i.ok||(this.rt.swallows||0)!==r)return Ln.undo(s),{ok:!1};let o=Ln.attempt(()=>this.protect(()=>this.rt.call(e,n))),u=o.value;Ln.undo(o);let l=u.ok&&!o.escaped&&i.value.length===u.value.length,c=(a,f)=>a===f||Number.isNaN(a)&&Number.isNaN(f);for(let a=0;l&&a<i.value.length;a+=1)(!Ir(i.value[a])||!c(i.value[a],u.value[a]))&&(l=!1);return l?(Ln.commit(s),{ok:!0,value:i.value[0],values:i.value}):(Ln.undo(s),{ok:!1})}Yn(e){return!!this.dirty&&this.dirty.has(e)}Hn(e){if(!this.dirty)return!1;let n=e;for(;n&&n.kind===S.Paren;)n=n.expression;return!!n&&n.kind===S.Name&&this.dirty.has(n.binding)}We(e){if(!(e instanceof Te.LuaFunction)||!e.node)return!1;for(let n of this.summary.Fr(e.node))if(!this.usable(n)||this.dirty&&this.dirty.has(n))return!0;return!1}protect(e){let n=this.rt.steps;try{return{ok:!0,value:e()}}catch{return this.rt.steps=n,{ok:!1}}}Zn(e){let n=this.copying;this.copying=!0;try{let r=e;for(let s=0;s<=8;s+=1){let i=this.evaluate(r);if(i.ok)return i;let o=this.ye(r);if(!o)return{ok:!1};r=o}return{ok:!1}}finally{this.copying=n}}ye(e){let n=e;for(;n&&n.kind===S.Paren;)n=n.expression;if(!n||n.kind!==S.Name)return null;let r=n.binding;if(!r||!Iu(r)||(r.writes||[]).length>1)return null;let s=this.Pr().get(r);return!s||(this.positions||(this.positions=new Eg(this.chunk)),!this.positions.precedes(s.statement,n))?null:s.value}Pr(){if(this.holders)return this.holders;let e=new Map,n=(r,s,i)=>{!r||!s||(e.has(r)?e.set(r,null):e.set(r,{value:s,statement:i}))};return Gt(this.chunk,{enter:r=>{if(r.kind===S.LocalDeclaration){let s=r.expressions||[];s.length===(r.names||[]).length&&(r.bindings||[]).forEach((i,o)=>n(i,s[o],r))}else if(r.kind===S.Assignment){let s=r.targets||[],i=r.expressions||[];s.length===i.length&&s.forEach((o,u)=>{o.kind===S.Name&&n(o.binding,i[u],r)})}}}),this.holders=e,e}Br(){this.depth=0,this.me=null,this.dirty=null;let e=0,n=new Set;return Gt(this.chunk,{enter:r=>{if(e>=_g)return!1;if(r.kind!==S.Call)return;let s=r.args||[];if(!s.length||!s.every(u=>zt.j(u)||u.kind===S.Name))return;let i=this.jr(r.base);if(!i||this.We(i))return;e+=1;let o=Ln.record(()=>{let u=[];for(let l of s){let c=this.Zn(l);if(!c.ok)return{ok:!1};u.push(c.value)}return this.Ve(i,u)});for(let u of o.writes)n.add(u);if(o.value.ok)for(let u of o.writes)u instanceof Te.LuaTable&&this.caches.add(u)}}),this.distrust(n),e}distrust(e){let n=new Map;for(let[r,s]of this.cells)n.set(s,r);for(let r of e){let s=n.get(r);s&&this.tainted.add(s)}for(let[r,s]of this.values)e.has(s.value)&&!this.caches.has(s.value)&&this.unfoldable.add(r)}Jn(e,n){let r=e;for(let s=0;s<=8&&r;s+=1){for(;r&&r.kind===S.Paren;)r=r.expression;if(!r)return null;let i=this.evaluate(r);if(i.ok)return n(i.value,null)?i.value:null;if(r.kind!==S.Name||!Iu(r.binding))return null;let o=this.values.get(r.binding);if(o&&n(o.value,r.binding))return o.value;r=this.ye(r)}return null}jr(e){return this.Jn(e,(n,r)=>n instanceof Te.LuaFunction&&!!n.node&&(!r||(r.writes||[]).every(s=>this.we(s))))}zr(e){return this.Jn(e,n=>this.Qn(n))}Qn(e,n=0){if(!(e instanceof Te.LuaTable)||n>8)return!1;if(this.caches.has(e))return!0;let r=e.metatable;return r?this.Qn(r.get("__index"),n+1):!1}Gr(e){if(!this.caches.size||!e||e.kind!==S.Index)return null;let n=this.Zn(e.index);if(!n.ok||n.value===void 0)return null;let r=this.zr(e.base);if(!r)return null;let s=this.protect(()=>Ue.index(this.rt,r,n.value));return!s.ok||!Ir(s.value)||s.value===void 0?null:zt.An(s.value)}Kr(e,n=!1){if(zt.j(e))return null;let r=this.evaluate(e);return!r.ok||!Ir(r.value)||r.value===void 0||n&&r.values&&r.values.length!==1?null:zt.An(r.value)}};Ou.exports={Evaluator:ai,K:Kt,U:Or}});var pi=F((cv,Ku)=>{"use strict";var{Kind:V,kn:Bg}=B(),{children:Rg,collect:av,walk:di,transform:Dg}=ee(),{Evaluator:Ru,U:Du,K:Pu}=Tr(),{c:Tu,D:ju}=Ne(),ci=ct(),{Pn:Pg,W:zu,Ge:jg}=Pe(),{Writes:zg}=Ar(),{LuaTable:Bn,LuaFunction:Gg}=un();function Kg(t,e,n,r){let s=new Set,i=!1,o=u=>{if(!u)return;if(!Tu(u)){i=!0;return}s.add(u);let l=r.get(u);l&&s.add(l)};di(t,{enter(u){e.set(u,t),u.kind===V.FunctionDeclaration&&(i=!0)}});for(let u of Pu(t,!0,r))o(u);for(let u of n.of(t))o(u);for(let u of Du(t))Tu(u)&&o(u);return i?null:s}function hi(t,e,n){for(let r of t.reads||[])if(!e.has(n.get(r)))return!0;return!1}function Ug(t,e,n){let r=[t.rt.globals];for(let[i,o]of t.values)o&&hi(i,e,n)&&r.push(o.value);let s=new Set;for(;r.length;){let i=r.pop();if(!(!(i instanceof Bn)||s.has(i))){s.add(i);for(let[o,u]of i.map)r.push(o),r.push(u);i.metatable&&r.push(i.metatable)}}return s}function Wg(t,e,n,r,s){for(let i of t){if(i instanceof Bn){if(e.has(i))return!0;continue}let o=n.get(i);if(!o||hi(o,r,s))return!0}return!1}function Gu(t,e,n){for(let r=0;r<e.size&&t.size;r+=1){let s=!1;for(let i of t){let o=!1;for(let u of e.get(i))if(u&&(o=hi(u,t,n)),o)break;o&&(t.delete(i),s=!0)}if(!s)break}}function Vg(t,e,n,r){if(!t.mutated.size)return;let s=new Map;for(let[i,o]of t.cells)s.set(o,i);for(let i=0;i<n.size&&e.size;i+=1){let o=Ug(t,e,r),u=!1;for(let l of e){let c=t.mutated.get(l);!c||!Wg(c,o,s,e,r)||(e.delete(l),u=!0)}if(!u)break;Gu(e,n,r)}}function Hg(t,e){let n=e.be;if(!n.size)return 0;let r=Pg(zu(t.chunk)),s=new zg(t.chunk,(a,f)=>Pu(a,f,r),Du),i=new Map,o=new Map;for(let a of n){let f=Kg(a,i,s,r);f&&o.set(a,f)}let u=new Set(o.keys());if(Gu(u,o,i),Vg(e,u,o,i),!u.size)return 0;let l=t.chunk.body,c=l.statements.length;return l.statements=l.statements.filter(a=>!u.has(a)),c-l.statements.length}function Yg(t){let e=new Set;if(t.kind===V.CallStatement&&e.add(t.expression),t.kind===V.Assignment)for(let n of t.targets)e.add(n);return t.kind===V.FunctionDeclaration&&e.add(t.target),e}function Xg(t){let e=new Set,n=s=>s&&s.length?s[s.length-1]:null,r=s=>{s&&e.add(s)};if(t.kind===V.Call||t.kind===V.MethodCall)r(n(t.args));else if(t.kind===V.Return)r(n(t.expressions));else if(t.kind===V.LocalDeclaration||t.kind===V.Assignment)r(n(t.expressions));else if(t.kind===V.GenericFor)r(n(t.expressions));else if(t.kind===V.Table){let s=n(t.entries);s&&s.type==="item"&&r(s.value)}return e}function Zg(t){let e=t;for(;;){if(!e)return null;if(e.kind===V.Paren){e=e.expression;continue}if(e.kind===V.Index){e=e.base;continue}return e.kind===V.Name?e:null}}function _r(t){return t?ci.j(t)?!0:t.kind===V.Paren?_r(t.expression):t.kind!==V.Table?!1:(t.entries||[]).every(e=>e.type==="item"?_r(e.value):e.type==="key"?ci.j(e.key)&&_r(e.value):!1):!1}function _u(t){if(Jg(t))return!0;let e=Zg(t);return!!e&&!ju(e)}function gi(t){let e=t;for(;e&&e.kind===V.Paren;)e=e.expression;return e}function Jg(t){let e=gi(t);return!!e&&(e.kind===V.Function||e.kind===V.Table)}function Br(t,e){if(!t)return;let n=t.evaluate(e);return n&&n.ok?n.value:void 0}function fi(t,e,n=new Set){let r=gi(t);return!r||n.has(r)?!1:(n.add(r),r.kind===V.Function||r.kind===V.Table?!0:r.kind===V.Name?ju(r)?!1:fi(jg(e,r.binding),e,n):r.kind===V.Index?fi(r.base,e,n):!1)}function Bu(t,e,n){return fi(t,n.values)?!0:Br(n.evaluator,t)instanceof e}function Qg(t,e){let n=Br(e.evaluator,t.base);if(!(n instanceof Bn))return!1;let r=Br(e.evaluator,t.index);return r==null?!1:ep(n,r,new Set)}function ep(t,e,n){let r=t;for(;r instanceof Bn&&!n.has(r);){if(n.add(r),r.get(e)!==void 0)return!0;let s=r.metatable;r=s instanceof Bn?s.get("__index"):void 0}return!1}function np(t,e){return t.kind===V.Index?t.index&&t.index.kind===V.String||!_u(t.base)||!Bu(t.base,Bn,e)?!1:Qg(t,e):t.kind===V.Call?!_u(t.base)||!Bu(t.base,Gg,e)?!1:(t.args||[]).every(n=>_r(n)):!1}var tp=new Set([V.While,V.Repeat,V.NumericFor,V.GenericFor]);function rp(t,e){let n=new Set,r=s=>{let i=gi(s);if(!i)return;if(i.kind===V.Name){if(!i.binding)return;let u=t.cells.get(i.binding);u&&u.value instanceof Bn&&(n.add(i.binding),n.add(u.value));return}let o=Br(t,s);o instanceof Bn&&n.add(o)};return di(e,{enter:s=>{s.kind===V.Call?(s.args||[]).forEach(r):s.kind===V.MethodCall&&(r(s.base),(s.args||[]).forEach(r))}}),n}function sp(t,e,n={}){let r=n.skip||new Set,s={evaluator:t,values:n.values||new Map},i=n.yi===!0,o={folded:0,strings:0},u=l=>{let c=t.dirty;if(tp.has(l.kind)){let h=rp(t,l);h.size&&(t.dirty=c?new Set([...c,...h]):h)}let a=Yg(l),f=Xg(l);for(let h of Rg(l)){let d=h.node;if(!d||r.has(d))continue;if(Bg(d)&&!a.has(d)&&(i||np(d,s))){let p=t.Kr(d,f.has(d));if(p){h.index===null?h.parent[h.key]=p:h.parent[h.key][h.index]=p,o.folded+=1,p.kind===V.String&&(o.strings+=1);continue}}let g=d.kind===V.Function;g&&(t.depth+=1),u(d),g&&(t.depth-=1)}t.dirty=c};return u(e),o}function ip(t){let e=new Set;return di(t,{enter(n){if(n.kind===V.Assignment)for(let r of n.targets||[])e.add(r);else n.kind===V.FunctionDeclaration&&n.target&&e.add(n.target)}}),e}function op(t,e,n){let r={folded:0,strings:0},s=ip(e);return Dg(e,i=>{if(s.has(i))return i;let o=t.Gr(i);return o?(r.folded+=1,o.kind===V.String&&(r.strings+=1,n&&(r.strings%25===0||r.strings===1)&&n.V("progress",{step:"03-strings",strings:r.strings,folded:r.folded})),o):i}),r}function up(t){t.resolve();let e={folded:0,strings:0},n=new Ru(t.chunk,t.options),r=zu(t.chunk);n.prepare(o=>{let u=sp(n,o,{values:r});e.folded+=u.folded,e.strings+=u.strings,e.strings>0&&(e.strings%25===0||e.folded%50===0)&&t.V("progress",{step:"03-strings",strings:e.strings,folded:e.folded})});let s=op(n,t.chunk,t);e.folded+=s.folded,e.strings+=s.strings,t.evaluator=n,t.V("progress",{step:"03-strings",strings:e.strings,folded:e.folded}),e.folded&&(t.note(`resolved ${e.folded} hidden constant(s), ${e.strings} string(s)`,e.folded),t.bump("decrypt.constants",e.folded),t.bump("decrypt.strings",e.strings)),n.skipped.length&&t.bump("decrypt.skippedStatements",n.skipped.length),t.resolve();let i=Hg(t,n);i&&(t.note(`removed the ${i}-statement decoder prelude`,i),t.bump("decrypt.preludeRemoved",i),t.resolve())}Ku.exports={name:"03-str",run:up,Evaluator:Ru,C:ci}});var Hu=F((fv,Vu)=>{"use strict";var{Kind:bi}=B(),{unparen:ki,de:Uu}=vn(),Wu={"<":">",">":"<","<=":">=",">=":"<="};function lp(t,e){let n=ki(t);if(!n||n.kind!==bi.Binary||!Wu[n.operator])return null;let r=n.operator,s=ki(n.lhs),i=ki(n.rhs);if(Uu(s)!==e){if(Uu(i)!==e)return null;r=Wu[r];let o=s;s=i,i=o}return!i||i.kind!==bi.Number?null:r==="<"?{lo:null,hi:i.value}:r==="<="?{lo:null,hi:i.value+1}:r===">"?{lo:i.value+1,hi:null}:{lo:i.value,hi:null}}function ap(t){let e=[],n=t.container.pos,r=(s,i,o)=>{let u=s.statements;if(u.length===1&&u[0].kind===bi.If&&u[0].e){let l=u[0],c=[{condition:l.condition,body:l.body}].concat(l.s||[]),a=c.map(f=>lp(f.condition,n));if(a.every(Boolean)){let f=i,h=o;for(let d=0;d<c.length;d+=1)a[d].hi!==null?(r(c[d].body,f,Math.min(h,a[d].hi)),f=Math.max(f,a[d].hi)):(r(c[d].body,Math.max(f,a[d].lo),h),h=Math.min(h,a[d].lo));r(l.e,f,h);return}}e.push({lo:i,hi:o,statements:u,id:null,index:e.length})};return r(t.container.dispatch.body,-1/0,1/0),e}function cp(t,e){let n=new Map,r=[];for(let i of e){let o=t.find(u=>i>=u.lo&&i<u.hi);if(!o){r.push({id:i,reason:"outside every interval"});continue}if(o.id!==null){r.push({id:i,reason:`interval already taken by ${o.id}`});continue}o.id=i,n.set(i,o)}let s=t.filter(i=>i.id===null);return{He:n,dead:s,conflicts:r}}Vu.exports={Ur:ap,Wr:cp}});var wi=F((dv,il)=>{"use strict";var{Kind:$e,d:fp}=B(),{CHILDREN:mi}=ee(),{unparen:Dr,de:Xu}=vn(),Pr="VmRef",Zu="VmLive",dp=(t,e)=>({kind:Pr,index:t,slot:e}),Ju=t=>({kind:Zu,reg:t});function Qu(t,e){let n=mi[t.kind],r={...t};if(!n)return r;for(let s of Object.keys(n)){let i=n[s],o=t[s];o!=null&&(i==="node"?r[s]=e(o):i==="list"?r[s]=o.map(e):i==="clauses"?r[s]=o.map(u=>({...u,condition:e(u.condition),body:e(u.body)})):i==="entries"&&(r[s]=o.map(u=>({...u,key:u.key?e(u.key):u.key,value:e(u.value)}))))}return r}function el(t){return t.Ye||(t.Ye=new Set(t.container.registers),t.Ye.add(t.container.pos),t.Xe=`r${t.container.pos.id}`,t.Vr=`r${t.container.Yt.id}`),t.Ye}function Yu(t,e){let n=Dr(e);if(!n)return null;if(n.kind===$e.Name){let r=n.binding;return r&&el(t).has(r)?`r${r.id}`:null}if(n.kind===$e.Index&&t.container.spill){if(Xu(n.base)!==t.container.spill)return null;let r=Dr(n.index);return r&&r.kind===$e.Number?`s${r.value}`:null}return null}function nl(t,e){let n=Xu(e);if(!n)return!1;let{args:r,upvals:s,qn:i}=t.container;return n===r||n===s||n===i}function hp(t,e){return e.targets.length===1&&nl(t,e.targets[0])}function Zn(t){if(!t||typeof t!="object")return!1;if(t.kind===$e.Call||t.kind===$e.MethodCall)return!0;let e=mi[t.kind];if(!e)return!1;for(let n of Object.keys(e)){let r=e[n],s=t[n];if(s!=null){if(r==="node"){if(Zn(s))return!0}else if(r==="list"){for(let i of s)if(Zn(i))return!0}else if(r==="clauses"){for(let i of s)if(Zn(i.condition)||Zn(i.body))return!0}else if(r==="entries"){for(let i of s)if(i.key&&Zn(i.key)||Zn(i.value))return!0}}}return!1}function Rn(t){if(!t||typeof t!="object")return!1;if(t.kind===$e.Call||t.kind===$e.MethodCall||t.kind===$e.Index)return!0;let e=mi[t.kind];if(!e)return!1;for(let n of Object.keys(e)){let r=e[n],s=t[n];if(s!=null){if(r==="node"){if(Rn(s))return!0}else if(r==="list"){for(let i of s)if(Rn(i))return!0}else if(r==="clauses"){for(let i of s)if(Rn(i.condition)||Rn(i.body))return!0}else if(r==="entries"){for(let i of s)if(i.key&&Rn(i.key)||Rn(i.value))return!0}}}return!1}function gp(t,e){el(t);let n=[],r=new Map,s=new Set,i=new Set,o=[],u=c=>{let a=r.get(c);return a?dp(a.index,a.slot):(i.has(c)||s.add(c),Ju(c))},l=c=>{if(!c||typeof c!="object")return c;let a=Yu(t,c);if(a)return u(a);if(c.kind===$e.Paren){let f=l(c.expression);return fp(Dr(c))&&f&&typeof f=="object"&&(f.truncated=!0),f}return Qu(c,l)};for(let c of e.statements){if(c.kind===$e.CallStatement){n.push({index:n.length,targets:[],exprs:[l(c.expression)],ordered:!0,source:c});continue}if(c.kind!==$e.Assignment){o.push(c);continue}if(hp(t,c))continue;let a=c.expressions.map(l),f=c.targets.map(g=>{let p=Yu(t,g);if(p)return{reg:p,node:null};let k=Dr(g);return k.kind===$e.Index?{reg:null,node:{...k,base:l(k.base),index:l(k.index)}}:{reg:null,node:{...k}}}),d=f.length>1&&a.length===f.length?f.map((g,p)=>({targets:[g],exprs:[a[p]],at:p})):[{targets:f,exprs:a,at:-1}];for(let g of d){if(g.at>=0&&nl(t,c.targets[g.at])&&!Rn(g.exprs[0]))continue;let p=n.length;n.push({index:p,targets:g.targets,exprs:g.exprs,ordered:g.exprs.some(Rn)||g.targets.some(k=>k.node!==null),source:c});for(let k=0;k<g.targets.length;k+=1){let{reg:w}=g.targets[k];w&&(r.set(w,{index:p,slot:k}),i.add(w))}}}return{leaf:e,statements:n,ue:s,written:i,unsupported:o,exit:r.get(t.Xe)||null}}function tl(t,e){return t?t.exprs.length===t.targets.length?t.exprs[e]||null:t.targets.length===1&&t.exprs[0]||null:null}function rl(t,e){return!e||e.kind!==Pr?null:tl(t.statements[e.index],e.slot)}function sl(t,e,n=0){let r=e,s=n;for(;r&&r.kind===Pr&&s<256;){let i=rl(t,r);if(!i)return r;r=i,s+=1}return r}function Rr(t,e,n=0){if(n>64)return{kind:"unknown"};let r=sl(t,e,n);if(!r)return{kind:"return"};if(r.kind===$e.Number)return{kind:"goto",target:r.value};if(r.kind===$e.Nil)return{kind:"return"};if(r.kind===$e.Index)return{kind:"return"};if(r.kind===$e.Binary&&r.operator==="or"){let s=Rr(t,r.lhs,n+1),i=Rr(t,r.rhs,n+1);return s.kind!=="guarded"?{kind:"unknown"}:i.kind==="goto"?{kind:"branch",condition:s.condition,B:s.target,h:i.target}:i.kind==="return"?{kind:"branch",condition:s.condition,B:s.target,h:null}:{kind:"unknown"}}if(r.kind===$e.Binary&&r.operator==="and"){let s=Rr(t,r.rhs,n+1);return s.kind!=="goto"?{kind:"unknown"}:{kind:"guarded",condition:r.lhs,target:s.target}}return{kind:"unknown"}}function pp(t){if(!t.exit)return{kind:"unknown",index:null};let e=t.statements[t.exit.index],n=tl(e,t.exit.slot);if(!n)return{kind:"unknown",index:null};let r=Rr(t,n);return r.kind==="guarded"?{kind:"branch",condition:r.condition,B:r.target,h:null,index:t.exit.index}:{...r,index:t.exit.index}}il.exports={REF:Pr,LIVE:Zu,live:Ju,Hr:Qu,Yr:Zn,Xr:gp,definition:rl,peel:sl,terminator:pp}});var fl=F((hv,cl)=>{"use strict";var{Kind:ol}=B(),{walk:kp}=ee(),{unparen:bp,de:mp}=vn(),{Ur:wp,Wr:yp}=Hu(),{Xr:vp,terminator:xp}=wi();function Sp(t){let e=new Map;return kp(t.container.fn,{enter:n=>{if(n.kind!==ol.Call)return;let r=t.T?t.T(n.base):t.creators.get(mp(n.base));if(!r)return;let s=bp(n.args[0]);if(!s||s.kind!==ol.Number)return;let i=e.get(s.value),o={O:s.value,creator:r,arity:r.arity,vararg:r.vararg,er:n.args[1]||null,call:n};i?i.push(o):e.set(s.value,[o])}}),e}function ul(t){return t.kind==="goto"?[t.target]:t.kind==="branch"?t.h===null?[t.B]:[t.B,t.h]:[]}function Np(t){let e=wp(t),n=e.map(l=>{let c=vp(t,l);return c.terminator=xp(c),c}),r=Sp(t),s=new Set([t.entry.O]);for(let l of r.keys())s.add(l);for(let l of n)for(let c of ul(l.terminator))s.add(c);let i=yp(e,[...s].sort((l,c)=>l-c)),o=new Map;for(let l of n)l.leaf.id!==null&&(l.id=l.leaf.id,l.successors=[],l.predecessors=[],o.set(l.id,l));let u=[];for(let l of o.values())for(let c of ul(l.terminator)){let a=o.get(c);if(!a){u.push({from:l.id,to:c});continue}l.successors.push(a),a.predecessors.push(l)}return{vm:t,blocks:o,sites:r,dead:i.dead,conflicts:i.conflicts,missing:u,unsupported:n.filter(l=>l.unsupported.length),unknown:[...o.values()].filter(l=>l.terminator.kind==="unknown")}}function Cp(t,e,n){let r=new Set,s=[],i=t.blocks.get(e);if(!i)return{seen:r,order:s};let o=[i];for(r.add(i.id);o.length;){let u=o.shift();s.push(u);for(let l of u.successors)r.has(l.id)||n.has(l.id)&&l.id!==e||(r.add(l.id),o.push(l))}return{seen:r,order:s}}function al(t,e){let n=new Set,r=[],s=[{block:t,index:0}];for(n.add(t.id);s.length;){let i=s[s.length-1];if(i.index<i.block.successors.length){let o=i.block.successors[i.index];i.index+=1,!n.has(o.id)&&e.has(o.id)&&(n.add(o.id),s.push({block:o,index:0}));continue}r.push(i.block),s.pop()}return r.reverse()}function ll(t,e){if(t.size!==e.size)return!1;for(let n of t)if(!e.has(n))return!1;return!0}function Fp(t,e){for(let r of t.blocks)r.use=new Set([...r.ue].filter(s=>s!==e)),r.def=new Set([...r.written].filter(s=>s!==e)),r.Ze=new Set(r.use),r.ve=new Set;let n=[...t.blocks].reverse();for(let r=0;r<1e4;r+=1){let s=!1;for(let i of n){let o=new Set;for(let l of i.successors)if(t.members.has(l.id))for(let c of l.Ze)o.add(c);let u=new Set(i.use);for(let l of o)i.def.has(l)||u.add(l);(!ll(o,i.ve)||!ll(u,i.Ze))&&(s=!0),i.ve=o,i.Ze=u}if(!s)break}}function qp(t){let e=Np(t),n=new Set([t.entry.O,...e.sites.keys()]),r=[];r.push({id:t.entry.O,kind:"main",arity:t.entry.arity,vararg:t.entry.vararg,site:null});for(let[l,c]of e.sites){if(l===t.entry.O)continue;let a=c[0];r.push({id:l,kind:"closure",arity:a.arity,vararg:a.vararg,site:a,sites:c})}let s=[],i=new Map,o=[];for(let l of r){let c=e.blocks.get(l.id);if(!c){e.missing.push({from:null,to:l.id});continue}let{seen:a}=Cp(e,l.id,n),f={...l,entry:c,members:a,blocks:al(c,a)};for(let h of a){let d=i.get(h);if(d!==void 0&&d!==l.id){o.push({block:h,functions:[d,l.id]});continue}i.set(h,l.id)}Fp(f,t.Xe),s.push(f)}let u=[...e.blocks.keys()].filter(l=>!i.has(l));return{...e,functions:s,owner:i,shared:o,orphans:u}}cl.exports={Zr:al,Jr:qp}});var pl=F((gv,gl)=>{"use strict";var yi=class{constructor(){this.parent=new Map}find(e){let n=e;for(;this.parent.has(n)&&this.parent.get(n)!==n;)n=this.parent.get(n);let r=e;for(;this.parent.has(r)&&this.parent.get(r)!==r;){let s=this.parent.get(r);this.parent.set(r,n),r=s}return this.parent.has(e)||this.parent.set(e,n),n}union(e,n){let r=this.find(e),s=this.find(n);r!==s&&this.parent.set(s,r)}},vi=(t,e)=>`E${t.id}|${e}`,dl=(t,e,n)=>`D${t.id}|${e}.${n}`;function hl(t){let e=new Map,n=new Map;for(let s of t.blocks)e.set(s,new Set(s.ue)),n.set(s,new Set);let r=[...t.blocks].reverse();for(let s=0;s<1e4;s+=1){let i=!1;for(let o of r){let u=n.get(o),l=e.get(o);for(let c of o.successors)if(t.members.has(c.id))for(let a of e.get(c)||[])u.has(a)||(u.add(a),i=!0);for(let c of u)o.written.has(c)||l.has(c)||(l.add(c),i=!0)}if(!i)break}return{ue:e,Qr:n}}function Mp(t,e){let n=t.statements;for(let r=n.length-1;r>=0;r-=1){let s=n[r].targets;for(let i=s.length-1;i>=0;i-=1)if(s[i].reg===e)return dl(t,r,i)}return vi(t,e)}function $p(t){let e=new yi,{ue:n}=hl(t);for(let r of t.blocks)for(let s of n.get(r)||[]){let i=vi(r,s);e.find(i);for(let o of r.predecessors)t.members.has(o.id)&&e.union(i,Mp(o,s))}return e}gl.exports={es:$p,et:vi,ns:dl,liveness:hl}});var ml=F((pv,bl)=>{"use strict";function kl(t,e){let n=new Set([t]),r=[],s=[{node:t,successors:e(t),index:0}];for(;s.length;){let i=s[s.length-1];if(i.index<i.successors.length){let o=i.successors[i.index];if(i.index+=1,n.has(o))continue;n.add(o),s.push({node:o,successors:e(o),index:0});continue}r.push(i.node),s.pop()}return r.reverse()}function Lp(t,e,n){let r=kl(t,e),s=new Map;r.forEach((u,l)=>s.set(u,l));let i=new Map([[t,t]]),o=(u,l)=>{let c=u,a=l;for(;c!==a;){for(;s.get(c)>s.get(a);)c=i.get(c);for(;s.get(a)>s.get(c);)a=i.get(a)}return c};for(let u=0;u<1e4;u+=1){let l=!1;for(let c of r){if(c===t)continue;let a=null;for(let f of n(c))!s.has(f)||!i.has(f)||(a=a===null?f:o(f,a));a&&i.get(c)!==a&&(i.set(c,a),l=!0)}if(!l)break}return{idom:i,order:r,index:s}}function Ep(t,e,n){let r=n;for(let s=0;s<1e5;s+=1){if(r===e)return!0;let i=t.get(r);if(!i||i===r)return!1;r=i}return!1}bl.exports={Zr:kl,dominators:Lp,dominates:Ep}});var vl=F((kv,yl)=>{"use strict";var{dominators:wl,dominates:jr}=ml(),Dn={id:"EXIT"};function Ap(t,e){let n=t.terminator;return n.kind==="return"||n.kind==="unknown"||n.kind==="branch"&&n.h===null?!0:t.successors.filter(r=>e.has(r.id)).length===0}function Ip(t){let e=new Map([[Dn,[]]]),n=new Map([[Dn,[]]]);for(let s of t.blocks)e.set(s,[]),n.has(s)||n.set(s,[]);let r=(s,i)=>{e.get(s).push(i),n.get(i).push(s)};for(let s of t.blocks){for(let i of s.successors)t.members.has(i.id)&&r(s,i);Ap(s,t.members)&&r(s,Dn)}return{succ:e,pred:n}}function Op(t,e,n){let r=new Map;for(let s of t.blocks)for(let i of n.get(s)){if(i===Dn||!jr(e,i,s))continue;let o=r.get(i);o||(o={header:i,latches:[],members:new Set([i]),follow:null,exits:[]},r.set(i,o)),o.latches.push(s)}for(let s of r.values()){let i=[...s.latches];for(let u of s.latches)s.members.add(u);for(;i.length;){let u=i.pop();if(u!==s.header)for(let l of u.predecessors)t.members.has(l.id)&&(s.members.has(l)||(s.members.add(l),i.push(l)))}let o=new Set;for(let u of s.members)for(let l of n.get(u))l===Dn||s.members.has(l)||(o.add(l),s.exits.push({from:u,to:l}));o.size===1?[s.follow]=[...o]:s.candidates=[...o]}return r}function Tp(t){let{succ:e,pred:n}=Ip(t),r=wl(t.entry,y=>e.get(y)||[],y=>n.get(y)||[]),s=wl(Dn,y=>n.get(y)||[],y=>e.get(y)||[]),i=Op(t,r.idom,e),o=r.index,u=[],l=new Set,c=new Set;for(let y of i.values()){if(y.follow||!y.candidates||!y.candidates.length)continue;let z=[...y.candidates].sort((O,H)=>(o.get(O)||0)-(o.get(H)||0)),Y=z.find(O=>jr(s.idom,O,y.header))||z.find(O=>(e.get(y.header)||[]).includes(O));y.follow=Y||z[0],Y||u.push({kind:"multiple-loop-exits",header:y.header.id,exits:z.map(O=>O.id)})}let a=new Map(t.blocks.map(y=>[y.id,y])),f=y=>{let z=a.get(y);return z&&t.members.has(y)?z:null},h=(y,z)=>z===y.follow||z===Dn?!1:y.members.has(z)?!0:jr(r.idom,y.header,z)?!y.follow||!jr(r.idom,y.follow,z):!1,d=(y,z)=>{let re=z.loops.length-1;for(let Y=re;Y>=0;Y-=1){let O=z.loops[Y];if(y===O.header)return Y===re?{kind:"continue",loop:O}:null;if(y===O.follow)return Y===re?{kind:"break",loop:O}:null}return null},g=(y,z)=>{let re=d(y,z);return re||(l.add(y.id),{kind:"goto",target:y.id})},p=(y,z,re,Y)=>{let O=[],H=y;for(let x=0;H&&x<1e5&&H!==z;x+=1){if(!(Y&&x===0)){let K=d(H,re);if(K){O.push(K);break}}if(c.has(H)){O.push(g(H,re));break}let v=i.get(H);if(v&&!re.loops.includes(v)){O.push(A(v,re)),H=v.follow;continue}c.add(H),O.push({kind:"block",block:H});let L=H.terminator;if(L.kind==="return"||L.kind==="unknown"){O.push({kind:L.kind==="return"?"return":"raw",block:H});break}if(L.kind==="goto"){let K=f(L.target);if(!K){u.push({kind:"missing-target",from:H.id,to:L.target});break}if(K===z)break;let ie=i.get(K),de=g(K,re);if(de.kind==="goto"&&!c.has(K)&&(!ie||!re.loops.includes(ie))){l.delete(K.id),H=K;continue}O.push(de);break}if(L.kind==="branch"){let K=s.idom.get(H),ie=K&&K!==Dn&&K!==H?K:null,de=re.loops[re.loops.length-1];if(ie&&de&&!h(de,ie)&&(ie=null),O.push(w(H,L,ie,re)),!ie||ie===z||c.has(ie))break;H=ie;continue}break}return{kind:"seq",items:O}},k=y=>!y||!y.items||y.items.length===0,w=(y,z,re,Y)=>{let O=f(z.B),H=z.h===null?null:f(z.h),x=O?p(O,re,Y):{kind:"seq",items:[]},v=H?p(H,re,Y):{kind:"seq",items:[{kind:"return",block:y}]};return k(x)&&!k(v)?{kind:"if",block:y,condition:z.condition,negate:!0,then:v,else:null}:{kind:"if",block:y,condition:z.condition,negate:!1,then:x,else:k(v)?null:v}},A=(y,z)=>{let re={...z,loops:[...z.loops,y]},Y=y.header,O=Y.terminator;if(O.kind==="branch"){let H=f(O.B),x=O.h===null?null:f(O.h),v=H&&y.members.has(H),L=x&&y.members.has(x),K=ie=>ie===y.follow||ie===null&&y.follow===null;if(v&&!L&&K(x))return c.add(Y),{kind:"while",loop:y,header:Y,condition:O.condition,negate:!1,body:p(H,Y,re,!0),nt:x===null};if(L&&!v&&K(H))return c.add(Y),{kind:"while",loop:y,header:Y,condition:O.condition,negate:!0,body:p(x,Y,re,!0),nt:!1}}if(y.latches.length===1&&y.latches[0]!==Y){let H=y.latches[0],x=H.terminator;if(x.kind==="branch"){let v=f(x.B),L=x.h===null?null:f(x.h),K=L===Y&&v===y.follow,ie=v===Y&&L===y.follow;if(K||ie){c.add(H);let de=p(Y,H,re,!0);return{kind:"repeat",loop:y,latch:H,condition:x.condition,negate:ie,body:de}}}}return u.push({kind:"unstructured-loop",header:Y.id}),{kind:"loop",loop:y,header:Y,body:p(Y,null,re,!0)}},X=p(t.entry,null,{loops:[]}),ye=new Map(t.blocks.map((y,z)=>[y,z])),ke=[];for(let y=0;y<1e4;y+=1){let z=null,re=1/0;for(let Y of l){let O=a.get(Y);if(!O||c.has(O))continue;let H=ye.has(O)?ye.get(O):1/0;H<re&&(re=H,z=O)}if(!z)break;ke.push({kind:"labelled",id:z.id,region:p(z,null,{loops:[]})})}ke.length&&X.items.push(...ke);let be=t.blocks.filter(y=>!c.has(y));for(let y of be)u.push({kind:"unplaced-block",block:y.id});return{fn:t,region:X,labels:l,loops:i,warnings:u,unplaced:be,dom:r,vi:s}}yl.exports={ts:Tp}});var Ni=F((bv,Fl)=>{"use strict";var C=B(),{Kind:ue}=C,{y:_p}=Tn(),{walk:Bp,transform:Rp}=ee(),{es:Dp,et:Pp,ns:xl,liveness:jp}=pl(),{de:Ut,unparen:dt}=vn(),{REF:gt,LIVE:Wt,Hr:Vt,definition:Sl,peel:En,Yr:zp}=wi(),{ts:Gp}=vl(),Qn=(t,e)=>!!e&&Ut(t)===e,Kp=t=>t.container.Qt||(e=>Qn(e,t.container.upvals)),Up=t=>t.upvalues&&t.upvalues.Xt||(e=>!!t.upvalues&&Qn(e,t.upvalues.alloc)),Wp=t=>t.upvalues&&t.upvalues.Zt||(e=>!!t.upvalues&&Qn(e,t.upvalues.table)),Vp=t=>t.upvalues&&t.upvalues.Mn||(e=>!!t.upvalues&&Qn(e,t.upvalues.refs));function Hp(t){return Rp(t,e=>{if(e.kind!==ue.Call||(e.args||[]).length!==1||!e.base||e.base.kind!==ue.Name||e.base.name!=="unpack")return e;let n=ht(e.args[0]);return n&&n.length===1?n[0]:e})}function Jn(t){for(;t.length&&t[t.length-1].kind===ue.Continue;)t.pop();let e=t[t.length-1];if(!e||e.kind!==ue.If)return t;Jn(e.body.statements);for(let n of e.s||[])Jn(n.body.statements);return e.e&&(Jn(e.e.statements),e.e.statements.length||(e.e=null)),t}function Yp(t){return typeof t=="string"&&(t.startsWith("alloc:")||t.startsWith("param:"))}function Xp(t,e,n){if(!t||t.kind!==ue.Index||!e(n(t.base)))return null;let r=dt(n(t.index));return r&&r.kind===ue.Number?r.value:null}function Zp(t,e){let n=null,r=s=>{!s||typeof s!="object"||e(s,n)!==!1&&(s.kind===gt||s.kind===Wt||Vt(s,i=>(r(i),i)))};for(let s of t.blocks){n=s;for(let i of s.statements){for(let o of i.exprs)r(o);for(let o of i.targets)o.node&&r(o.node)}}}function Jp(t,e){let n=0,r=!1,s=t.container.args;return Zp(e,(i,o)=>{if(i.kind===ue.Index&&Qn(i.base,s)){let u=dt(En(o,i.index));if(u&&u.kind===ue.Number&&Number.isInteger(u.value)&&u.value>0)return n=Math.max(n,u.value),!1}i.kind===ue.Name&&Ut(i)===s&&(r=!0)}),{arity:n,rs:r}}function Gr(t,e){if(!(!t||typeof t!="object")){if(t.kind===gt){e.push(t);return}t.kind!==Wt&&Vt(t,n=>(Gr(n,e),n))}}function xi(t,e){if(!(!t||typeof t!="object")){if(t.kind===Wt){e.add(t.reg);return}t.kind!==gt&&Vt(t,n=>(xi(n,e),n))}}var Pn=Symbol("top");function Cl(t){if(!t||typeof t!="object")return t;let e=Vt(t,Cl);return delete e.binding,delete e.bindings,e}function Nl(t){return!!t&&t.kind===ue.Call&&t.base&&t.base.kind===ue.Name&&t.base.name==="unpack"&&(t.args||[]).length===1}function ht(t){if(!t)return null;if(t.kind===ue.Paren){let n=dt(t);return C.d(n)?null:ht(n)}let e=t;if(e.kind===ue.Table){let n=e.entries||[];if(!n.every(s=>s.type==="item"))return null;let r=n.map(s=>s.value);if(r.length===1&&Nl(r[0])){let s=ht(r[0]);if(s)return s}return r}return Nl(e)?ht(e.args[0]):null}var zr=(t,e)=>e?t&&t.kind===ue.Unary&&t.operator==="not"?t.argument:C.unary("not",t):t;function Qp(t,e){let n=Kp(t),r=Up(t),s=(d,g,p,k)=>{if(!g)return Pn;if(g.kind===gt)return k.get(`${g.index}.${g.slot}`)||Pn;if(g.kind===Wt)return p.get(g.reg)||Pn;let w=X=>En(d,X),A=Xp(g,n,w);return A!==null?`param:${A}`:g.kind===ue.Call&&r(w(g.base))?`alloc:${d.id}:${g.ss}`:Pn};for(let d of e.blocks)d.statements.forEach((g,p)=>{for(let k of g.exprs)k&&k.kind===ue.Call&&r(En(d,k.base))&&(k.ss=p)});let i=new Map,o=new Map;for(let d of e.blocks)i.set(d,new Map),o.set(d,new Map);let{ue:u,Qr:l}=jp(e),c=new Set,a=(d,g)=>{let p=new Map;for(let k of g){let w=d.get(k);w!==void 0&&p.set(k,w)}return p},f=d=>{let g=new Map(i.get(d)),p=new Map;return d.statements.forEach((k,w)=>{let A=k.targets.length===1&&k.exprs.length===1;k.targets.forEach((X,ye)=>{let ke=A?s(d,k.exprs[0],g,p):Pn;p.set(`${w}.${ye}`,ke),X.reg&&g.set(X.reg,ke)})}),d.Je=p,a(g,l.get(d)||c)},h=(d,g)=>{let p=u.get(d)||c,k=new Map;for(let w of d.predecessors){if(!g.members.has(w.id))continue;let A=o.get(w);if(!(!A||!A.size))for(let X of p){let ye=A.get(X);ye!==void 0&&(k.has(X)?k.get(X)!==ye&&k.set(X,Pn):k.set(X,ye))}}return k};for(let d=0;d<1e3;d+=1){let g=!1;for(let p of e.blocks){let k=p===e.entry?new Map:h(p,e),w=i.get(p),A=w.size!==k.size;if(!A){for(let[be,y]of k)if(w.get(be)!==y){A=!0;break}}A&&(i.set(p,k),g=!0);let X=f(p),ye=o.get(p),ke=ye.size!==X.size;if(!ke){for(let[be,y]of X)if(ye.get(be)!==y){ke=!0;break}}ke&&(o.set(p,X),g=!0)}if(!g)break}for(let d of e.blocks)d.os=i.get(d);return{xi:i,Si:o,us:s}}var Si=class{constructor(e,n,r={}){this.vm=e,this.cfg=n,this.options=r,this.warnings=[],this.counter=r.counter||0,this.He=new Map(n.functions.map(s=>[s.id,s])),this.ls=new Set(e.wrapper&&e.wrapper.bindings?e.wrapper.bindings:[]),this.as=new Set(Object.keys(e.roles).map(s=>e.roles[s])),this.cs=new Map(Object.keys(e.roles).map(s=>[e.roles[s],s])),this.tt=Wp(e),this.fs=Vp(e),this.ds=e.upvalues&&e.upvalues.Jt||(()=>!1),this.active=new Set}fresh(e){return this.counter+=1,`${e}${this.counter}`}warn(e,n){this.warnings.push({kind:e,...n})}T(e){if(!e)return null;if(this.vm.T)return this.vm.T(e);let n=Ut(e);return n&&this.vm.creators.get(n)||null}hs(e,n){if(!n||n.kind!==ue.Call)return!1;let r=En(e,n.base),s=Ut(r);return!(!s||!this.ls.has(s)&&!this.ds(r)||this.as.has(s)||this.T(r)||s===this.vm.nr)}gs(e,n,r){return e.Je?e.Je.get(`${n}.${r}`):Pn}ps(e,n,r){for(let s of n.targets)if(s.node&&this.fs(En(e,s.node.base)))return!0;return n.exprs.length===1&&this.hs(e,n.exprs[0])?n.targets.every(s=>s.reg!==null):!!(n.targets.length&&!n.ordered&&n.targets.every((s,i)=>s.reg&&Yp(this.gs(e,r,i))))}Qe(e,n){let r=e.en.get(n);return r||(r=this.fresh("v"),e.en.set(n,r)),e.used.add(r),r}nn(e,n){if(n===Pn||n===void 0||n===null)return null;let r=e.cells.get(n);if(r)return e.used.add(r),r;if(typeof n!="string"||!n.startsWith("alloc:"))return null;let s=this.fresh("u");return e.cells.set(n,s),e.st.set(s,n),e.used.add(s),s}it(e){let n=e.params.map(r=>({type:"item",value:C.name(r)}));return n.push({type:"item",value:C.vararg()}),C.table(n)}ks(e){if(e==="varargs"){let n=this.options.varargs;return n?Cl(n):C.table([{type:"item",value:C.vararg()}])}return e==="env"?C.name("_ENV"):C.name(e)}bs(e,n,r){let s=this.vm,i=s.container;if(e.kind===ue.Index){let o=En(n.block,e.base);if(this.tt(o)){let c=this.nn(n,n.xe(e.index));if(c)return C.name(c)}let u=Qn(o,s.roles.env),l=Qn(o,i.args);if(u||l){let c=dt(r(e.index));return u?c&&c.kind===ue.String&&_p(c.value)?C.name(c.value):C.index(C.name("_ENV"),c):c&&c.kind===ue.Number&&Number.isInteger(c.value)&&c.value>=1&&c.value<=n.params.length?C.name(n.params[c.value-1]):C.index(this.it(n),c)}}if(e.kind===ue.Call&&this.T(En(n.block,e.base))){let u=this.ms(e,n);if(u)return u}if(e.kind===ue.Name){let o=Ut(e);if(o&&o===i.args)return this.it(n);let u=o?this.cs.get(o):null;if(u)return this.ks(u)}return Vt(e,r)}ms(e,n){let r=e.args||[],s=dt(En(n.block,r[0]));if(!s||s.kind!==ue.Number)return null;let i=this.He.get(s.value);return i?this.ot(i,this.ws(r[1],n),n.depth+1):(this.warn("missing-closure",{id:s.value,block:n.block.id}),null)}ws(e,n){let r=e;for(let i=0;i<64&&r&&r.kind===gt;i+=1)r=Sl(n.block,r);let s=r?dt(r):null;return!s||s.kind!==ue.Table?(e&&this.warn("opaque-upvalues",{block:n.block.id}),[]):(s.entries||[]).map((i,o)=>{if(i.type!=="item")return null;let u=n.xe(i.value),l=this.nn(n,u);return l||this.warn("opaque-upvalue",{block:n.block.id,slot:o+1,token:String(u)}),l})}H(e,n){let r=n.emitters.get(e);if(r)return r;let s={block:e,statements:[],condition:null,returns:null};return n.emitters.set(e,s),this.ys(s,e,n),s}ys(e,n,r){let s=this.vm,i=n.statements,o=n.terminator,u=(x,v)=>`${x}.${v}`,l=x=>r.webs.find(Pp(n,x)),c=(x,v)=>r.webs.find(xl(n,x,v));r.block=n;let a=new Map;i.forEach((x,v)=>x.targets.forEach(L=>{L.reg&&(a.has(L.reg)||a.set(L.reg,[]),a.get(L.reg).push(v))}));let f=x=>{let v=a.get(x);return v?v[v.length-1]:-1},h=new Map,d=x=>{let v=h.get(x);if(v)return v;v=[];for(let L of i[x].exprs)Gr(L,v);for(let L of i[x].targets)L.node&&Gr(L.node,v);return h.set(x,v),v},g=x=>{let v=new Set;for(let L of i[x].exprs)xi(L,v);for(let L of i[x].targets)L.node&&xi(L.node,v);return v},p=[];o.kind==="branch"&&Gr(o.condition,p);let k=new Set(p.map(x=>x.index)),w=new Set,A=o.index===null||o.index===void 0?[]:[o.index];for(;A.length;){let x=A.pop();if(!w.has(x)){w.add(x);for(let v of d(x)){if(k.has(v.index))continue;let L=i[v.index].targets[v.slot];L&&L.reg===s.Xe&&A.push(v.index)}}}i.forEach((x,v)=>{this.ps(n,x,v)&&w.add(v)});let X=null;if(o.kind==="return"||o.kind==="unknown"||o.kind==="branch"&&o.h===null){let x=(a.get(s.Vr)||[]).filter(L=>!w.has(L)),v=x.length?x[x.length-1]:null;if(v!==null){let L=p.some(K=>K.index===v);for(let K=v+1;!L&&K<i.length;K+=1)L=d(K).some(ie=>ie.index===v);L||(X=v,w.add(v))}}let ke=X===null?[]:d(X),be=[];for(let x=0;x<i.length;x+=1)w.has(x)||be.push(x);let y=x=>{let v=new Set,L=new Map,K=new Map;for(let de=0;de<=i.length+1;de+=1){L.clear(),K.clear();let me=(le,qe)=>{for(let Ae of le){let sn=u(Ae.index,Ae.slot);L.set(sn,(L.get(sn)||0)+1),K.set(sn,qe)}};for(let le of be)v.has(le)||me(d(le),le);me(ke,i.length),me(p,i.length);let oe=!1;for(let le of be)v.has(le)||this.vs(n,i[le],le,L,x,f)||(v.add(le),oe=!0);if(!oe)break}let ie=new Set;for(let de of be){if(v.has(de))continue;let me=i[de].targets.length>1;i[de].targets.forEach((oe,le)=>{if(!oe.reg)return;let qe=u(de,le),Ae=n.ve.has(oe.reg)&&f(oe.reg)===de;(me||Ae||x.has(qe)||(L.get(qe)||0)!==1)&&ie.add(qe)})}return{drop:v,counts:L,host:K,materialized:ie}},z=x=>{let{drop:v,host:L,materialized:K}=x,ie=me=>{let oe=me;for(let le=0;le<512;le+=1){let qe=L.get(oe);if(qe===void 0||qe>=i.length||v.has(qe))return i.length;let Ae=i[qe].targets[0];if(i[qe].targets.length!==1||!Ae||!Ae.reg)return qe;let sn=u(qe,0);if(K.has(sn))return qe;oe=sn}return i.length},de=new Set;for(let me of be){if(v.has(me)||i[me].targets.length!==1)continue;let oe=u(me,0);if(K.has(oe)||!i[me].targets[0].reg)continue;let le=ie(oe);for(let qe of g(me))for(let Ae of a.get(qe)||[])Ae>me&&Ae<le&&!v.has(Ae)&&!w.has(Ae)&&de.add(oe)}return de},re=x=>{let{drop:v,counts:L,materialized:K}=x,ie=this.warnings.length,de=[],me=[],oe=null,le=new Map,qe=D=>{if(le.has(D))return le.get(D);let Re=i[D],Ie="read";return Re.targets.some(mn=>mn.node!==null)?Ie="store":Re.exprs.some(zp)&&(Ie="call"),le.set(D,Ie),Ie},Ae=-1,sn=-1,qs=-1,mo=D=>{let Re=qe(D),Ie=qs;Re==="store"?Ie=Ae:Re==="call"&&(Ie=sn),D<Ie&&(oe===null&&(oe={small:D,large:Ie}),me.push({small:D,large:Ie})),D>Ae&&(Ae=D),Re!=="read"&&D>sn&&(sn=D),Re==="store"&&D>qs&&(qs=D)},qt=D=>{if(!D||typeof D!="object")return D;if(D.kind===Wt)return C.name(this.Qe(r,l(D.reg)));if(D.kind===gt){let Ie=u(D.index,D.slot);if(K.has(Ie))return C.name(this.Qe(r,c(D.index,D.slot)));if(w.has(D.index)||v.has(D.index))return this.warn("dangling-value",{block:n.id,at:D.index}),C.nil();let mn=qt(Sl(n,D));return i[D.index].ordered&&mo(D.index),C.d(mn)?C.paren(mn):mn}let Re=this.bs(D,r,qt);return D.truncated&&C.d(Re)?C.paren(Re):Re},kf=be.filter(D=>{if(v.has(D))return!1;let Re=i[D];return Re.targets.some(Ie=>!Ie.reg)||Re.targets.some((Ie,mn)=>K.has(u(D,mn)))?!0:Re.targets.every((Ie,mn)=>(L.get(u(D,mn))||0)===0)});for(let D of kf)de.push(...this.xs(D,i[D],r,{render:qt,note:mo,block:n}));let bf=o.kind==="branch"?qt(o.condition):null,mf=X===null?null:qt(i[X].exprs[0]);return{out:de,condition:bf,returns:mf,violation:oe,violations:me,warnings:this.warnings.splice(ie)}},Y=new Set,O=null,H=be.length+16;for(let x=0;x<H;x+=1){let v=y(Y),L=z(v),K=!1;for(let oe of L)Y.has(oe)||(Y.add(oe),K=!0);if(K)continue;if(O=re(v),!O.violation)break;let ie=oe=>!v.drop.has(oe)&&!v.materialized.has(u(oe,0)),de=oe=>{for(let le=0;le<i[oe].targets.length;le+=1)Y.add(u(oe,le))},me=!1;for(let{small:oe,large:le}of O.violations)ie(oe)?(de(oe),me=!0):ie(le)&&(de(le),me=!0);if(!me)break}if(O||(O=re(y(Y))),O.violation){let{small:x,large:v}=O.violation;this.warn("evaluation-order",{block:n.id,small:x,large:v})}this.warnings.push(...O.warnings),e.statements=O.out,e.condition=()=>O.condition||C.nil(),e.returns=()=>{let x=O.returns;if(!x)return C.I([]);let v=ht(x);return v?C.I(v):C.I([C.call(C.name("unpack"),[x])])}}xs(e,n,r,s){let i=this.vm,{render:o,note:u,block:l}=s,c=n.targets.length===1?n.targets[0]:null;if(c&&c.node&&this.tt(En(l,c.node.base))){let h=this.nn(r,r.xe(c.node.index));if(h){let d=o(n.exprs[0]);return n.ordered&&u(e),[C.assignment([C.name(h)],[d])]}}let a=n.targets.map((h,d)=>h.reg?C.name(this.Qe(r,r.webs.find(xl(l,e,d)))):o(h.node)),f=n.exprs.map(o);return a.length===1&&f.length===1&&(f[0]=C.unparen(f[0])),n.ordered&&u(e),a.length?[C.assignment(a,f)]:f.length?[C.X(f[0])]:[]}vs(e,n,r,s,i,o){return n.ordered?!0:n.targets.some((u,l)=>!u.reg||i.has(`${r}.${l}`)||e.ve.has(u.reg)&&o(u.reg)===r?!0:(s.get(`${r}.${l}`)||0)>0)}Se(e,n){if(!e)return[];let r=e.id;return!n.structured.labels.has(r)||n.labelled.has(r)?[]:(n.labelled.add(r),[{kind:ue.Label,name:`L${r}`}])}L(e,n){let r=[];if(!e||!e.items)return r;for(let s of e.items)if(s.kind==="block")r.push(...this.Se(s.block,n)),r.push(...this.H(s.block,n).statements);else if(s.kind==="return")r.push(this.H(s.block,n).returns());else if(s.kind==="raw")this.warn("unknown-exit",{block:s.block.id}),r.push(C.I([]));else if(s.kind==="if"){let i=this.H(s.block,n);r.push(C.Z(zr(i.condition(),s.negate),C.block(this.L(s.then,n)),[],s.else?C.block(this.L(s.else,n)):null))}else if(s.kind==="while")r.push(...this.Se(s.loop&&s.loop.header,n)),r.push(...this.Ss(s,n));else if(s.kind==="repeat"){r.push(...this.Se(s.loop&&s.loop.header,n));let i=this.H(s.latch,n),o=[...this.L(s.body,n),...i.statements];r.push(C.bn(C.block(Jn(o)),zr(i.condition(),s.negate)))}else s.kind==="loop"?(r.push(...this.Se(s.loop&&s.loop.header,n)),r.push(C.ae(C.boolean(!0),C.block(Jn(this.L(s.body,n)))))):s.kind==="break"?r.push(C.Ee()):s.kind==="continue"?r.push({kind:ue.Continue}):s.kind==="goto"?r.push({kind:ue.Goto,label:`L${s.target}`}):s.kind==="labelled"?(n.labelled.add(s.id),r.push({kind:ue.Label,name:`L${s.id}`}),r.push(...this.L(s.region,n))):s.kind==="seq"?r.push(...this.L(s,n)):this.warn("unhandled-region",{kind:s.kind});return r}Ss(e,n){let r=this.H(e.header,n),s=zr(r.condition(),e.negate),i=this.L(e.body,n),o=[];return r.statements.length===0?o.push(C.ae(s,C.block(Jn(i)))):o.push(C.ae(C.boolean(!0),C.block(Jn([...r.statements,C.Z(zr(s,!0),C.block([C.Ee()]),[],null),...i])))),e.nt&&o.push(r.returns()),o}ot(e,n,r){if(r>200||this.active.has(e))return this.warn("recursive-closure",{id:e.id}),C.func([],C.block([]),!1);this.active.add(e);let s=Jp(this.vm,e),i=Qp(this.vm,e),o=Gp(e);for(let p of o.warnings)this.warn(p.kind,{...p,fn:e.id});let u=[];for(let p=1;p<=s.arity;p+=1)u.push(this.fresh("a"));let l=new Set;for(let p of o.loops.values())for(let k of p.members)l.add(k.id);let c={fn:e,depth:r,params:u,structured:o,Ns:l,labelled:new Set,webs:Dp(e),en:new Map,cells:new Map,st:new Map,used:new Set,emitters:new Map,block:e.entry,Cs:i.us,xe:null};c.xe=p=>c.Cs(c.block,p,c.block.os,c.block.Je),n.forEach((p,k)=>{p&&c.cells.set(`param:${k+1}`,p)});for(let p of e.blocks)this.H(p,c);let a=this.Fs(c,e),f=this.L(o.region,c),h=new Set;Bp(C.block(f),{enter(p){p.kind===ue.Name&&h.add(p.name)}});let d=[...c.en.values()].filter(p=>h.has(p)),g=a.filter(p=>h.has(p));return(d.length||g.length)&&f.unshift(C.R([...d,...g],[])),this.active.delete(e),C.func(u,C.block(f),!!e.vararg||s.rs)}Fs(e,n){let r=[],s=new Map(n.blocks.map(i=>[String(i.id),i]));for(let[i,o]of e.st){if(!e.used.has(i))continue;let u=s.get(o.split(":")[1]),l=u?e.emitters.get(u):null;u&&l&&e.Ns.has(u.id)?l.statements.unshift(C.R([i],[])):r.push(i)}return r}lift(){let e=this.He.get(this.vm.entry.O);if(!e)return this.warn("missing-entry",{id:this.vm.entry.O}),{body:C.block([]),params:[],w:!1,warnings:this.warnings,counter:0};let n=this.ot(e,[],0);return{body:Hp(n.body),params:n.params,w:n.w,warnings:this.warnings,counter:this.counter}}};function ek(t,e,n={}){return new Si(t,e,n).lift()}Fl.exports={ut:ht,tn:ek}});var Wr=F((mv,Ml)=>{"use strict";var{Kind:G}=B(),{D:ql}=Ne(),{transform:nk,walk:Ur}=ee(),{diverges:tk,zn:Ci,bare:an}=Pe(),Fi=ct();function Ht(t){if(!t)return!0;let e=an(t);if(!e)return!0;switch(e.kind){case G.Name:case G.Nil:case G.True:case G.False:case G.Number:case G.String:case G.Vararg:return!0;case G.Unary:return Ht(e.argument);case G.Binary:return Ht(e.lhs)&&Ht(e.rhs);default:return!1}}function Kr(t){return{kind:G.Do,body:t,qs:!0}}function rk(t,e){let n=[{condition:t.condition,body:t.body},...(t.s||[]).map(l=>({...l}))],r=t.e;if(!r||!n.every(l=>Ht(l.condition)))return null;let s=n.map(l=>Ci(l.body)),i=Ci(r);if(s.filter(l=>!l).length+(i?0:1)!==1)return null;if(e.guards+=1,!i)return Kr(r);let u=s.indexOf(!1);return Kr(n[u].body)}function sk(t){if(t.kind!==G.CallStatement)return!1;let e=an(t.expression);if(!e||e.kind!==G.MethodCall||e.method!=="gsub")return!1;let n=an(e.base);if(!n||n.kind!==G.String)return!1;let r=e.args||[];if(r.length!==2)return!1;let s=an(r[0]);if(!s||s.kind!==G.String)return!1;let i=an(r[1]);if(!i||i.kind!==G.Function)return!1;let o=i.body&&i.body.statements||[];if(o.length!==1||o[0].kind!==G.Assignment)return!1;let u=o[0].targets||[];return u.length===1&&ql(u[0])}function ik(t){if(t.kind!==G.If||(t.s||[]).length)return!1;let e=t.body&&t.body.statements||[];if(e.length!==1||e[0].kind!==G.Return||(e[0].expressions||[]).length)return!1;let n=an(t.condition);if(!n||n.kind!==G.Binary||n.operator!=="~=")return!1;let r=[an(n.lhs),an(n.rhs)],s=r.find(o=>ql(o)),i=r.find(o=>o&&o.kind===G.String);return!!s&&!!i}function ok(t,e){let n=[{condition:t.condition,body:t.body},...(t.s||[]).map(u=>({...u}))],r=[],s=null;for(let u of n){let l=Fi.truthiness(u.condition);if(l!==!1){if(l===!0){s=u;break}r.push(u)}}let i=s?s.body:t.e;return!(n.length-r.length-(s?1:0))&&!s?null:(e.constants+=1,r.length?{kind:G.If,condition:r[0].condition,body:r[0].body,s:r.slice(1),e:i}:Kr(i||{kind:G.Block,statements:[]}))}function uk(t){let e=0;return Ur(t,{enter(n){if(n.kind!==G.Block)return;let r=[];for(let s of n.statements)s.kind===G.Do&&s.qs?(e+=1,r.push(...s.body&&s.body.statements||[])):r.push(s);n.statements=r}}),e}function lk(t,e,n){if(t.kind!==G.If||t.s&&t.s.length>0||t.e&&t.e.statements&&t.e.statements.length>0&&!Ci(t.e))return!1;let r=an(t.condition);if(!r||r.kind!==G.Name)return!1;let s=r.name,i=r.binding,o=e.slice(0,n),u=!1,l=!1;for(let c of o)Ur(c,{enter(a){if(a.kind===G.String&&typeof a.value=="string"&&/tamper/i.test(a.value)&&(u=!0),a.kind===G.Call&&a.base&&a.base.kind===G.Name&&a.base.name==="error"&&a.args&&a.args.length&&a.args[0].kind===G.String&&/tamper/i.test(a.args[0].value)&&(u=!0),a.kind===G.Assignment)for(let f=0;f<(a.targets||[]).length;f+=1){let h=an(a.targets[f]);if(h&&h.kind===G.Name&&(h.name===s||i&&h.binding===i)){let d=(a.expressions||[])[f];d&&(d.kind===G.True||Fi.truthiness(d)===!0)&&(l=!0)}}}});return u&&l}function ak(t,e){let n=[];for(let r=0;r<t.statements.length;r+=1){let s=t.statements[r];if(lk(s,t.statements,r)){e.guards+=1;let i=s.body&&s.body.statements||[];n.push(...i);continue}if(s.kind===G.Repeat&&!(s.body.statements||[]).length&&Ht(s.condition)){e.loops+=1;continue}if(s.kind===G.While&&Fi.truthiness(s.condition)===!1){e.loops+=1;continue}if(sk(s)){e.watermarks+=1;continue}if(ik(s)){e.watermarks+=1,s.e&&n.push(Kr(s.e));continue}n.push(s)}t.statements=n}function ck(t,e){Ur(t,{enter(n){if(n.kind===G.Block)for(let r=0;r<n.statements.length;r+=1){let s=n.statements[r];if((s.kind===G.Return||s.kind===G.Break||tk(s))&&r+1<n.statements.length){e.unreachable+=n.statements.length-r-1,n.statements.length=r+1;break}}}})}function fk(t){let e={guards:0,constants:0,loops:0,watermarks:0,unreachable:0};for(let r=0;r<16;r+=1){let s={...e};if(t.resolve(),nk(t.chunk,o=>{if(o.kind!==G.If)return o;let u=ok(o,e);if(u)return u;let l=rk(o,e);return l||o}),uk(t.chunk),Ur(t.chunk,{enter(o){o.kind===G.Block&&ak(o,e)}}),ck(t.chunk,e),!Object.keys(e).some(o=>e[o]!==s[o]))break}let n=e.guards+e.constants+e.loops+e.watermarks;n&&t.note(`resolved ${e.guards} integrity guard(s), ${e.constants} constant branch(es), dropped ${e.loops} dead loop(s) and ${e.watermarks} watermark(s)`,n);for(let r of Object.keys(e))e[r]&&t.bump(`guards.${r}`,e[r])}Ml.exports={name:"05-if",run:fk}});var Yr=F((wv,Rl)=>{"use strict";var Z=B(),{Kind:b}=Z,{walk:Je,transform:Ei,collect:dk}=ee(),{jn:Al,bare:R}=Pe(),{y:hk}=Tn();function Le(t,e){let n=R(t),r=R(e);return!n||!r||n.kind!==r.kind?!1:n.kind===b.Name?n.binding?n.binding===r.binding:n.name===r.name:n.kind===b.Number||n.kind===b.String?n.value===r.value:n.kind===b.Nil||n.kind===b.True||n.kind===b.False}function We(t){let e=R(t);return e&&e.kind===b.Name?e:null}function gk(t){if(!t||t.kind!==b.Assignment)return null;let e=t.targets||[],n=t.expressions||[];if(e.length!==1||n.length!==1)return null;let r=We(e[0]),s=R(n[0]);return!r||!s||s.kind!==b.Binary||s.operator!=="+"||!Le(s.lhs,r)?null:{counter:r,step:s.rhs}}function $l(t,e){let n=R(t);if(!n||n.kind!==b.Binary||n.operator!=="and")return null;let r=[R(n.lhs),R(n.rhs)],s=r.find(h=>h&&h.kind===b.Binary&&(h.operator===">="||h.operator==="<=")),i=r.find(h=>h!==s);if(!s||!i)return null;let o=!1,u=i;if(u.kind===b.Unary&&u.operator==="not"&&(o=!0,u=R(u.argument)),!u)return null;let l=s.operator,c=s.lhs,a=s.rhs;if(e&&!Le(c,e)){if(!Le(a,e))return null;c=s.rhs,a=s.lhs,l=l===">="?"<=":">="}let f=l===">=";if(u.kind===b.True||u.kind===b.False){let h=u.kind===b.True?!o:o;return{descending:f,S:Z.boolean(f?h:!h),counter:c,limit:a}}return u.kind!==b.Name||f===o?null:{descending:f,S:u,counter:c,limit:a}}function pk(t,e){let n=R(t);if(!n||n.kind!==b.Binary||n.operator!=="or")return null;let r=$l(n.lhs,e),s=$l(n.rhs,e);return!r||!s||r.descending===s.descending||!Le(r.S,s.S)||!Le(r.counter,s.counter)||!Le(r.limit,s.limit)?null:{counter:r.counter,limit:r.limit,S:r.S}}function kk(t,e){if(!t||t.kind!==b.If||(t.s||[]).length||t.e)return null;let n=t.body&&t.body.statements||[];if(n.length!==1||n[0].kind!==b.Break)return null;let r=R(t.condition);return!r||r.kind!==b.Unary||r.operator!=="not"?null:pk(r.argument,e)}function cn(t){let e=new Set,n=r=>{let s=R(r);s&&s.kind===b.Name&&s.binding&&e.add(s.binding)};return Je(t,{enter(r){if(r.kind===b.Assignment)(r.targets||[]).forEach(n);else if(r.kind===b.LocalDeclaration)for(let s of r.bindings||[])e.add(s);else if(r.kind===b.NumericFor)e.add(r.binding);else if(r.kind===b.GenericFor)for(let s of r.bindings||[])e.add(s)}}),e}function An(t,e){let n=!1;return Je(t,{enter(r){r.kind===b.Name&&r.binding===e&&(n=!0)}}),n}function bk(t,e,n,r){let s=(i,o)=>{let u=R(i);if(!u)return null;if(u.kind===b.Binary&&u.operator==="-"&&Le(u.rhs,r))return{start:u.lhs,index:o};let l=R(r);return u.kind===b.Number&&l&&l.kind===b.Number?{start:Z.number(u.value+l.value),index:o}:null};for(let i=e-1;i>=0;i-=1){let o=t[i];if(o.kind===b.LocalDeclaration){let a=o.bindings||[],f=o.expressions||[],h=a.indexOf(n.binding);if(h<0)continue;return f.length!==a.length?null:s(f[h],i)}if(o.kind!==b.Assignment){if(cn(o).has(n.binding))return null;continue}let u=o.targets||[],l=o.expressions||[];if(u.some(a=>Le(a,n)))return u.length!==1||l.length!==1?null:s(l[0],i)}return null}function mk(t,e){let n=t.statements[e];if(!n||n.kind!==b.While||!Al(n.condition))return!1;let r=n.body&&n.body.statements||[];if(r.length<2)return!1;let s=gk(r[0]);if(!s)return!1;let i=kk(r[1],s.counter);if(!i||!Le(i.counter,s.counter)||!s.counter.binding)return!1;let o=Z.block(r.slice(2)),u=cn(o);for(let d of[s.counter,s.step,i.limit,i.S]){let g=We(d);if(g&&g.binding&&u.has(g.binding))return!1}if(i.S.binding&&An(o,i.S.binding))return!1;let l=R(i.S),c=R(s.step);if(l&&(l.kind===b.True||l.kind===b.False)&&c&&c.kind===b.Number&&c.value<0!=(l.kind===b.True))return!1;let a=bk(t.statements,e,s.counter,s.step);if(!a)return!1;let f=s.counter,h=o.statements;for(let d=0;d<h.length;d+=1){let g=et(h[d]);if(!g||!Le(g.value,s.counter))continue;if(g.target.binding===s.counter.binding)break;let p=Z.block(h.slice(0,d)),k=Z.block(h.slice(d+1));if(An(p,s.counter.binding)||An(k,s.counter.binding)||An(p,g.target.binding)||cn(p).has(g.target.binding))break;f=g.target,o.statements=h.slice(0,d).concat(h.slice(d+1));break}for(let d of new Set([s.counter.binding,f.binding]))for(let g=e+1;g<t.statements.length;g+=1){let p=t.statements[g];if(An(p,d))return!1;if(cn(p).has(d))break}return t.statements[e]=Z.mn(f.name,a.start,i.limit,s.step,o),!0}function Il(t,e,n){for(let r=e-1;r>=0;r-=1)if(cn(t[r]).has(n))return r;return-1}function wk(t,e){return!t||(t.expressions||[]).length!==1?null:t.kind===b.LocalDeclaration?(t.names||[]).length!==1||(t.bindings||[])[0]!==e.binding?null:{holder:t,value:t.expressions[0],declared:!0}:t.kind!==b.Assignment||(t.targets||[]).length!==1||!Le(t.targets[0],e)?null:{holder:t,value:t.expressions[0],declared:!1}}function yk(t,e){let n=t.statements,r=n[e];if(!r||r.kind!==b.If||(r.s||[]).length||r.e)return!1;let s=r.body&&r.body.statements||[];if(s.length!==1)return!1;let i=s[0];if(!i||i.kind!==b.Assignment||(i.targets||[]).length!==1||(i.expressions||[]).length!==1)return!1;let o=We(i.targets[0]);if(!o||!o.binding)return!1;let u=R(i.expressions[0]);if(!u||u.kind===b.Vararg||An(u,o.binding))return!1;let l=R(r.condition),c="and";l&&l.kind===b.Unary&&l.operator==="not"&&(l=R(l.argument),c="or");let a=We(l);if(!a||!a.binding||a.binding===o.binding)return!1;let f=Il(n,e,o.binding);if(f<0)return!1;let h=wk(n[f],o);if(!h||!Le(h.value,a))return!1;for(let g=f+1;g<e;g+=1)if(cn(n[g]).has(a.binding))return!1;let d=Z.binary(c,Z.name(a.name),u);return h.declared?f!==e-1?!1:(h.holder.expressions=[d],n[e]=Z.N(Z.block([])),!0):(n[e]=Z.assignment([Z.name(o.name)],[d]),!0)}function vk(t){if(t.kind!==b.Call)return null;let e=t.args||[];if(!e.length)return null;let n=R(t.base);if(!n||n.kind!==b.Index)return null;let r=R(n.index);return!r||r.kind!==b.String||!hk(r.value)||!Le(n.base,e[0])?null:Z.Le(n.base,r.value,e.slice(1))}function et(t){if(!t||t.kind!==b.Assignment)return null;let e=t.targets||[],n=t.expressions||[];if(e.length!==1||n.length!==1)return null;let r=We(e[0]);return!r||!r.binding?null:{target:r,value:n[0]}}function xk(t){let e=R(t);return!e||e.kind!==b.Number||!Number.isInteger(e.value)||e.value<1?null:e.value}function Ll(t){let e=We(t);if(e)return e.binding?e:null;let n=R(t);return Z.Y(n)?n:null}function Vr(t){let e=new Map,n=new Map,r=new Set,s=(i,o,u)=>{if(!o)return;let l=i.get(o);l?l.push(u):i.set(o,[u])};Je(t,{enter(i){if(i.kind===b.Assignment)for(let o of i.targets||[]){let u=R(o);u&&u.kind===b.Name&&(r.add(u),s(n,u.binding,i))}else if(i.kind===b.LocalDeclaration){if((i.expressions||[]).length)for(let o of i.bindings||[])s(n,o,i)}else if(i.kind===b.NumericFor)s(n,i.binding,i);else if(i.kind===b.GenericFor)for(let o of i.bindings||[])s(n,o,i);else i.kind===b.Name&&s(e,i.binding,i)}});for(let[i,o]of e)e.set(i,o.filter(u=>!r.has(u)));return{reads:e,writes:n}}function Hr(t,e){let n=0,r=new Set;return Je(t,{enter(s){if(s.kind===b.Assignment)for(let i of s.targets||[]){let o=R(i);o&&o.kind===b.Name&&r.add(o)}s.kind===b.Name&&s.binding===e&&!r.has(s)&&(n+=1)}}),n}function Ol(t,e){let n=0;return Je(t,{enter(r){if(r.kind===b.Assignment)for(let s of r.targets||[]){let i=R(s);i&&i.kind===b.Name&&i.binding===e&&(n+=1)}else if(r.kind===b.LocalDeclaration&&(r.expressions||[]).length)for(let s of r.bindings||[])s===e&&(n+=1);else if(r.kind===b.NumericFor)r.binding===e&&(n+=1);else if(r.kind===b.GenericFor)for(let s of r.bindings||[])s===e&&(n+=1)}}),n}function Sk(t,e,n){let r=t.statements,s=et(r[e]);if(!s)return!1;let i=R(s.value);if(!i||i.kind!==b.Table)return!1;let o=i.entries||[];if(o.length!==1||o[0].type==="key")return!1;let u=o[0].value;if(!u||u.kind!==b.Call&&u.kind!==b.MethodCall)return!1;let l=s.target.binding;if((n.writes.get(l)||[]).length!==1)return!1;let c=[];for(let g=e+1;g<r.length;g+=1){let p=et(r[g]);if(!p)continue;let k=R(p.value);if(!k||k.kind!==b.Index)continue;let w=We(k.base);if(!w||w.binding!==l)continue;let A=xk(k.index);if(A===null)return!1;c.push({at:g,key:A,target:p.target,binding:p.target.binding})}if(!c.length||Hr(t,l)!==c.length||(n.reads.get(l)||[]).length!==c.length)return!1;let a=new Set(c.map(g=>g.key));if(a.size!==c.length)return!1;for(let g=1;g<=c.length;g+=1)if(!a.has(g))return!1;let f=new Set(c.map(g=>g.binding));if(f.size!==c.length||f.has(l))return!1;let h=new Set(c.map(g=>g.at));for(let g=e+1;g<c[c.length-1].at;g+=1){if(h.has(g))continue;let p=cn(r[g]);if(p.has(l))return!1;for(let k of f)if(p.has(k)||An(r[g],k))return!1}let d=c.slice().sort((g,p)=>g.key-p.key);r[e]=Z.assignment(d.map(g=>g.target),[u]);for(let g of c)r[g.at]=Z.N(Z.block([]));return!0}function Nk(t){if(!t||t.kind!==b.Assignment)return null;let e=t.targets||[],n=t.expressions||[];if(!e.length||e.length>2||n.length!==1)return null;let r=n[0];if(!r||r.kind!==b.Call)return null;let s=r.args||[];if(s.length!==2)return null;let i=We(e[0]);if(!i||!i.binding||!Le(s[1],i))return null;let o=e.length===2?We(e[1]):null;if(e.length===2&&(!o||!o.binding))return null;let u=Ll(r.base),l=Ll(s[0]);return!u||!l?null:{ctrl:i,second:o,iterator:u,state:l}}function Ck(t,e){if(!t||t.kind!==b.If||(t.s||[]).length||t.e)return!1;let n=t.body&&t.body.statements||[];if(n.length!==1||n[0].kind!==b.Break)return!1;let r=R(t.condition);if(!r)return!1;if(r.kind===b.Unary&&r.operator==="not")return Le(r.argument,e);if(r.kind===b.Binary&&r.operator==="=="){let s=R(r.rhs);return!!s&&s.kind===b.Nil&&Le(r.lhs,e)}return!1}function Tl(t,e,n,r,s){if(n.length!==3||n.some(f=>!f)||new Set(n).size!==3)return null;let i=Il(t,e,n[2]);if(i<0)return null;let o=t[i];if(!o||o.kind!==b.Assignment)return null;let u=o.targets||[],l=o.expressions||[];if(u.length!==3||l.length!==1)return null;let c=l[0];if(!c||c.kind!==b.Call&&c.kind!==b.MethodCall)return null;let a=u.map(We);if(a.some(f=>!f||!f.binding))return null;for(let f=0;f<3;f+=1)if(a[f].binding!==n[f])return null;for(let f of n){let h=(s.reads.get(f)||[]).length;if(!h||h!==Hr(r,f)||(s.writes.get(f)||[]).length-Ol(r,f)!==1)return null}return t[i]=Z.N(Z.block([])),c}function Fk(t,e,n){let r=t.statements,s=r[e];if(!s||s.kind!==b.While||!Al(s.condition))return!1;let i=s.body&&s.body.statements||[];if(i.length<2)return!1;let o=Nk(i[0]);if(!o||!Ck(i[1],o.ctrl))return!1;let u=2,l=o.ctrl,c=et(i[2]);c&&Le(c.value,o.ctrl)&&c.target.binding!==o.ctrl.binding&&(l=c.target,u=3);let a=Z.block(i.slice(u)),f=cn(a);for(let w of[o.iterator,o.state])if(w.binding&&f.has(w.binding))return!1;if(f.has(o.ctrl.binding)||l!==o.ctrl&&An(a,o.ctrl.binding)||o.second&&o.second.binding===o.ctrl.binding)return!1;let h=[o.ctrl.binding,l.binding];o.second&&h.push(o.second.binding);for(let w of h)for(let A=e+1;A<r.length;A+=1){if(An(r[A],w))return!1;if(cn(r[A]).has(w))break}let d=[l.name];o.second&&d.push(o.second.name);let g=[o.iterator.binding,o.state.binding,o.ctrl.binding],p=Tl(r,e,g,s,n),k=p?[p]:[o.iterator,o.state,Z.name(o.ctrl.name)];return r[e]=Z.wn(d,k,a),!0}function qk(t,e,n){let r=t.statements,s=et(r[e]);if(!s)return!1;let i=R(s.value);if(!i||i.kind!==b.Table)return!1;let o=i.entries||[];if(o.length!==1||o[0].type==="key")return!1;let u=o[0].value;if(!u||u.kind!==b.Call&&u.kind!==b.MethodCall)return!1;let l=s.target.binding;if((n.writes.get(l)||[]).length!==1||(n.reads.get(l)||[]).length!==1)return!1;let c=-1,a=null;for(let d=e+1;d<r.length;d+=1){let g=$k(r[d],l);if(g){c=d,a=g;break}}if(!a||Hr(r[c],l)!==1)return!1;let f=Mk(u);for(let d=e+1;d<c;d+=1){if(!Bl(r[d]))return!1;for(let g of cn(r[d]))if(f.has(g))return!1}let h=!1;return r[c]=Ei(r[c],d=>h||d!==a?d:(h=!0,u)),h?(r[e]=Z.N(Z.block([])),!0):!1}function qi(t,e){let n=R(t);if(!n)return!1;if(n.kind===b.Name)return n.name!==e?!1:!n.binding||n.binding.kind==="global";if(n.kind!==b.Index)return!1;let r=R(n.index);if(!r||r.kind!==b.String||r.value!==e)return!1;let s=R(n.base);return!s||s.kind!==b.Name||s.binding&&s.binding.kind!=="global"?!1:s.name==="_ENV"||s.name==="_G"}function _l(t){if(qi(t,"unpack"))return!0;let e=R(t);if(!e||e.kind!==b.Index)return!1;let n=R(e.index);return!n||n.kind!==b.String||n.value!=="unpack"?!1:qi(e.base,"table")}function Mk(t){let e=new Set;return Je(t,{enter(n){n.kind===b.Name&&n.binding&&e.add(n.binding)}}),e}function Bl(t){if(!t)return!1;if(t.kind===b.Do)return!(t.body&&t.body.statements||[]).length;if(t.kind!==b.Assignment)return!1;for(let e of t.targets||[]){let n=R(e);if(!n||n.kind!==b.Name||!n.binding)return!1}for(let e of t.expressions||[]){let n=R(e);if(!n)return!1;if(!(n.kind===b.Function||Z.Y(n))&&!(n.kind===b.Name&&n.binding))return!1}return!0}function $k(t,e){let n=null,r=!1;return Je(t,{enter(s){if(s.kind!==b.Call||!_l(s.base))return;let i=s.args||[];if(i.length!==1)return;let o=We(i[0]);!o||o.binding!==e||(n&&(r=!0),n=s)}}),r?null:n}function Lk(t,e,n){let r=t.statements[e];if(!r||r.kind!==b.GenericFor)return!1;let s=r.expressions||[];if(s.length!==3)return!1;let i=s.map(We);if(i.some(l=>!l||!l.binding))return!1;let o=i.map(l=>l.binding),u=Tl(t.statements,e,o,r,n);return u?(r.expressions=[u],!0):!1}function Ek(t){if(!t)return null;if(t.kind===b.NumericFor)return["start","limit","step"].map(e=>({read:()=>t[e],write:n=>{t[e]=n},last:!1}));if(t.kind===b.GenericFor){let e=(t.expressions||[]).length;return(t.expressions||[]).map((n,r)=>({read:()=>t.expressions[r],write:s=>{t.expressions[r]=s},last:r===e-1}))}return null}function Ak(t,e){for(let n=e-1;n>=0;n-=1){let r=t[n];if(r.kind!==b.Do||(r.body&&r.body.statements||[]).length)return n}return-1}function Ik(t,e,n){let r=t.statements,s=r[e],i=Ek(s);if(!i)return!1;let o=!1;for(let u=0;u<i.length;u+=1){let l=Ak(r,e);if(l<0)break;let c=et(r[l]);if(!c)break;let a=c.target.binding;if((n.reads.get(a)||[]).length!==1||Hr(s,a)!==1||(n.writes.get(a)||[]).length!==1||Ol(s,a)!==0)break;let f=i.find(h=>{let d=We(h.read());return!!d&&d.binding===a});if(!f||f.last&&Z.d(R(c.value)))break;f.write(c.value),r[l]=Z.N(Z.block([])),o=!0}return o}function Mi(t){if(Array.isArray(t))return t.map(Mi);if(!t||typeof t!="object")return t;let e={};for(let n of Object.keys(t))n==="binding"||n==="bindings"||n==="declaration"?e[n]=t[n]:e[n]=Mi(t[n]);return e}function $i(t){if(!t)return null;let e=R(t);if(!e||e.kind!==b.Table)return null;let n=e.entries||[];if(!n.length)return null;let r=[];for(let s of n){if(s.type!=="item")return null;r.push(s.value)}return r}function Li(t){if(!t||t.kind!==b.Call||!_l(t.base))return null;let e=t.args||[];return e.length===1?e[0]:null}function Ok(t){if(!t||t.kind!==b.Call||!qi(t.base,"select"))return null;let e=t.args||[];if(e.length!==2)return null;let n=R(e[0]);return!n||n.kind!==b.Number||!Number.isInteger(n.value)||n.value<1?null:{skip:n.value-1,values:e[1]}}function Tk(t){let e=R(t);return e?e.kind===b.Name||Z.Y(e):!1}function El(t){if(!t||!t.length||!Z.d(t[t.length-1]))return!1;for(let e=0;e<t.length-1;e+=1)if(!Tk(t[e]))return!1;return!0}function _k(t){let e=Li(t);if(e){let s=$i(e);return!s||s.length!==1||!El(s)?null:s[0]}let n=Ok(t);if(!n)return null;if(!n.skip)return Z.d(n.values)?n.values:null;let r=$i(Li(n.values));return!r||!El(r)||r.length!==n.skip+1?null:r[r.length-1]}function Bk(t){if(!t||t.length!==1)return!1;let e=R(t[0]);return!!e&&e.kind===b.Vararg}function Rk(t,e){let n=new Map,r=[t];return Je(t,{enter(s){e.has(s)&&n.set(s,r[r.length-1]),s.kind===b.Function&&r.push(s)},leave(s){s.kind===b.Function&&r.pop()}}),n}function Dk(t,e,n,r){let s=et(e[n]);if(!s)return!1;let i=s.target.binding;if(!i)return!1;let o=R(s.value),u=$i(o);if(!Bk(u))return!1;let l=r.writes.get(i)||[];if(l.length!==1||l[0]!==e[n])return!1;let c=r.reads.get(i)||[];if(!c.length)return!1;let a=dk(t,d=>{let g=R(Li(d));return!!g&&g.kind===b.Name&&g.binding===i});if(a.length!==c.length)return!1;let f=Rk(t,new Set([e[n]].concat(a))),h=f.get(e[n]);if(!h)return!1;for(let d of a)if(f.get(d)!==h)return!1;return Ei(t,d=>a.indexOf(d)<0?d:Z.call(d.base,[Mi(o)])),e[n]=Z.N(Z.block([])),!0}function Pk(t,e){let n=0;Je(t.chunk,{enter(u){if(u.kind===b.Block){for(let l=0;l<u.statements.length;l+=1)yk(u,l)&&(n+=1);for(let l=0;l<u.statements.length;l+=1)mk(u,l)&&(n+=1)}}});let r=Vr(t.chunk);Je(t.chunk,{enter(u){if(u.kind===b.Block){for(let l=0;l<u.statements.length;l+=1)qk(u,l,r)&&(n+=1);for(let l=0;l<u.statements.length;l+=1)Sk(u,l,r)&&(n+=1)}}});let s=Vr(t.chunk);Je(t.chunk,{enter(u){if(u.kind===b.Block){for(let l=0;l<u.statements.length;l+=1)Fk(u,l,s)&&(n+=1);for(let l=0;l<u.statements.length;l+=1)Ik(u,l,s)&&(n+=1);for(let l=0;l<u.statements.length;l+=1)Lk(u,l,s)&&(n+=1)}}});let i=Vr(t.chunk),o=[];Je(t.chunk,{enter(u){if(u.kind===b.Block)for(let l=0;l<u.statements.length;l+=1)o.push([u.statements,l])}});for(let[u,l]of o)Dk(t.chunk,u,l,i)&&(n+=1);return Ei(t.chunk,u=>{let l=_k(u);if(l)return n+=1,l;let c=vk(u);return c?(n+=1,c):u}),e&&(e.idioms+=n),n}Rl.exports={run:Pk,usage:Vr,movable:Bl}});var mt=F((yv,Vl)=>{"use strict";var{Kind:m,unparen:pt}=B(),{walk:Xr,children:jk,collect:Dl}=ee(),{D:bt,c:Yt}=Ne(),{Positions:zk}=Yn(),Ai=new Set(["pcall","xpcall","select","type","tostring","tonumber","unpack","rawequal","rawget","rawset","rawlen","setmetatable","getmetatable","newproxy","next","ipairs","pairs","loadstring","load","gcinfo","collectgarbage","getfenv"]),Qr=new Set(["math","string","table","debug","os","coroutine","bit","bit32","utf8","jit"]),fn=96,ze=null,Gk=new Set(["coroutine.yield","coroutine.resume","coroutine.wrap","coroutine.close","os.exit","os.remove","os.rename","os.execute","os.setlocale","os.tmpname","debug.setupvalue","debug.setlocal","debug.upvaluejoin","debug.setmetatable","debug.setfenv","debug.debug"]);function Pl(t,e){return!e||e.kind!==m.String?!1:Gk.has(`${t.name}.${e.value}`)}var jl=new Set(["error","assert","print","pcall_","os_exit"]);function Kk(t){let e=new Map,n=(f,h,d,g)=>{if(!f)return;let p=e.get(f);p||(p={count:0,bare:0,valued:[]},e.set(f,p)),p.count+=1,h?p.valued.push({expr:h,at:d}):g&&(p.bare+=1)},r=new Map,s=(f,h)=>{for(let d of Dl(f,g=>g.kind===m.Name)){if(!d.binding)continue;let g=r.get(d.binding);g||r.set(d.binding,g=[]),g.push(h||null)}},i=new Map,o=(f,h)=>{f&&i.set(f,h.filter(Boolean))},u=(f,h,d,g)=>{let p=h||[];for(let k=0;k<p.length;k+=1){let w=d.length===p.length;n(p[k],w?d[k]:null,f,g)}};Xr(t,{enter(f){if(f.kind===m.LocalDeclaration){let h=f.expressions||[];u(f,f.bindings,h,!h.length)}else if(f.kind===m.LocalFunction)n(f.binding,f.body,f,!1);else if(f.kind===m.Assignment){let h=f.targets||[],d=f.expressions||[];for(let g=0;g<h.length;g+=1){let p=h[g];if(!p)continue;let k=h.length===d.length;if(p.kind!==m.Name){s(p,k?d[g]:null);continue}n(p.binding,k?d[g]:null,f,!1)}}else if(f.kind===m.NumericFor)n(f.binding,null,f,!1),o(f.binding,[f.start,f.limit,f.step]);else if(f.kind===m.GenericFor){u(f,f.bindings,[],!1);for(let h of f.bindings||[])o(h,f.expressions||[])}else f.kind===m.Function&&u(f,f.bindings,[],!1)}});let l=new Map,c=new Map,a=null;for(let[f,h]of e){if(!h.valued.length||h.bare+h.valued.length!==h.count)continue;c.set(f,h.valued.map(g=>g.expr));let d=f.reads||[];h.bare&&d.length&&(a||(a=new zk(t)),!h.valued.some(p=>d.every(k=>a.precedes(p.at,k))))||l.set(f,h.valued.map(g=>g.expr))}for(let[f,h]of e)(h.count!==1||h.valued.length)&&i.delete(f);return{values:l,derived:i,callees:c,filled:r}}function Fe(t,e,n=new Set,r=0){if(!t||typeof t!="object"||r>fn)return!1;switch(t.kind){case m.Nil:case m.True:case m.False:case m.Number:case m.String:return!0;case m.Function:{let s=()=>new Set(t.bindings||[]);if(ze){let u=e.loose.get(t);if(u){for(let f of u.cells)ze.add(f);return u.ok}let l=new Set,c=ze;e.loose.set(t,{ok:!1,cells:l}),ze=l;let a=Ti(t.body,e,new Set,r+1,s());ze=c,e.loose.set(t,{ok:a,cells:l});for(let f of l)ze.add(f);return a}let i=e.functions.get(t);if(i!==void 0)return i;e.functions.set(t,!1);let o=Ti(t.body,e,new Set,r+1,s());return e.functions.set(t,o),o}case m.Vararg:return!1;case m.Name:{if(jl.has(t.name))return!1;if(bt(t))return Ai.has(t.name)||Qr.has(t.name);let s=t.binding;if(!s||!Yt(s))return!1;if(n.has(s))return!0;n.add(s);let i=e.Ms(s);if(!i||!i.every(u=>Fe(u,e,new Set(n),r+1)))return!1;let o=e.$s(s);return!o||o.every(u=>!!u&&Fe(u,e,new Set(n),r+1))}case m.Paren:return Fe(t.expression,e,n,r+1);case m.Unary:return Fe(t.argument,e,n,r+1);case m.Binary:return Fe(t.lhs,e,n,r+1)&&Fe(t.rhs,e,new Set(n),r+1);case m.Index:return bt(t.base)&&Pl(t.base,t.index)?!1:Fe(t.base,e,n,r+1)&&Fe(t.index,e,new Set(n),r+1);case m.Table:return(t.entries||[]).every(s=>(!s.key||Fe(s.key,e,new Set(n),r+1))&&Fe(s.value,e,new Set(n),r+1));case m.Call:case m.MethodCall:return(t.kind===m.Call?kt(t.base,e,new Set,r+1):Fe(t.base,e,new Set(n),r+1))&&(t.args||[]).every(i=>Fe(i,e,new Set(n),r+1));default:return!1}}var Ii=class{constructor(e){let n=Kk(e);this.values=n.values,this.derived=n.derived,this.callees=n.callees,this.filled=n.filled,this.functions=new Map,this.loose=new Map}lt(e){return e&&this.values.get(e)||null}ct(e){return e&&this.callees.get(e)||null}$s(e){return e&&this.filled.get(e)||null}Ms(e){return e&&(this.values.get(e)||this.derived.get(e))||null}Ni(e){return Fe(e,this,new Set,0)}};function Zr(t,e,n=new Set,r=0){if(!t||r>fn)return!1;switch(t.kind){case m.Nil:case m.True:case m.False:case m.Number:case m.String:return!0;case m.Table:return!0;case m.Name:{if(bt(t))return Qr.has(t.name);let s=t.binding;if(!s||n.has(s))return!1;n.add(s);let i=e.ct(s);return!!i&&i.length>0&&i.every(o=>Zr(o,e,new Set(n),r+1))}case m.Paren:return Zr(t.expression,e,n,r+1);default:return!1}}function kt(t,e,n=new Set,r=0){if(!t||r>fn)return!1;if(t.kind===m.Paren)return kt(t.expression,e,n,r+1);if(t.kind===m.Name){if(jl.has(t.name))return!1;if(bt(t))return Ai.has(t.name);let s=t.binding;if(!s)return Ai.has(t.name);if(n.has(s))return!1;n.add(s);let i=(e.ct(s)||[]).filter(o=>!Zr(o,e,new Set,r+1));return i.length>0&&i.every(o=>kt(o,e,new Set(n),r+1))}if(t.kind===m.Index){let s=t.base,i=t.index;return bt(s)?!Qr.has(s.name)||Pl(s,i)?!1:!i||i.kind===m.String:Fe(s,e,new Set,r+1)&&(!i||Fe(i,e,new Set,r+1))}if(t.kind===m.Function)return Fe(t,e,new Set,r+1);if(t.kind===m.Binary&&(t.operator==="or"||t.operator==="and")){let s=[t.lhs,t.rhs].filter(i=>!Zr(i,e,new Set,r+1));return s.length>0&&s.every(i=>kt(i,e,n,r+1))}return Fe(t,e,new Set,r+1)}function Uk(t,e){let n=new Set,r=ze;ze=n;try{return Ve(t,e)?n:null}finally{ze=r}}function Wk(t,e){let n=new Set,r=ze;ze=n;try{return Wl(t,e,!1)?n:null}finally{ze=r}}function Ve(t,e,n=new Set,r=0){if(!t||typeof t!="object")return!0;if(r>fn)return!1;switch(t.kind){case m.Nil:case m.True:case m.False:case m.Number:case m.String:case m.Vararg:case m.Name:return!0;case m.Function:return!0;case m.Paren:return Ve(t.expression,e,n,r+1);case m.Unary:return Ve(t.argument,e,n,r+1);case m.Binary:return Ve(t.lhs,e,n,r+1)&&Ve(t.rhs,e,n,r+1);case m.Index:return Ve(t.base,e,n,r+1)&&Ve(t.index,e,n,r+1);case m.Table:return(t.entries||[]).every(s=>(!s.key||Ve(s.key,e,n,r+1))&&Ve(s.value,e,n,r+1));case m.Call:return kt(t.base,e,new Set(n),r+1)&&(t.args||[]).every(s=>Ve(s,e,n,r+1));case m.MethodCall:return Fe(t.base,e,new Set,r+1)&&(t.args||[]).every(s=>Fe(s,e,new Set,r+1));default:return!1}}function Oi(t,e){let n=[],r=i=>{let o=i;for(;o&&Yt(o);){if(n.includes(o))return;n.push(o);let u=e?e.lt(o):null,l=u&&u.length===1?u[0]:null;for(;l&&l.kind===m.Paren;)l=l.expression;o=l&&l.kind===m.Name?l.binding:null}},s=i=>{if(!(!i||!i.kind||i.kind===m.Function)){if(i.kind===m.Name){r(i.binding);return}for(let o of jk(i))s(o.node)}};return s(t),n}function Vk(t,e){let n=!1;return Xr(t,{enter(r){if(n||r.kind===m.Function)return!1;if(r.kind!==m.Call&&r.kind!==m.MethodCall)return;let s=[];(r.kind===m.MethodCall||r.base&&r.base.kind!==m.Name)&&s.push(...Oi(r.base,e));for(let i of r.args||[])s.push(...Oi(i,e));s.some(i=>(i.reads||[]).length)&&(n=!0)}}),n}function Hk(t,e){return Ve(t,e)&&!Vk(t,e)}var zl=new Set(["load","loadstring","loadfile","dofile","require"]);function Gl(t,e){let n=new Set,r=new Set;Xr(t,{enter(i){if(n.add(i),i.kind!==m.Call||!e||!kt(i.base,e))return;let o=Dl(i.base,u=>u.kind===m.Name);if(!o.some(u=>zl.has(u.name)))for(let u of o)r.add(u)}});let s=!0;return Xr(t,{enter(i){if(i.kind!==m.Name||r.has(i))return;let o=i.binding;(!o||!Yt(o)||!o.declaration||!n.has(o.declaration))&&(s=!1)}}),s}function Jr(t,e,n=0){let r=pt(t);if(!r||n>fn)return!1;switch(r.kind){case m.Nil:case m.True:case m.False:case m.Number:case m.String:return!0;case m.Function:return Gl(r,e);case m.Table:return(r.entries||[]).every(s=>Jr(s.value,e,n+1)&&(s.type!=="key"||Jr(s.key,e,n+1)));default:return!1}}function Yk(t,e){return!t||t.kind!==m.Call?!1:(t.args||[]).every(n=>Jr(n,e))}function Kl(t,e,n=0){let r=pt(t);if(!r||n>fn)return!1;if(r.kind===m.Table||Jr(r,e,n))return!0;if(r.kind!==m.Call)return!1;let s=pt(r.base);if(!s||s.kind!==m.Name||!bt(s)||s.name!=="setmetatable")return!1;let i=r.args||[];if(i.length!==2||!Kl(i[0],e,n+1))return!1;let o=pt(i[1]);return!o||o.kind!==m.Table?!1:(o.entries||[]).every(u=>u.type==="key"&&u.key&&u.key.kind===m.String&&u.key.value!=="__newindex")}function Ul(t,e,n,r,s){if(!t||!Yt(t)||r.has(t)||s>fn||(r.add(t),!n(t)))return!1;let i=e?e.lt(t):null;return!i||!i.length?!1:i.every(o=>{let u=pt(o);return u&&u.kind===m.Name&&u.binding?Ul(u.binding,e,n,r,s+1):Kl(o,e,s+1)})}function Wl(t,e,n,r=0){if(!t||r>fn)return!1;let s=o=>!!n&&!!n.has&&n.has(o),i=o=>!o.captured||s(o)?!0:ze?(ze.add(o),!0):!1;if(t.kind===m.Name){let o=t.binding;return!o||!Yt(o)?!1:i(o)}if(t.kind===m.Index){let o=pt(t.base);return!o||o.kind!==m.Name?!1:Ul(o.binding,e,i,new Set,r+1)}return!1}function Xk(t,e){if(t.kind===m.LocalDeclaration)for(let n of t.bindings||[])e.add(n);else if(t.kind===m.LocalFunction)e.add(t.binding);else if(t.kind===m.NumericFor)e.add(t.binding);else if(t.kind===m.GenericFor)for(let n of t.bindings||[])e.add(n)}function Ti(t,e,n=new Set,r=0,s=!1){if(!t||r>fn)return!1;let i=s instanceof Set?new Set(s):s;return(t.statements||[]).every(o=>{let u=Zk(o,e,n,r+1,i);return i instanceof Set&&Xk(o,i),u})}function Zk(t,e,n=new Set,r=0,s=!1){if(!t||r>fn)return!1;let i=u=>Ti(u,e,n,r+1,s),o=u=>Ve(u,e,n,r+1);switch(t.kind){case m.LocalDeclaration:return(t.expressions||[]).every(o);case m.Assignment:return(t.targets||[]).every(u=>Wl(u,e,s))&&(t.expressions||[]).every(o);case m.LocalFunction:case m.Label:return!0;case m.Return:return s&&(t.expressions||[]).every(o);case m.Break:case m.Continue:return s;case m.CallStatement:return o(t.expression);case m.Do:return i(t.body);case m.While:case m.Repeat:return o(t.condition)&&i(t.body);case m.NumericFor:return o(t.start)&&o(t.limit)&&o(t.step)&&i(t.body);case m.GenericFor:return(t.expressions||[]).every(o)&&i(t.body);case m.If:return o(t.condition)&&i(t.body)&&(t.s||[]).every(u=>o(u.condition)&&i(u.body))&&(!t.e||i(t.e));default:return!1}}Vl.exports={TABLES:Qr,LOADERS:zl,Facts:Ii,Ls:Ve,E:Hk,sealed:Gl,Es:Yk,As:Oi,ft:Uk,Is:Wk}});var _i=F((vv,Zl)=>{"use strict";var es=B(),{Kind:pe}=es,{walk:ns}=ee(),{Lr:Jk}=Pe(),{U:Qk,K:eb}=Tr(),Hl=mt(),{c:ts}=Ne();function nb(t,e){let n=Qk(t),r=new Set(n);for(let s of n)for(let i of e.Rn(s))for(let o of e.qr(i))r.add(o);return r}function tb(t,e){let n=!1;return ns(t,{enter(r){if(n)return!1;if(r.kind===pe.MethodCall)return n=!0,!1;if(r.kind!==pe.Call)return;let s=r.base;for(;s&&s.kind===pe.Paren;)s=s.expression;if(!s||s.kind!==pe.Name)return n=!0,!1;let i=s.binding;if(!i)return n=!0,!1;if(e.Rn(i).size)return;let o=(i.writes||[]).length>0;(ts(i)||o)&&(n=!0)}}),n}function rb(t){let e=new Set;if(t.kind!==pe.Assignment)return e;for(let n of t.targets||[]){let r=n;for(;r&&r.kind===pe.Paren;)r=r.expression;r&&r.kind===pe.Name&&r.binding&&e.add(r.binding)}return e}function sb(t,e){let n=[],r=[],s=[];for(let i of t.statements)n.push(nb(i,e)),r.push(rb(i)),s.push(Jk(i)||tb(i,e));return{reads:n,kills:r,walls:s}}function ib(t,e,n){if(!ts(t))return!1;for(let r=e+1;r<n.reads.length;r+=1){if(n.reads[r].has(t)||n.walls[r])return!1;if(n.kills[r].has(t))return!0}return!1}function Yl(t){let e=t;for(;e&&e.kind===pe.Paren;)e=e.expression;return!e||e.kind!==pe.Name?null:e.binding||null}function ob(t,e,n){let r=t.targets||[],s=t.expressions||[],i=r.length===s.length;if(e.every(l=>l))return s.every(l=>Hl.E(l,n))?{statements:[],removed:r.length}:s.length===1&&(s[0].kind===pe.Call||s[0].kind===pe.MethodCall)?{statements:[es.X(s[0])],removed:r.length}:null;if(!i)return null;let o=[],u=0;for(let l=0;l<r.length;l+=1)e[l]&&Hl.E(s[l],n)?u+=1:o.push(l);return u?(t.targets=o.map(l=>r[l]),t.expressions=o.map(l=>s[l]),{statements:[t],removed:u}):null}function Xl(t){return t.statements.some(e=>e.kind===pe.Label)}function ub(t,e,n){let r=0;return ns(t,{enter(s){if(s.kind!==pe.Block||Xl(s))return;let i=sb(s,e),o=[];for(let u=0;u<s.statements.length;u+=1){let l=s.statements[u];if(l.kind!==pe.Assignment){o.push(l);continue}let c=(l.targets||[]).map(f=>{let h=Yl(f);return!!h&&ib(h,u,i)});if(!c.some(f=>f)){o.push(l);continue}let a=ob(l,c,n);if(!a){o.push(l);continue}r+=a.removed,o.push(...a.statements)}s.statements=o}}),r}function lb(t){return!t||t.kind!==pe.LocalDeclaration?[]:(t.expressions||[]).length?[]:(t.bindings||[]).filter(Boolean)}function ab(t,e,n){let r=t.statements||[];for(let s=0;s<n;s+=1)if(lb(r[s]).includes(e)){for(let i=s+1;i<n;i+=1)if(eb(r[i],!0).has(e))return!1;return!0}return!1}function cb(t){let e=0;return ns(t,{enter(n){if(n.kind!==pe.Block||Xl(n))return;let r=[];n.statements.forEach((s,i)=>{let o=s.kind===pe.Assignment?s.targets||[]:[],u=s.expressions||[];if(!o.length||o.length!==u.length){r.push(s);return}let l=new Set,c=[];for(let a=0;a<o.length;a+=1){let f=Yl(o[a]),h=f&&ts(f)&&!l.has(f)&&u[a].kind===pe.Nil&&ab(n,f,i);f&&l.add(f),h?e+=1:c.push(a)}if(c.length===o.length){r.push(s);return}c.length&&(s.targets=c.map(a=>o[a]),s.expressions=c.map(a=>u[a]),r.push(s))}),n.statements=r}}),e}function fb(t){return!t||t.kind!==pe.Name||!t.binding||!ts(t.binding)?!1:!(t.binding.reads||[]).length}function db(t){let e=0;return ns(t,{enter(n){n.kind===pe.Block&&(n.statements=n.statements.map(r=>{if(r.kind!==pe.Assignment)return r;let s=r.targets||[],i=r.expressions||[];if(!s.length||i.length!==1||!s.every(fb))return r;let o=es.unparen(i[0]);return o.kind!==pe.Call&&o.kind!==pe.MethodCall?r:(e+=1,es.X(o))}))}}),e}Zl.exports={Os:ub,Ts:cb,discharge:db}});var Ql=F((xv,Jl)=>{"use strict";var dn=B(),{Kind:Me}=dn,{tr:hb}=vn(),{detect:gb}=vn(),{Jr:pb}=fl(),{tn:kb,ut:bb}=Ni(),mb=Fr(),wb=pi(),yb=Wr(),vb=Yr(),{discharge:xb}=_i(),{walk:Sb}=ee();function Nb(t){let e=t.wrapper&&t.wrapper.bindings||[],n=t.roles.varargs?e.indexOf(t.roles.varargs):-1;return n<0?null:t.fe.args[n]||null}var Cb=new Set([Me.Name,Me.Number,Me.String,Me.Nil,Me.True,Me.False]);function Fb(t){if(t.kind===Me.Assignment){if(t.targets.length!==1||t.expressions.length!==1)return null;let e=t.targets[0],n=dn.unparen(t.expressions[0]);return e.kind!==Me.Name||n.kind!==Me.Name?null:{target:e.binding,source:n.binding,write:e}}if(t.kind===Me.LocalDeclaration){if(t.names.length!==1||t.expressions.length!==1)return null;let e=dn.unparen(t.expressions[0]);return e.kind!==Me.Name?null:{target:(t.bindings||[])[0],source:e.binding,write:null}}return null}function qb(t){let e=new Map,n=t.wrapper;if(!n||!n.body)return e;let r=t.fe.args||[],s=r.length?dn.unparen(r[r.length-1]):null,i=s?dn.d(s):!1;(n.bindings||[]).forEach((o,u)=>{if(!o||u>=r.length||i&&u===r.length-1)return;let l=dn.unparen(r[u]);Cb.has(l.kind)&&e.set(o,l)});for(let o=0;o<8;o+=1){let u=0;for(let l of n.body.statements){let c=Fb(l);if(!c||!c.target||e.has(c.target))continue;let a=e.get(c.source);if(!a)continue;let f=c.target.writes||[];(c.write?f.length===1&&f[0]===c.write:!f.length)&&(e.set(c.target,a),u+=1)}if(!u)break}return e}function Mb(t,e){for(let n of Object.keys(t))delete t[n];Object.assign(t,e.kind===Me.Name?dn.name(e.name):{...e})}function $b(t){let e=null;for(let n of t.wrapper&&t.wrapper.bindings||[]){if(!n)continue;let r=n.l;e=e===null?r:Math.max(e,r)}return e}function Lb(t,e,n){let r=qb(e),s=$b(e),i=new Map;Sb(n.body,{enter(u){if(u.kind!==Me.Name||!u.binding||u.binding.kind==="global")return;let l=i.get(u.binding);l?l.push(u):i.set(u.binding,[u])}});let o=0;for(let[u,l]of i){let c=r.get(u);if(c){for(let a of l)Mb(a,c);o+=l.length;continue}s===null||u.l<s||(t.warn(`lift: carried-local ${u.name}`),t.bump("lift.carried-local"))}return o}function Eb(t,e){let n=t;for(let r=0;r<16;r+=1){let s=e.get(n);if(!s)return null;if(s.kind===Me.Return)return s.expressions.length===1&&s.expressions[0]===n?s:null;if(s.kind===Me.Paren){n=s;continue}if(s.kind===Me.Table){let i=s.entries||[];if(i.length!==1||i[0].type!=="item"||i[0].value!==n)return null;n=s;continue}if(s.kind===Me.Call&&s.base&&s.base.kind===Me.Name&&(s.args||[]).length===1&&s.args[0]===n){n=s;continue}return null}return null}function Ab(t,e,n){let r=t.get(e);if(!r||!Array.isArray(r.statements))return!1;let s=r.statements.indexOf(e);return s<0?!1:(r.statements.splice(s,1,...n),!0)}function Ib(t,e,n){let r=hb(t),s=Eb(e.fe,r);if(s&&Ab(r,s,n.body.statements))return"inline";let i=e.fe;return i.base=dn.paren(dn.func([],n.body,!0)),i.args=[dn.vararg()],"closure"}function Ob(t,e,n){let r=pb(e),s=kb(e,r,{counter:n,varargs:Nb(e)});for(let u of s.warnings)t.warn(`lift: ${u.kind} ${JSON.stringify(u)}`),t.bump(`lift.${u.kind}`);let i=Lb(t,e,s);i&&t.bump("devirtualize.reseated",i);let o=Ib(t.chunk,e,s);return t.bump(`devirtualize.${o}`),t.bump("devirtualize.blocks",r.blocks.size),t.bump("devirtualize.functions",r.functions.length),s.counter}function Tb(t){let e=0,n=0;for(let r=0;r<32;r+=1){t.resolve();let s=gb(t.chunk);for(let i of s.rejected)t.bump(`devirtualize.rejected.${i.reason}`);if(!s.instances.length)break;for(let i of s.instances)e=Ob(t,i,e),n+=1,t.V("progress",{step:"04-devirt",layers:n,blocks:t.stats["devirtualize.blocks"]||0,functions:t.stats["devirtualize.functions"]||0});t.resolve(),mb.run(t),yb.run(t),t.resolve(),wb.run(t),t.resolve(),vb.run(t)}if(n){t.resolve();let r=xb(t.chunk);r&&(t.bump("devirtualize.discharged",r),t.resolve()),t.note(`devirtualized ${n} VM layer(s)`,n),t.bump("devirtualize.layers",n)}}Jl.exports={name:"04-lift",run:Tb,ut:bb}});var ha=F((Sv,da)=>{"use strict";var Xt=B(),{Kind:ge}=Xt,{transform:_b,walk:Ri}=ee(),{bare:Se,W:Bb,Ge:Rb}=Pe(),{D:ra}=Ne(),{Interpreter:sa,Scope:ia}=ei(),{LuaTable:Db}=un(),Pb=It(),oa={__add:"+",__sub:"-",__mul:"*",__div:"/",__pow:"^",__concat:".."};function ea(t){if(!t||t.type!=="key")return null;let e=Se(t.key);return e&&e.kind===ge.String?e.value:null}function ua(t,e,n){let r=Se(t),s=new Set;for(let i=0;r&&i<8;i+=1){if(r.kind===ge.Function)return r;let o=n?Qt(r,n,"getKey")||ca(r,n):null;if(o){r=Se(fa(o));continue}if(r.kind!==ge.Name||!r.binding||s.has(r.binding))return null;s.add(r.binding),r=Se(Zt(e,r.binding))}return null}var Bi="\0proxy-held",na="\0proxy-given";function jb(t,e,n){let r=ua(t,n);if(!r||(r.params||[]).length!==2)return null;let s=new sa({x:2e4,ge:16,lenient:!0}),i=new Db;i.set(e,Bi);let o;try{let c=s.eval(r,new ia(null));o=s.call(c,[i,na])}catch{return null}let u=i.get(e),l=o.length?o[0]:void 0;return u===na&&l===void 0&&o.length<=1?"set":u===Bi&&l===Bi&&o.length===1?"get":null}function la(t,e,n){let r=Se(t);if(!r||r.kind!==ge.Call)return null;let s=Se(r.base),i=r.args||[];if(i.length!==2)return null;let o=s&&s.kind===ge.Name&&s.binding&&e.has(s.binding),u=ra(s)&&s.name==="setmetatable";if(!o&&!u)return null;let l=Se(i[0]),c=Se(i[1]);if(!l||l.kind!==ge.Table||!c||c.kind!==ge.Table)return null;let a=l.entries||[],f=c.entries||[];if(a.length!==1||f.length!==2)return null;let h=ea(a[0]);if(!h)return null;let d={};for(let g of f){let p=ea(g);if(!p||p!=="__index"&&!oa[p])return null;let k=jb(g.value,h,n);if(!k||d[k])return null;d[k]=p}return!d.set||!d.get?null:{field:h,Ci:d.set,Fi:d.get,init:a[0].value,at:a[0]}}var zb=Bb,Zt=Rb;function Gb(t){let e=new Set;for(let r of t.keys()){let s=Se(Zt(t,r));s&&ra(s)&&s.name==="setmetatable"&&e.add(r)}let n=!0;for(;n;){n=!1;for(let r of t.keys()){if(e.has(r))continue;let s=Se(Zt(t,r));!s||s.kind!==ge.Name||!s.binding||e.has(s.binding)&&(e.add(r),n=!0)}}return e}function aa(t){if(!t||(t.params||[]).length)return!1;let e=new sa({x:2e4,ge:16});try{let n=e.eval(t,new ia(null)),r=Pb.record(()=>e.call(n,[]));return r.value.length===0&&r.writes.size===0}catch{return!1}}function Kb(t,e){let n=new Set,r=new Map;for(let s of t.keys()){let i=ua(Zt(t,s),t,e);i&&(r.has(i)||r.set(i,aa(i)),r.get(i)&&n.add(s))}return n}function Ub(t,e,n){let r=new Map;for(let s of t.keys()){let i=t.get(s),o=la(i.list[i.index],e,t);o&&(r.set(s,Object.assign({name:s.name},o)),i.list[i.index]=o.init,n.locals+=1)}return r}function Wb(t,e){let n=!0;for(;n;){n=!1;for(let r of t.keys()){if(e.has(r))continue;let s=Se(Zt(t,r));if(!s||s.kind!==ge.Name||!s.binding)continue;let i=e.get(s.binding);i&&(e.set(r,i),n=!0)}}}function Vb(t,e,n,r){let s=new Map;return Ri(t,{enter(i){if(i.kind!==ge.Call)return;let o=la(i,e,n);o&&(s.set(i,o),r.locals+=1)}}),s}function Jt(t,e){let n=Se(t);if(!n)return null;let r=e.inline.get(n);if(r)return{proxy:r,via:null};let s=n.kind===ge.Name?n.binding:null;if(!s)return null;let i=e.proxies.get(s);return i?{proxy:i,via:s}:null}function Qt(t,e,n){if(!t)return null;if(t.kind===ge.Index){let r=Jt(t.base,e);return!r||r.proxy[n]!=="__index"?null:{proxy:r.proxy,via:r.via,value:t.index}}if(t.kind===ge.Binary){let r=Jt(t.lhs,e);if(r&&oa[r.proxy[n]]===t.operator)return{proxy:r.proxy,via:r.via,value:t.rhs}}return null}function ca(t,e){if(!t||t.kind!==ge.Index)return null;let n=Jt(t.base,e);if(!n)return null;let r=Se(t.index);return!r||r.kind!==ge.String||r.value!==n.proxy.field?null:n}function Hb(t,e){let n=new Set;return Ri(t,{enter(r){let s=Qt(r,e,"setKey");if(s&&n.add(s.proxy),r.kind===ge.Assignment)for(let i of r.targets||[]){let o=Se(i);if(!o||o.kind!==ge.Index)continue;let u=Jt(o.base,e);u&&n.add(u.proxy)}}}),n}function Di(t,e){return t.via&&!e.written.has(t.proxy)?t.via.name:t.proxy.name}function fa(t){return t.proxy.at?t.proxy.at.value:t.proxy.init}function ta(t,e){let n=Di(t,e);return n?Xt.name(n):fa(t)}function Yb(t,e,n,r){if(t.kind!==ge.CallStatement)return null;let s=Se(t.expression);if(!s||s.kind!==ge.Call)return null;let i=Se(s.base),o=Qt(i,e,"getKey"),u=o?o.proxy.binding:i.kind===ge.Name?i.binding:null;if(!(o&&!o.proxy.name?aa(Se(o.proxy.init)):!!u&&n.has(u)))return null;let c=s.args||[];if(!c.length)return null;let a=Qt(Se(c[0]),e,"setKey");if(!a)return null;let f=Di(a,e);return f?(r.assignments+=1,Xt.assignment([Xt.name(f)],[a.value,...c.slice(1)])):null}function Xb(t,e,n){t.kind===ge.Assignment&&(t.targets=(t.targets||[]).map(r=>{let s=Se(r);if(!s||s.kind!==ge.Index)return r;let i=Jt(s.base,e);if(!i)return r;let o=Di(i,e);if(!o)return r;let u=Se(s.index);return!u||u.kind!==ge.String||u.value!==i.proxy.field?r:(n.targets+=1,Xt.name(o))}))}function Zb(t){let e={locals:0,reads:0,assignments:0,targets:0};t.resolve();let n=zb(t.chunk),r=Gb(n);if(!r.size)return;let s=Ub(n,r,e);for(let[c,a]of s)a.binding=a.binding||c;Wb(n,s);let i=Vb(t.chunk,r,n,e);if(!s.size&&!i.size)return;let o={proxies:s,inline:i,written:new Set};o.written=Hb(t.chunk,o);let u=Kb(n,o);Ri(t.chunk,{enter(c){c.kind===ge.Block&&(c.statements=c.statements.map(a=>{let f=Yb(a,o,u,e);return f||(Xb(a,o,e),a)}))}}),_b(t.chunk,c=>{let a=Qt(c,o,"getKey");if(a)return e.reads+=1,ta(a,o);let f=ca(c,o);return f?(e.reads+=1,ta(f,o)):c}),t.resolve();let l=e.locals+e.reads+e.assignments+e.targets;l&&t.note(`unproxied ${e.locals} local(s): ${e.reads} read(s), ${e.assignments} assignment(s)`,l);for(let c of Object.keys(e))e[c]&&t.bump(`unproxy.${c}`,e[c])}da.exports={name:"06-proxy",run:Zb}});var ji=F((Nv,ba)=>{"use strict";var{Kind:T}=B(),{children:ga}=ee(),er=mt(),{As:Jb}=er,{c:pa}=Ne();function rs(t){let e=[],n=(r,s)=>{r&&e.push({block:r,role:s})};switch(t.kind){case T.Do:n(t.body,"plain");break;case T.While:case T.NumericFor:case T.GenericFor:n(t.body,"loop");break;case T.Repeat:n(t.body,"loop");break;case T.If:n(t.body,"plain");for(let r of t.s||[])n(r.body,"plain");n(t.e,"plain");break;case T.LocalFunction:case T.FunctionDeclaration:n(t.body&&t.body.body,"function");break;default:break}return e}var Pi=class{constructor(e,n=null){this.facts=n,this.holder=new Map,this.owner=new Map,this.role=new Map,this.rn=new Map,this.declarer=new Map,this.mutations=new Map,this.reads=new Set,this.blocks=[];let r=e.kind===T.Chunk?e.body:e;this.enter(r,"chunk"),this._s()}_s(){let e=new Set;for(let n of this.rn.keys())if(!(n.kind!==T.Name||!n.binding||e.has(n.binding))){e.add(n.binding);for(let r of n.binding.reads||[])this.reads.add(r)}}enter(e,n){if(!(!e||!e.statements)){this.blocks.push(e),this.role.set(e,n);for(let r of e.statements)this.holder.set(r,e),this.declare(r),this.charge(r),this.claim(r,r)}}charge(e){let n=s=>{this.mutations.has(s)||this.mutations.set(s,[]),this.mutations.get(s).push(e)},r=s=>{for(let i of Jb(s,this.facts))n(i)};for(let s of e.targets||[])s&&s.kind!==T.Name&&r(s);for(let s of this.own(e)){if(s.kind!==T.Call&&s.kind!==T.MethodCall)continue;(s.kind===T.MethodCall||s.base&&s.base.kind!==T.Name)&&r(s.base);for(let o of s.args||[])r(o);if(!this.facts)continue;let i=er.ft(s,this.facts);if(i)for(let o of i)n(o)}}declare(e){let n=r=>{r&&this.declarer.set(r,e)};e.kind===T.LocalDeclaration?(e.bindings||[]).forEach(n):e.kind===T.LocalFunction||e.kind===T.NumericFor?n(e.binding):e.kind===T.GenericFor&&(e.bindings||[]).forEach(n)}claim(e,n){this.rn.set(e,n);for(let r of ga(e)){let s=r.node;if(!(!s||!s.kind))if(s.kind===T.Block){this.owner.set(s,n);let i=r.parent&&r.parent.kind===T.Function?"function":(rs(n).find(o=>o.block===s)||{}).role||"plain";this.enter(s,i)}else{if(s.kind===T.Function)for(let i of s.bindings||[])this.declarer.set(i,n);this.claim(s,n)}}}*own(e){let n=[e];for(;n.length;){let r=n.pop();yield r;for(let s of ga(r))s.node&&s.node.kind&&s.node.kind!==T.Block&&n.push(s.node)}}};function Qb(t){switch(t.kind){case T.LocalDeclaration:case T.Return:case T.GenericFor:return t.expressions||[];case T.Assignment:return t.expressions||[];case T.CallStatement:return[t.expression];case T.While:case T.Repeat:return[t.condition];case T.NumericFor:return[t.start,t.limit,t.step];case T.If:return[t.condition,...(t.s||[]).map(e=>e.condition)];default:return[]}}function em(t,e){let n=e;for(let r=0;r<1e3;r+=1){let s=t.holder.get(n);if(!s)return!1;let i=s.statements||[];if(i[i.length-1]!==n)return!1;let o=t.role.get(s);if(o==="function")return!0;if(o!=="plain")return!1;let u=t.owner.get(s);if(!u||u===n)return!1;n=u}return!1}function nm(t,e){let n=[],r=s=>{let i=s&&s.statements||[],o=i[i.length-1];if(o){if(o.kind===T.Return){n.push(o);return}if(!(o.kind!==T.If&&o.kind!==T.Do))for(let u of rs(o))r(u.block)}};return r(e),n}function ka(t,e){let n=[];for(let r of t.blocks)r.statements.forEach(s=>{switch(s.kind){case T.Goto:case T.Label:case T.FunctionDeclaration:n.push(s);return;case T.Return:if(!em(t,s)){n.push(s);return}break;case T.Break:case T.Continue:return;default:break}if(s.kind===T.Assignment&&(s.targets||[]).some(i=>!er.Is(i,e))){n.push(s);return}for(let i of Qb(s))if(i&&!er.ft(i,e)){n.push(s);return}for(let i of s.targets||[])i&&i.kind===T.Index&&!er.Ls(i,e)&&n.push(s)});return n}function tm(t,e){let n=new Set;for(let r of t.own(e))r.kind!==T.Name||!r.binding||pa(r.binding)&&t.reads.has(r)&&n.add(r.binding);return n}function rm(t,e){let n=new Pi(t,e),r=new Set,s=new Set,i=[],o=a=>{!a||r.has(a)||(r.add(a),i.push(a))},u=a=>{if(!(!a||s.has(a)||!pa(a))){s.add(a);for(let f of a.writes||[])o(n.rn.get(f));for(let f of n.mutations.get(a)||[])o(f);o(n.declarer.get(a))}},l=a=>{for(let f of a.statements)if((f.kind===T.Break||f.kind===T.Continue)&&o(f),f.kind===T.If||f.kind===T.Do)for(let h of rs(f))l(h.block)};for(let a of ka(n,e))o(a);for(;i.length;){let a=i.pop();for(let h of tm(n,a))u(h);let f=n.holder.get(a);for(;f;){let h=n.owner.get(f);if(!h)break;o(h),f=n.holder.get(h)}for(let h of rs(a))h.role==="loop"&&l(h.block);for(let h of n.own(a)){if(h.kind!==T.Function)continue;let d=h.body;if(!(!d||!d.statements.length))for(let g of nm(n,d))o(g)}}let c=0;for(let a of n.blocks){let f=a.statements.length;a.statements=a.statements.filter(h=>r.has(h)),c+=f-a.statements.length}return c}ba.exports={dt:rm,seeds:ka}});var Gi=F((Cv,va)=>{"use strict";var{Kind:U}=B(),jn=B(),{walk:zn,transform:os}=ee(),hn=mt(),{y:sm}=Tn(),{D:im,c:is}=Ne(),om=Yr(),{Writes:um}=Ar(),{K:lm,U:am}=Tr(),{Os:cm,Ts:fm}=_i(),{dt:dm}=ji(),{Positions:hm}=Yn(),ss=Fr(),gm=Wr(),pm=ct();function km(t,e,n){let r=0;return os(t,s=>{if(s.kind!==U.Binary||s.operator!=="and"&&s.operator!=="or")return s;let i=pm.truthiness(s.lhs);if(i===null)return s;let o=s.operator==="and"?!i:i,u=o?s.rhs:s.lhs;return hn.E(u,e)?(n.decided+=1,r+=1,o?s.lhs:s.rhs):s}),r}function bm(t){let e=new Set;return zn(t,{enter(n){e.add(n)}}),e}function mm(t,e){let n=t.reads||[];if(!n.length)return!0;let r=bm(e);return n.every(s=>r.has(s))}function zi(t,e){return is(t)?(t.reads||[]).length?e?mm(t,e):!1:!0:!1}function ma(t,e,n){let r=0;return zn(t,{enter(s){if(s.kind!==U.Block)return;let i=[];for(let o of s.statements){if(o.kind===U.LocalFunction){if(zi(o.binding,o)){r+=1;continue}}else if(o.kind===U.LocalDeclaration){let u=o.bindings||[],l=o.names||[],c=o.expressions||[],a=c.length===l.length,f=[];for(let h=0;h<l.length;h+=1)!((u[h]&&u[h].writes||[]).length>0)&&zi(u[h],a?c[h]:null)&&(!a||hn.E(c[h],e))?r+=1:f.push(h);if(!f.length&&(!c.length||c.every(h=>hn.E(h,e))))continue;f.length!==l.length&&a?(o.names=f.map(h=>l[h]),o.bindings=f.map(h=>u[h]),o.expressions=f.map(h=>c[h])):f.length!==l.length&&!c.length&&(o.names=f.map(h=>l[h]),o.bindings=f.map(h=>u[h]))}else if(o.kind===U.Assignment){let u=o.targets||[],l=o.expressions||[];if(u.length===1&&l.length===1&&u[0].kind===U.Name&&l[0].kind===U.Name&&u[0].binding&&u[0].binding===l[0].binding){r+=1;continue}let c=f=>f.kind===U.Name&&zi(f.binding,null);if(u.every(c)&&l.every(f=>hn.E(f,e))){r+=u.length;continue}let a=l.length===1?jn.unparen(l[0]):null;if(u.every(c)&&a&&(a.kind===U.Call||a.kind===U.MethodCall)){r+=u.length,i.push(jn.X(a));continue}if(u.length===l.length&&u.some(c)&&u.some(f=>!c(f))){let f=[];for(let h=0;h<u.length;h+=1)c(u[h])&&hn.E(l[h],e)?r+=1:f.push(h);o.targets=f.map(h=>u[h]),o.expressions=f.map(h=>l[h])}}else if(o.kind===U.CallStatement){if(hn.Es(o.expression,e)&&hn.E(o.expression,e)){r+=1;continue}}else if(o.kind===U.Do&&!(o.body&&o.body.statements||[]).length){r+=1;continue}i.push(o)}s.statements=i}}),n.eliminated+=r,r}function wa(t,e){let n=0;return zn(t,{enter(r){if(r.kind===U.Block)for(let s=0;s+1<r.statements.length;s+=1){let i=r.statements[s];if(i.kind!==U.LocalDeclaration||(i.expressions||[]).length)continue;let o=r.statements[s+1];if(!o||o.kind!==U.Assignment)continue;let u=o.targets||[],l=o.expressions||[];if(!u.length||u.length!==l.length)continue;let c=new Set(i.bindings||[]);if(!u.every(k=>k.kind===U.Name&&c.has(k.binding)))continue;let a=!1;for(let k of l)zn(k,{enter(w){w.kind===U.Name&&c.has(w.binding)&&(a=!0)}});if(a)continue;let f=new Set(u.map(k=>k.binding)),h=[],d=[];(i.bindings||[]).forEach((k,w)=>{f.has(k)||(h.push(i.names[w]),d.push(k))});let g=jn.R(u.map(k=>k.name),l);g.bindings=u.map(k=>k.binding);let p=h.length?[g,Object.assign(i,{names:h,bindings:d})]:[g];r.statements.splice(s,2,...p),n+=1,s-=1}}}),e.merged+=n,n}function ya(t,e){let n=0;return os(t,r=>{if(r.kind!==U.Paren)return r;let s=r.expression;return!s||jn.d(s)?r:s.kind===U.Name||s.kind===U.Paren||jn.Y(s)||s.kind===U.Table||s.kind===U.Index?(n+=1,s):r}),e.parens+=n,n}function wm(t){let e=new Set;return zn(t,{enter(n){(n.kind===U.Index||n.kind===U.Call||n.kind===U.MethodCall)&&e.add(n.base)}}),e}function ym(t,e){let n=new Map;zn(t,{enter(a){let f=(h,d,g,p)=>{if(!is(h))return;let k=n.get(h);k||(k={count:0,bare:0,valued:0,value:null,at:null},n.set(h,k)),k.count+=1,d?(k.valued+=1,k.value=d,k.at=g):p&&(k.bare+=1)};if(a.kind===U.LocalDeclaration){let h=a.expressions||[],d=h.length===(a.names||[]).length;(a.bindings||[]).forEach((g,p)=>{f(g,d?h[p]:null,a,!h.length)})}else if(a.kind===U.Assignment){let h=a.targets||[],d=a.expressions||[],g=h.length===d.length;h.forEach((p,k)=>{p.kind===U.Name&&f(p.binding,g?d[k]:null,a,!1)})}else if(a.kind===U.LocalFunction)f(a.binding,null,a,!1);else if(a.kind===U.NumericFor)f(a.binding,null,a,!1);else if(a.kind===U.GenericFor||a.kind===U.Function)for(let h of a.bindings||[])f(h,null,a,!1)}});let r=new Map,s=null,i=null,o=new Map;for(let[a,f]of n){if(!f.value||f.valued!==1||f.bare!==f.count-1)continue;let h=jn.unparen(f.value);h.kind===U.Name&&(!is(h.binding)||h.binding===a||o.set(h,a))}let u=(a,f)=>{let h=[];for(let d of a.reads||[]){let g=o.get(d);g&&!f.has(g)?(f.add(g),h.push(...u(g,f))):h.push(d)}return h};for(let[a,f]of n){if(!f.value||f.valued!==1||!jn.Y(f.value)||f.value.kind===U.Vararg)continue;let h=a.reads||[];if(!h.length||f.count!==1&&(f.bare!==f.count-1||(s||(s=new hm(t)),!h.every(g=>s.precedes(f.at,g)))))continue;let d=u(a,new Set([a]));d.length>1&&(i||(i=wm(t)),d.some(g=>i.has(g)))||r.set(a,f.value)}if(!r.size)return 0;let l=new Set;for(let a of r.keys())for(let f of a.writes||[])l.add(f);let c=0;return os(t,a=>{if(a.kind!==U.Name||!a.binding||l.has(a))return a;let f=r.get(a.binding);return f?(c+=1,{...f}):a}),e.propagated+=c,c}function vm(t,e){let n=new Set;zn(t,{enter(s){is(s.binding)&&n.add(s.name)}});let r=0;return os(t,s=>{if(s.kind!==U.Index)return s;let i=s.base;if(!im(i)||i.name!=="_ENV")return s;let o=s.index;return!o||o.kind!==U.String||!sm(o.value)||n.has(o.value)?s:(r+=1,jn.name(o.value))}),e.globals+=r,r}function xm(t,e){let n=0;return zn(t,{enter(r){r.kind===U.NumericFor&&r.step&&r.step.kind===U.Number&&r.step.value===1&&(r.step=null,n+=1)}}),e.loops+=n,n}function Sm(t){let e={eliminated:0,merged:0,parens:0,idioms:0,propagated:0,loops:0,globals:0,stores:0,decided:0,unwanted:0};for(let r=0;r<24;r+=1){t.resolve();let s=0;s+=om.run(t,e),t.resolve(),s+=ym(t.chunk,e),t.resolve(),s+=vm(t.chunk,e),t.resolve();let i=new hn.Facts(t.chunk),o=ss.ar(t.chunk,{binary:ss.BINARY,unary:ss.LOGIC});e.decided+=o,s+=o,s+=km(t.chunk,i,e),t.resolve();let u=t.stats["guards.constants"]||0;gm.run(t),s+=(t.stats["guards.constants"]||0)-u,t.resolve(),s+=ma(t.chunk,i,e),t.resolve();let l=cm(t.chunk,new um(t.chunk,lm,am),new hn.Facts(t.chunk));e.stores+=l,s+=l,t.resolve();let c=fm(t.chunk);e.stores+=c,s+=c,t.resolve();let a=dm(t.chunk,new hn.Facts(t.chunk));e.unwanted+=a,s+=a,t.resolve(),s+=wa(t.chunk,e),s+=ya(t.chunk,e);let f=t.stats["fold.count"]||0;if(ss.run(t),s+=(t.stats["fold.count"]||0)-f,!s)break}xm(t.chunk,e),t.resolve();let n=Object.values(e).reduce((r,s)=>r+s,0);n&&t.note(`removed ${e.eliminated+e.stores} dead write(s), ${e.unwanted} unwanted statement(s), merged ${e.merged} declaration(s), rebuilt ${e.idioms} idiom(s)`,n);for(let r of Object.keys(e))e[r]&&t.bump(`simplify.${r}`,e[r])}va.exports={name:"07-opt",run:Sm,eliminate:ma,Bs:wa,ht:ya}});var Ki=F((Fv,Ma)=>{"use strict";var{Kind:_e}=B(),{walk:us}=ee(),{y:Nm}=Tn(),{D:Cm}=Ne(),xa=["i","j","k","m","n"];function Sa(t){let e=new Set(["and","break","do","else","elseif","end","false","for","function","goto","if","in","local","nil","not","or","repeat","return","then","true","until","while","self","_ENV"]);return us(t,{enter(n){Cm(n)&&e.add(n.name)}}),e}function Na(t){let e={p:0,f:0,v:0,i:0};return r=>{for(let s=0;s<1e5;s+=1){e[r]+=1;let i=e[r],o=r==="i"&&i<=xa.length?xa[i-1]:`${r}${i}`;if(!t.has(o)&&Nm(o))return t.add(o),o}throw new Error("rename: name pool exhausted")}}function Fm(t){let e=new Map,n=(s,i)=>{if(!s||s.kind!==_e.Name||!s.binding)return;let o=e.get(s.binding)||{functions:0,other:0};i&&i.kind===_e.Function?o.functions+=1:o.other+=1,e.set(s.binding,o)};us(t,{enter(s){if(s.kind===_e.FunctionDeclaration)n(s.target,s.body);else if(s.kind===_e.Assignment){let i=s.expressions||[],o=s.targets||[],u=i.length===o.length;o.forEach((l,c)=>n(l,u?i[c]:null))}}});let r=new Set;for(let[s,i]of e)i.functions&&!i.other&&r.add(s);return r}function Ca(t){let e=new Map,n=Fm(t),r=(s,i)=>{!s||e.has(s)||e.set(s,i)};return us(t,{enter(s){if(s.kind===_e.Function)(s.bindings||[]).forEach((i,o)=>{(s.params||[])[o]!=="self"&&r(i,"p")});else if(s.kind===_e.LocalFunction)r(s.binding,"f");else if(s.kind===_e.NumericFor)r(s.binding,"i");else if(s.kind===_e.GenericFor)(s.bindings||[]).forEach(i=>r(i,"v"));else if(s.kind===_e.LocalDeclaration){let i=s.expressions||[],o=i.length===(s.names||[]).length;(s.bindings||[]).forEach((u,l)=>{let c=o?i[l]:null,a=c&&c.kind===_e.Function||n.has(u);r(u,a?"f":"v")})}}}),e}function Fa(t,e){let n=new Map;for(let[r,s]of Ca(t))n.set(r,e(s));return n}function qa(t,e){let n=0,r=(s,i)=>{if(!(!s||!i))for(let o=0;o<i.length&&o<s.length;o+=1){let u=e.get(i[o]);u&&(s[o]=u)}};return us(t,{enter(s){if(s.kind===_e.Function)r(s.params,s.bindings);else if(s.kind===_e.LocalDeclaration)r(s.names,s.bindings);else if(s.kind===_e.GenericFor)r(s.variables,s.bindings);else if(s.kind===_e.LocalFunction){let i=e.get(s.binding);i&&(s.name=i)}else if(s.kind===_e.NumericFor){let i=e.get(s.binding);i&&(s.variable=i)}else if(s.kind===_e.Name&&s.binding){let i=e.get(s.binding);i&&s.name!==i&&(s.name=i,n+=1)}}}),n}function qm(t){t.resolve();let e=Sa(t.chunk),n=Fa(t.chunk,Na(e));if(!n.size)return;let r=qa(t.chunk,n);t.resolve(),t.note(`renamed ${n.size} local(s)`,n.size),t.bump("rename.bindings",n.size),t.bump("rename.mentions",r)}Ma.exports={name:"08-vars",run:qm,reserved:Sa,namer:Na,categories:Ca,plan:Fa,apply:qa}});var Wi=F((qv,Aa)=>{"use strict";var wt=B(),{Kind:gn}=wt,{walk:Ui,transform:Mm,collect:$m}=ee(),{c:Lm}=Ne(),{bare:nt}=Pe(),La="GetService";function ls(t){if(!t||t.kind!==gn.MethodCall||t.method!==La)return null;let e=t.args||[];if(e.length!==1)return null;let n=nt(e[0]);if(!n||n.kind!==gn.String)return null;let r=nt(t.base);return!r||r.kind!==gn.Name||Lm(r.binding)?null:n.value}var Em=t=>ls(nt(t))!==null;function Ea(t){if(!t||t.kind!==gn.LocalDeclaration||(t.names||[]).length!==1||(t.expressions||[]).length!==1)return null;let e=ls(nt(t.expressions[0]));return e===null?null:{service:e,name:t.names[0],initializer:nt(t.expressions[0])}}function $a(t){let e=0;for(;e<t.length&&Ea(t[e]);)e+=1;return e}function Am(t){let e=new Set;return Ui(t,{enter(n){n.kind===gn.Name&&e.add(n.name);for(let r of["names","params","variables"])for(let s of n[r]||[])e.add(s);(n.kind===gn.LocalFunction||n.kind===gn.NumericFor)&&e.add(n.name||n.variable)}}),e}function Im(t){let e=t.body?t.body.statements:null;if(!e)return 0;let n=$m(t,d=>ls(d)!==null);if(!n.length)return 0;let r=new Map;for(let d of n){let g=ls(d),p=r.get(g);p||r.set(g,p=[]),p.push(d)}let s=$a(e),i=new Map;for(let d=0;d<s;d+=1){let g=Ea(e[d]);i.has(g.service)||i.set(g.service,g)}let o=d=>{let g=i.get(d),p=r.get(d);return!!g&&p.length===1&&p[0]===g.initializer};if([...r.keys()].every(o))return 0;let u=Am(t),l=()=>{let d=0;for(;;){d+=1;let g=`service${d}`;if(!u.has(g))return u.add(g),g}},c=[],a=new Map;for(let[d,g]of r){let p=i.get(d);if(!p){let k=nt(g[0].base).name;p={service:d,name:l(),initializer:null},c.push(wt.R([p.name],[wt.Le(wt.name(k),La,[wt.string(d)])])),i.set(d,p)}for(let k of g)k!==p.initializer&&a.set(k,wt.name(p.name))}let f=new Set;Ui(t,{enter(d){if(d.kind===gn.Block)for(let g of d.statements){if(g.kind!==gn.CallStatement)continue;let p=nt(g.expression);a.has(p)&&(a.delete(p),f.add(g))}}});let h=a.size+c.length+f.size;if(!h)return 0;if(Mm(t,d=>a.get(d)||d),f.size&&Ui(t,{enter(d){if(d.kind===gn.Block)for(let g=d.statements.length-1;g>=0;g-=1)f.has(d.statements[g])&&d.statements.splice(g,1)}}),c.length){let d=t.body.statements;d.splice($a(d),0,...c)}return h}Aa.exports={gather:Im,Rs:Em}});var cs=F((Mv,Ia)=>{"use strict";var{Kind:he}=B(),{walk:as,collect:Om}=ee(),{bare:Vi}=Pe();function nr(t){if(!t)return!0;switch(t.kind){case he.Nil:case he.True:case he.False:case he.Number:case he.String:case he.Vararg:case he.Name:case he.Function:return!0;case he.Paren:return nr(t.expression);case he.Table:return(t.entries||[]).every(e=>(e.type!=="key"||nr(e.key))&&nr(e.value));default:return!1}}function Tm(t,e){return Om(t,n=>n===e).length>0}function _m(t){let e=new Set;return as(t,{enter(n){if(n.kind===he.Assignment)for(let r of n.targets||[]){let s=Vi(r);s&&s.kind===he.Index&&e.add(s)}}}),e}function Bm(t,e){let n=_m(t),r=[],s=[],i=!1;return as(t,{enter(o){if(i)return!1;if(o===e){i=!0;for(let u of s){let l=r.indexOf(u);l>=0&&r.splice(l,1)}return!1}if(n.has(o)||r.push(o),o.kind===he.Function&&!Tm(o,e))return!1;s.push(o)},leave(o){!i&&s[s.length-1]===o&&s.pop()}}),i?r:null}function Rm(t,e){let n=Bm(t,e);return n?n.every(r=>nr(r)):!1}function Dm(t){let e=new Set,n=new Set;return as(t,{enter(r){if(r.kind===he.Assignment)for(let s of r.targets||[]){let i=Vi(s);i&&i.kind===he.Name&&n.add(i)}r.kind===he.Name&&r.binding&&!n.has(r)&&e.add(r.binding)}}),e}function Pm(t){let e=new Map,n=new Set,r=(s,i)=>{!s||n.has(s)||(n.add(s),e.set(i,(e.get(i)||0)+1))};return as(t,{enter(s){s.kind===he.Function?(s.bindings||[]).forEach((i,o)=>r(i,(s.params||[])[o])):s.kind===he.LocalDeclaration?(s.bindings||[]).forEach((i,o)=>r(i,(s.names||[])[o])):s.kind===he.LocalFunction?r(s.binding,s.name):s.kind===he.NumericFor?r(s.binding,s.variable):s.kind===he.GenericFor&&(s.bindings||[]).forEach((i,o)=>r(i,(s.variables||[])[o]))}}),e}function jm(t,e){return t.get(e)===1}function zm(t){if(!t||t.kind!==he.Assignment)return null;let e=t.targets||[],n=t.expressions||[];if(e.length!==1||n.length!==1)return null;let r=Vi(e[0]);return!r||r.kind!==he.Name||!r.binding?null:{target:r,value:n[0]}}function Gm(t){if(!t||t.kind!==he.LocalDeclaration)return null;let e=t.names||[],n=t.expressions||[];if(e.length!==1||n.length!==1)return null;let r=(t.bindings||[])[0];return r?{binding:r,name:e[0],value:n[0]}:null}function Km(t){return!t||t.kind!==he.Do?!1:!(t.body&&t.body.statements||[]).length}Ia.exports={quiet:nr,Ds:Rm,Ps:Dm,gt:Pm,unshadowed:jm,js:zm,sn:Gm,zs:Km}});var vt=F(($v,Wa)=>{"use strict";var{Kind:_,d:Um}=B(),{walk:tr,transform:_a,collect:Hi,children:Ba}=ee(),{Positions:Wm}=Yn(),{c:tt}=Ne(),{bare:pn}=Pe(),Vm=Wi(),yt=cs();function Ra(t){if(!t)return null;let e=t.declaration;return e?e.kind===_.LocalDeclaration?"after":e.kind===_.LocalFunction?"from":"inside":null}function Da(t,e,n){let r=Ra(e);if(!r)return!1;let s=t.path(e.declaration),i=t.path(n);if(!s||!i||i.depth<s.depth)return!1;let o=i;for(;o.depth>s.depth;)o=o.up;return o.up!==s.up||o.block!==s.block?!1:r==="after"?o.at>s.at:r==="from"?o.at>=s.at:o.at===s.at&&i.depth>s.depth}function Hm(t){let e=new Map,n=r=>{let s=e.get(r);return s||(s={valued:0,opaque:0,empty:0,value:null,at:null},e.set(r,s)),s};return tr(t,{enter(r){if(r.kind===_.LocalDeclaration){let s=r.expressions||[],i=s.length===(r.names||[]).length;(r.bindings||[]).forEach((o,u)=>{if(!tt(o))return;let l=n(o);s.length?i?(l.valued+=1,l.value=s[u],l.at=r):l.opaque+=1:l.empty+=1})}else if(r.kind===_.Assignment){let s=r.targets||[],i=r.expressions||[],o=s.length===i.length;s.forEach((u,l)=>{let c=pn(u);if(!c||c.kind!==_.Name||!tt(c.binding))return;let a=n(c.binding);o?(a.valued+=1,a.value=i[l],a.at=r):a.opaque+=1})}else if(r.kind===_.LocalFunction){let s=n(r.binding);s.valued+=1,s.value=null,s.at=r}else if(r.kind===_.FunctionDeclaration){let s=pn(r.target);if(s&&s.kind===_.Name&&tt(s.binding)){let i=n(s.binding);i.valued+=1,i.value=null,i.at=r}}else if(r.kind===_.NumericFor||r.kind===_.GenericFor||r.kind===_.Function)for(let s of r.bindings||[])tt(s)&&(n(s).opaque+=1)}}),e}function Yi(t){return t&&t.reads||[]}function Pa(t){let e=new Map;return tr(t,{enter(n){for(let r of Ba(n))e.set(r.node,n)}}),e}function Ym(t,e){let n=e,r=t.get(n);for(;r&&r.kind!==_.Block;)n=r,r=t.get(n);return r?n:null}function Xm(t,e){if(!t)return null;if(t.kind===_.LocalFunction)return t.body===e?t.binding:null;let n=t.expressions||[];if(n.length!==1||pn(n[0])!==e)return null;if(t.kind===_.LocalDeclaration)return(t.names||[]).length===1?(t.bindings||[])[0]:null;if(t.kind!==_.Assignment)return null;let r=t.targets||[];if(r.length!==1)return null;let s=pn(r[0]);return s&&s.kind===_.Name?s.binding:null}function Zm(t,e){let n=new Set;for(let r of t&&t.expressions||[]){let s=pn(r);s&&s.kind===_.Name&&s.binding===e&&n.add(s)}return n}function ja(t,e,n,r){if(!tt(e)||e.declaration!==n)return!1;let s=t.path(n),i=t.path(r);if(!s||!i||s.depth!==i.depth||s.up!==i.up)return!1;let o=s.block;if(o!==i.block)return!1;let u=s.at,l=i.at;if(u>=l)return!1;let c=o.statements||[];if(c.some(f=>f.kind===_.Label))return!1;let a=Zm(r,e);for(let f=u+1;f<=l;f+=1){let h=Hi(c[f],d=>d.kind===_.Name&&d.binding===e);if(f===l?h.some(d=>!a.has(d)):h.length)return!1}return!0}function Jm(t,e,n,r){let s=e.path(r);if(!s)return!1;let i=s.block,o=t.get(n);for(;o;){if(o.kind===_.Function){let u=Ym(t,o),l=u?e.path(u):null;if(l&&l.depth===s.depth&&l.block===i){let c=Xm(u,o);return!!c&&ja(e,c,u,r)}}o=t.get(o)}return!1}function Qm(t,e,n,r){if(!n||n.valued!==1||n.opaque)return!1;let s=Yi(e);return s.length?n.empty?s.every(i=>i===n.at||t.precedes(n.at,i)||r&&Jm(r,t,i,n.at)):!0:!1}function Oa(t,e){let n=t.get(e);for(;n;){if(n.kind===_.Function)return n;n=t.get(n)}return null}function Ta(t,e){let n=new Set,r=e;for(;r;)(r.kind===_.While||r.kind===_.Repeat||r.kind===_.NumericFor||r.kind===_.GenericFor)&&n.add(r),r=t.get(r);return n}function za(t,e,n,r){let s=Ta(t,r),i=(n.writes||[]).slice(),o=n.declaration;o&&(o.kind===_.NumericFor||o.kind===_.GenericFor)&&i.push(o);for(let u of i){for(let l of Ta(t,u))if(s.has(l))return!0;if(u!==r&&!e.precedes(u,r))return!0}return!1}function e1(t){let e=new Wm(t),n=Pa(t),r=Hm(t),s=yt.gt(t),i=new Map;for(let[c,a]of r){if(!Qm(e,c,a,n))continue;let f=pn(a.value);if(!f||f.kind!==_.Name)continue;let h=f.binding;if(!tt(h)||h===c||!yt.unshadowed(s,h.name))continue;let d=r.get(h);if(d&&d.valued>1||d&&d.opaque>1||d&&d.valued===1&&d.at!==a.at&&!e.precedes(d.at,a.at))continue;let g=Yi(c);g.every(p=>Da(e,h,p))&&(g.some(p=>Oa(n,p)!==Oa(n,a.at))&&za(n,e,h,a.at)||i.set(c,h))}if(!i.size)return 0;let o=c=>{let a=c;for(let f=0;f<1e3&&i.has(a);f+=1)a=i.get(a);return a},u=0,l=new Set;return tr(t,{enter(c){if(c.kind===_.Assignment)for(let a of c.targets||[]){let f=pn(a);f&&f.kind===_.Name&&l.add(f)}}}),_a(t,c=>{if(c.kind!==_.Name||!c.binding||l.has(c)||!i.has(c.binding))return c;let a=o(c.binding);return a===c.binding?c:(u+=1,{kind:_.Name,name:a.name,binding:a})}),u}function n1(t,e){for(let n=e+1;n<t.length;n+=1)if(!yt.zs(t[n]))return n;return-1}function Ga(t,e){let n=null;return tr(t,{enter(r,s){r===e&&s&&(n=s.parent)}}),n}function Ka(t,e){let n=Ga(t,e);return!n||!n.kind?!1:n.kind===_.Unary||n.kind===_.Binary||n.kind===_.Index?!0:n.kind===_.Call||n.kind===_.MethodCall?pn(n.base)===e||n.base===e:!1}function Ua(t){if(!t||t.kind!==_.LocalFunction)return null;let e=t.binding;return!e||!t.body||Hi(t.body,n=>n.kind===_.Name&&n.name===t.name).length?null:{binding:e,name:t.name,value:t.body}}function t1(t,e){let n=!1,r=s=>{if(!(n||!s||!s.kind||s.kind===_.Block)){if(s===e){n=!0;return}for(let i of Ba(s))r(i.node)}};return r(t),n}function r1(t,e){let n=t.statements,r=yt.js(n[e])||yt.sn(n[e])||Ua(n[e]);if(!r)return!1;let s=r.binding||r.target.binding;if(!tt(s)||Vm.Rs(r.value))return!1;let i=Yi(s);if(i.length!==1)return!1;let o=n1(n,e);if(o<0)return!1;let u=i[0],l=n[o];if(l.kind===_.While||l.kind===_.Repeat||l.kind===_.Assignment&&(l.targets||[]).some(f=>Hi(f,h=>h===u).length)||!t1(l,u)||!yt.Ds(l,u))return!1;let c=pn(r.value);if(c&&(c.kind===_.Table||c.kind===_.Function)&&Ka(l,u))return!1;let a=Um(pn(r.value))?{kind:_.Paren,expression:r.value}:r.value;return _a(l,f=>f===u?a:f),n[e]={kind:_.Do,body:{kind:_.Block,statements:[]}},!0}function s1(t){let e=0;return tr(t,{enter(n){if(n.kind===_.Block)for(let r=0;r<n.statements.length;r+=1)r1(n,r)&&(e+=1)}}),e}Wa.exports={qi:Ra,on:Da,Gs:Pa,sealed:ja,rewritten:za,propagate:e1,Ks:Ua,Mi:Ga,Us:Ka,Ws:s1}});var Zi=F((Lv,Ya)=>{"use strict";var{Kind:q}=B(),{walk:Ge,collect:ds}=ee(),{y:hs}=Tn(),{c:rt}=Ne(),{bare:Be}=Pe(),{Positions:i1}=Yn(),{on:o1}=vt(),fs=cs();function st(t){return(t.statements||[]).some(e=>e.kind===q.Label)}function gs(t,e){return ds(t,n=>n.kind===q.Name&&n.binding===e)}function rr(t,e){let n=new Map;return(t.statements||[]).forEach((r,s)=>{Ge(r,{enter(i){if(e&&i.kind===q.Function)return!1;if(i.kind!==q.Name||!i.binding)return;let o=n.get(i.binding);o?o[o.length-1].at===s?o[o.length-1].nodes.push(i):o.push({at:s,nodes:[i]}):n.set(i.binding,[{at:s,nodes:[i]}])}})}),n}function u1(t,e){let n=t&&t.get(e);if(n)return n;let r=rr(e,!0);return t&&t.set(e,r),r}function ps(t,e,n){for(let r of t.get(e)||[])if(r.at>n)return r;return null}function l1(t){let e=t.statements||[],n=new Map;if(st(t))return n;let r=null;return e.forEach((s,i)=>{s.kind===q.LocalDeclaration&&((s.expressions||[]).length||(s.bindings||[]).forEach((o,u)=>{if(!rt(o))return;r||(r=rr(t));let l=ps(r,o,i);if(!l)return;let c=e[l.at];if(c.kind!==q.Assignment)return;let a=(c.targets||[]).map(d=>Be(d)),f=l.nodes.filter(d=>a.indexOf(d)>=0);if(f.length!==l.nodes.length||f.length!==1)return;let h=n.get(l.at);h||(h=[],n.set(l.at,h)),h.push({binding:o,declaration:s,slot:u,target:f[0]})}))}),n}function Xi(t,e,n){t.declaration=e,t.initializer=e;let r=t.writes.indexOf(n);r>=0&&t.writes.splice(r,1)}function a1(t){let e=0;return Ge(t,{enter(n){if(n.kind!==q.Block)return;let r=l1(n);for(let[s,i]of r){let o=n.statements[s],u=(o.targets||[]).map(a=>Be(a));if(u.length!==i.length)continue;let l=u.map(a=>i.find(f=>f.target===a));if(l.some(a=>!a))continue;let c={kind:q.LocalDeclaration,names:l.map(a=>a.binding.name),expressions:o.expressions||[],bindings:l.map(a=>a.binding)};n.statements[s]=c;for(let a of l){let f=a.declaration.names||[],h=f.indexOf(a.binding.name);h>=0&&(f.splice(h,1),(a.declaration.bindings||[]).splice(h,1)),Xi(a.binding,c,a.target),e+=1}}}}),e}function c1(t){let e=t.statements||[],n=new Map;if(st(t))return n;let r=null;return e.forEach((s,i)=>{s.kind===q.LocalDeclaration&&((s.expressions||[]).length||(s.bindings||[]).forEach(o=>{if(!rt(o))return;r||(r=rr(t));let u=ps(r,o,i);if(!u||u.at===i+1)return;for(let c=i+1;c<u.at;c+=1)if(!ks(e[c],o.name))return;let l=n.get(u.at);l||(l=[],n.set(u.at,l)),l.push({binding:o,declaration:s})}))}),n}function f1(t){let e=0;return Ge(t,{enter(n){if(n.kind!==q.Block)return;let r=c1(n);if(!r.size)return;let s=[];n.statements.forEach((i,o)=>{let u=r.get(o);if(u&&u.length){let l={kind:q.LocalDeclaration,names:u.map(c=>c.binding.name),expressions:[],bindings:u.map(c=>c.binding)};for(let c of u){let a=c.declaration.names||[],f=a.indexOf(c.binding.name);f>=0&&(a.splice(f,1),(c.declaration.bindings||[]).splice(f,1)),c.binding.declaration=l,c.binding.initializer=l,e+=1}s.push(l)}s.push(i)}),n.statements=s}}),e}function d1(t,e){let n=new Set(e),r=[],s=null;return Ge(t,{enter(i){if(i.kind===q.Block&&r.push(i),!!n.has(i))if(!s)s=[...r];else{let o=0;for(;o<s.length&&s[o]===r[o];)o+=1;s.length=o}},leave(i){i.kind===q.Block&&r.pop()}}),s&&s.length?s[s.length-1]:null}function h1(t){let e=new Set;return Ge(t,{enter(n){if(n.kind===q.Function)return!1;n.kind===q.Block&&e.add(n)}}),e}function g1(t){let e=new Map,n=[];return Ge(t,{enter(r){if(r.kind===q.Block)n.push(r);else if(r.kind===q.Name&&r.binding){let s=e.get(r.binding);if(!s)e.set(r.binding,{nodes:[r],path:n.slice()});else{s.nodes.push(r);let i=0;for(;i<s.path.length&&s.path[i]===n[i];)i+=1;s.path.length=i}}},leave(r){r.kind===q.Block&&n.pop()}}),e}function p1(t,e,n){let r=t.statements||[],s=[];if(st(t)||!r.some(o=>o.kind===q.LocalDeclaration&&!(o.expressions||[]).length))return s;let i=null;return r.forEach(o=>{o.kind===q.LocalDeclaration&&((o.expressions||[]).length||(o.bindings||[]).forEach(u=>{if(!rt(u))return;let l=e?e.get(u):null,c=l?l.nodes:gs(t,u);if(!c.length)return;let a=l?l.path[l.path.length-1]:d1(t,c);if(i||(i=h1(t)),!a||a===t||!i.has(a)||st(a))return;let f=u1(n,a).get(u)||[],h=0;for(let w of f)h+=w.nodes.length;if(h!==c.length)return;let d=f[0];if(!d)return;let g=(a.statements||[])[d.at];if(!g||g.kind!==q.Assignment)return;let p=(g.targets||[]).map(w=>Be(w)),k=d.nodes.filter(w=>p.indexOf(w)>=0);k.length!==1||k.length!==d.nodes.length||s.push({binding:u,declaration:o,target:a,at:d.at})}))}),s}function k1(t){let e=[],n=g1(t),r=new Map;if(Ge(t,{enter(o){o.kind===q.Block&&e.push(...p1(o,n,r))}}),!e.length)return 0;let s=new Map;for(let o of e){let u=s.get(o.target);u||(u=new Map,s.set(o.target,u));let l=u.get(o.at);l||(l=[],u.set(o.at,l)),l.push(o)}let i=0;for(let[o,u]of s)for(let l of[...u.keys()].sort((c,a)=>a-c)){let c=u.get(l),a={kind:q.LocalDeclaration,names:c.map(f=>f.binding.name),expressions:[],bindings:c.map(f=>f.binding)};for(let f of c){let h=f.declaration.names||[],d=h.indexOf(f.binding.name);d>=0&&(h.splice(d,1),(f.declaration.bindings||[]).splice(d,1)),f.binding.declaration=a,f.binding.initializer=a,i+=1}o.statements.splice(l,0,a)}return i}function Va(t){return t.kind===q.LocalFunction?!0:t.kind===q.LocalDeclaration?(t.expressions||[]).every(e=>fs.quiet(e)):t.kind!==q.Assignment?!1:(t.targets||[]).every(e=>{let n=Be(e);return n&&n.kind===q.Name&&rt(n.binding)})&&(t.expressions||[]).every(e=>fs.quiet(e))}function b1(t,e){return ds(t,n=>n.kind===q.Assignment&&(n.targets||[]).some(r=>{let s=Be(r);return s&&s.kind===q.Name&&e.has(s.binding)})).length>0}function m1(t,e){let n=t.statements||[],r=[];if(st(t))return r;let s=null;return n.forEach((i,o)=>{i.kind===q.LocalDeclaration&&((i.expressions||[]).length||(i.bindings||[]).forEach(u=>{if(!rt(u))return;s||(s=rr(t,!0));let l=ps(s,u,o);if(!l)return;let c=l.at,a=n[c];if(a.kind!==q.Assignment||(a.targets||[]).length!==1||(a.expressions||[]).length!==1)return;let f=Be(a.targets[0]);if(!f||f.kind!==q.Name||f.binding!==u||l.nodes.length!==1)return;let h=a.expressions[0];if(!fs.quiet(h))return;let d=ds(h,p=>p.kind===q.Name);if(!d.every(p=>rt(p.binding)&&o1(e,p.binding,i)))return;let g=new Set(d.map(p=>p.binding));for(let p=o+1;p<c;p+=1)if(!Va(n[p])||b1(n[p],g))return;r.push({binding:u,declaration:i,store:a,value:h,block:t})}))}),r}function w1(t){let e=new i1(t),n=[];if(Ge(t,{enter(i){i.kind===q.Block&&n.push(...m1(i,e))}}),!n.length)return 0;let r=new Map;for(let i of n)r.has(i.block)||r.set(i.block,[]),r.get(i.block).push(i);let s=0;for(let[i,o]of r){let u=new Set(o.map(a=>a.store)),l=new Map;for(let a of o){let f={kind:q.LocalDeclaration,names:[a.binding.name],expressions:[a.value],bindings:[a.binding]},h=a.declaration.names||[],d=h.indexOf(a.binding.name);d>=0&&(h.splice(d,1),(a.declaration.bindings||[]).splice(d,1)),Xi(a.binding,f,Be(a.store.targets[0])),l.has(a.declaration)||l.set(a.declaration,[]),l.get(a.declaration).push(f),s+=1}let c=[];for(let a of i.statements||[]){let f=l.get(a);f&&c.push(...f),u.has(a)||c.push(a)}i.statements=c}return s}function y1(t){let e=0;return Ge(t,{enter(n){if(n.kind!==q.Block)return;let r=n.statements.filter(s=>{let i=s.kind===q.LocalDeclaration&&!(s.names||[]).length;return i&&(e+=1),!i});n.statements=r}}),e}function ks(t,e){return!ds(t,n=>n.kind===q.Name&&n.name===e).length}function v1(t){let e=0;return Ge(t,{enter(n){if(n.kind!==q.Block||st(n))return;let r=n.statements,s=null;r.forEach((i,o)=>{if(i.kind===q.LocalDeclaration&&!(i.expressions||[]).length)for(let u of[...i.bindings||[]]){if(!rt(u)||!hs(u.name))continue;s||(s=rr(n));let l=ps(s,u,o);if(!l)continue;let c=r[l.at];if(c.kind!==q.Assignment||(c.targets||[]).length!==1||(c.expressions||[]).length!==1||Be(c.targets[0])!==l.nodes[0])continue;let a=Be(c.expressions[0]);if(!a||a.kind!==q.Function||gs(a.body,u).length!==l.nodes.length-1)continue;let f=!0;for(let p=o+1;p<l.at;p+=1)ks(r[p],u.name)||(f=!1);if(!f)continue;let h={kind:q.LocalFunction,name:u.name,body:a,binding:u};r[l.at]=h;let d=i.names||[],g=d.indexOf(u.name);g>=0&&(d.splice(g,1),(i.bindings||[]).splice(g,1)),Xi(u,h,l.nodes[0]),e+=1}})}}),e}function x1(t){let e=0;return Ge(t,{enter(n){n.kind===q.Block&&n.statements.forEach((r,s)=>{let i=fs.sn(r);if(!i)return;let o=Be(i.value);if(!o||o.kind!==q.Function||!hs(i.name)||!ks(o.body,i.name))return;let u={kind:q.LocalFunction,name:i.name,body:o,binding:i.binding};i.binding.declaration=u,i.binding.initializer=u,n.statements[s]=u,e+=1})}}),e}function S1(t){let e=0;return Ge(t,{enter(n){n.kind===q.Block&&n.statements.forEach((r,s)=>{if(r.kind!==q.Assignment)return;let i=r.targets||[],o=r.expressions||[];if(i.length!==1||o.length!==1)return;let u=Be(i[0]),l=Be(o[0]);!u||u.kind!==q.Name||!l||l.kind!==q.Function||hs(u.name)&&(n.statements[s]={kind:q.FunctionDeclaration,target:u,ee:!1,body:l},e+=1)})}}),e}function N1(t){let e=new Set;return Ge(t,{enter(n){n.kind===q.MethodCall&&e.add(n.method)}}),e}function Ha(t){if(!t||t.kind!==q.Index)return null;let e=Be(t.index);return!e||e.kind!==q.String||!hs(e.value)?null:e.value}function C1(t){let e=t;for(;e&&e.kind===q.Index;){if(!Ha(e))return!1;e=Be(e.base)}return!!e&&e.kind===q.Name}function F1(t){let e=N1(t),n=0;return Ge(t,{enter(r){r.kind===q.Block&&r.statements.forEach((s,i)=>{if(s.kind!==q.Assignment)return;let o=s.targets||[],u=s.expressions||[];if(o.length!==1||u.length!==1)return;let l=Be(o[0]),c=Be(u[0]);if(!c||c.kind!==q.Function)return;let a=Ha(l);if(!a||!C1(l))return;let f=c.params||[],h=e.has(a)&&f.length>0&&ks(c.body,"self");if(h){let d=(c.bindings||[])[0];if(d){for(let g of gs(c.body,d))g.name="self";d.name="self"}f[0]="self"}r.statements[i]={kind:q.FunctionDeclaration,target:l,ee:h,body:c},n+=1})}}),n}Ya.exports={Vs:st,mentions:gs,sink:a1,slide:f1,Hs:k1,harmless:Va,fill:w1,Ys:y1,Xs:v1,Zs:x1,Js:S1,Qs:F1}});var Ji=F((Ev,nc)=>{"use strict";var{Kind:rn,unparen:q1}=B(),{walk:Za,collect:Xa}=ee(),{c:M1}=Ne(),{Positions:$1}=Yn(),{on:L1}=vt(),{Vs:E1}=Zi();function Ja(t){let e=new Set;return Za(t,{enter(n){if(n.kind===rn.Name)e.add(n.name);else if(n.kind===rn.LocalFunction)e.add(n.name);else if(n.kind===rn.NumericFor)e.add(n.variable);else if(n.kind===rn.LocalDeclaration)for(let r of n.names||[])e.add(r);else if(n.kind===rn.GenericFor)for(let r of n.variables||[])e.add(r);else if(n.kind===rn.Function)for(let r of n.params||[])e.add(r)}}),e}function Qa(t,e="f"){for(let n=1;;n+=1){let r=`${e}${n}`;if(!t.has(r))return t.add(r),r}}function ec(t,e,n){let r=new Set(Xa(t,()=>!0));for(let s of Xa(t,i=>i.kind===rn.Name)){let i=s.binding;if(M1(i)&&!(!i.declaration||r.has(i.declaration))&&!L1(e,i,n))return!1}return!0}function A1(t,e){let n=[];return Za(t,{enter(r){if(r.kind!==rn.Call)return;let s=q1(r.base);if(!s||s.kind!==rn.Function)return;let i=e.path(r);if(!i)return;let{block:o,at:u}=i,l=(o.statements||[])[u];!l||E1(o)||ec(s,e,l)&&n.push({block:o,host:l,call:r,fn:s})}}),n}function I1(t){let e=new $1(t),n=A1(t,e);if(!n.length)return 0;let r=Ja(t),s=new Map;for(let o of n){s.has(o.block)||s.set(o.block,new Map);let u=s.get(o.block);u.has(o.host)||u.set(o.host,[]);let l=Qa(r);u.get(o.host).push({kind:rn.LocalFunction,name:l,body:o.fn}),o.call.base={kind:rn.Name,name:l}}let i=0;for(let[o,u]of s){let l=[];for(let c of o.statements||[]){let a=u.get(c);a&&(l.push(...a),i+=a.length),l.push(c)}o.statements=l}return i}nc.exports={spoken:Ja,fresh:Qa,carries:ec,ei:I1}});var sc=F((Av,rc)=>{"use strict";var{Kind:xt,d:O1}=B(),{walk:T1,transform:_1}=ee(),{c:B1}=Ne(),{Gs:R1}=vt(),{spoken:D1,fresh:P1}=Ji(),j1=8;function z1(t){if(!t||t.kind!==xt.Number)return 0;let e=t.value;return typeof e!="number"||!Number.isInteger(e)||e<1?0:e}function G1(t){if(!t||t.kind!==xt.Table)return null;let e=t.entries||[];if(e.length!==1||e[0].type!=="item")return null;let n=e[0].value;return O1(n)?n:null}function K1(t,e){let n=new Map;for(let r of e.reads||[]){let s=t.get(r);if(!s||s.kind!==xt.Index||s.base!==r)return null;let i=z1(s.index);if(!i||i>j1)return null;let o=t.get(s);if(o&&o.kind===xt.Assignment&&(o.targets||[]).indexOf(s)>=0)return null;n.set(s,i)}return n.size?n:null}function tc(t,e){let n=[];return T1(t,{enter(r){if(r.kind!==xt.LocalDeclaration||(r.names||[]).length!==1||(r.expressions||[]).length!==1)return;let s=G1(r.expressions[0]);if(!s)return;let i=(r.bindings||[])[0];if(!B1(i)||(i.writes||[]).length)return;let o=K1(e,i);if(!o)return;let u=new Set(o.values()),l=Math.max(...u);u.size===l&&n.push({declaration:r,call:s,reads:o,highest:l})}}),n}function U1(t){let e=R1(t),n=tc(t,e);if(!n.length)return 0;let r=D1(t),s=new Map,i=0;for(let o of n){let u=[o.declaration.names[0]];for(let l=2;l<=o.highest;l+=1)u.push(P1(r,"v"));for(let[l,c]of o.reads)s.set(l,{kind:xt.Name,name:u[c-1]});o.declaration.names=u,o.declaration.bindings=[],o.declaration.expressions=[o.call],i+=1}return _1(t,o=>s.get(o)||o),i}rc.exports={packed:tc,ni:U1}});var cc=F((Iv,ac)=>{"use strict";var{Kind:te,d:W1}=B(),{walk:St}=ee();function V1(t){let e=t&&t.statements||[],n=e[e.length-1];return!!n&&n.kind===te.Return&&!(n.expressions||[]).length}function H1(t){let e=0,n=r=>{V1(r)&&(r.statements.pop(),e+=1)};return St(t,{enter(r){(r.kind===te.Chunk||r.kind===te.Function)&&n(r.body)}}),e}function ic(t){let e=t&&t.statements||[];if(e.length!==1)return null;let n=e[0];return n&&n.kind===te.If?n:null}function Y1(t){let e=0;return St(t,{enter(n){if(n.kind===te.If)for(let r=0;r<1e3;r+=1){let s=ic(n.e);if(!s)break;n.s=(n.s||[]).concat([{condition:s.condition,body:s.body}],s.s||[]),n.e=s.e||null,e+=1}}}),e}function oc(t){return t&&t.kind===te.Paren&&W1(t.expression)}function je(t,e){return oc(t[e])?(t[e]=t[e].expression,1):0}function sr(t,e){let n=0;for(let r=0;r<e&&r<(t||[]).length;r+=1)oc(t[r])&&(t[r]=t[r].expression,n+=1);return n}function ir(t,e){let n=(t||[]).length;return n?e!==null&&e-n+1<=1?n:n-1:0}function X1(t){let e=0;return St(t,{enter(n){switch(n.kind){case te.Index:e+=je(n,"base")+je(n,"index");break;case te.Call:case te.MethodCall:e+=je(n,"base"),e+=sr(n.args,ir(n.args,null));break;case te.Binary:e+=je(n,"lhs")+je(n,"rhs");break;case te.Unary:e+=je(n,"argument");break;case te.Paren:e+=je(n,"expression");break;case te.Table:(n.entries||[]).forEach((r,s)=>{r.type==="key"&&(e+=je(r,"key")),(!(s===n.entries.length-1)||r.type==="key")&&(e+=je(r,"value"))});break;case te.If:e+=je(n,"condition");for(let r of n.s||[])e+=je(r,"condition");break;case te.While:case te.Repeat:e+=je(n,"condition");break;case te.NumericFor:e+=je(n,"start")+je(n,"limit")+je(n,"step");break;case te.Return:e+=sr(n.expressions,ir(n.expressions,null));break;case te.GenericFor:e+=sr(n.expressions,ir(n.expressions,3));break;case te.LocalDeclaration:e+=sr(n.expressions,ir(n.expressions,(n.names||[]).length));break;case te.Assignment:e+=sr(n.expressions,ir(n.expressions,(n.targets||[]).length));break;default:break}}}),e}function uc(t){return(t&&t.statements||[]).every(e=>e.kind!==te.Label&&e.kind!==te.LocalDeclaration&&e.kind!==te.LocalFunction)}function Z1(t){let e=0;return St(t,{enter(n){if(n.kind!==te.Block)return;let r=[];for(let s of n.statements){let i=s.kind===te.Do?s.body:null;if(i&&uc(i)){for(let o of i.statements||[])r.push(o);e+=1}else r.push(s)}n.statements=r}}),e}var lc=new Set([te.Return,te.Break,te.Continue]);function J1(t){let e=t&&t.statements||[],n=e[e.length-1];return!!n&&lc.has(n.kind)}function Q1(t){let e=0;return St(t,{enter(n){if(n.kind!==te.Block)return;let r=n.statements;for(let s=0;s<r.length;s+=1){let i=r[s];if(!i||i.kind!==te.If||!J1(i.body)||(i.s||[]).length)continue;let o=i.e;!o||!uc(o)||ic(o)||(i.e=null,r.splice(s+1,0,...o.statements||[]),e+=1)}}}),e}function e0(t){let e=0;return St(t,{enter(n){n.kind!==te.If||!n.e||(n.e.statements||[]).length||(n.e=null,e+=1)}}),e}ac.exports={EXITS:lc,ti:Q1,ri:H1,si:e0,ii:Y1,ht:X1,flatten:Z1}});var yc=F((_v,wc)=>{"use strict";var bs=B(),{Kind:I}=B(),{walk:Gn,collect:Nt}=ee(),{diverges:n0,zn:t0}=Pe(),Ov=new Set([I.While,I.Repeat,I.NumericFor,I.GenericFor]),Tv=new Set([I.Return,I.Break,I.Continue]);function hc(t){let e=[];return Gn(t,{enter(n){(n.kind===I.Chunk||n.kind===I.Function)&&e.push(n.body)}}),e}function to(t){let e=new Map,n=new Map,r=new Map,s=[],i={kind:"leave"},o=(u,l)=>{let c=u&&u.statements||[];for(let a=0;a<c.length;a+=1){let f=c[a],h=a+1;for(;h<c.length&&c[h].kind===I.Label;)h+=1;let d=h<c.length?{kind:"statement",node:c[h]}:l;if(e.set(f,d),n.set(f,c),f.kind===I.Label?r.set(f.name,f):f.kind===I.Goto&&s.push(f),f.kind===I.If){o(f.body,d);for(let g of f.s||[])o(g.body,d);f.e&&o(f.e,d)}else f.kind===I.Do?o(f.body,d):LOOP_KINDS.has(f.kind)&&o(f.body,{kind:"loop",node:f})}};return o(t,i),{after:e,holder:n,labels:r,gotos:s}}function gc(t,e){return!t||!e?!1:t===e?!0:t.kind!==e.kind?!1:t.node===e.node}function Qi(t,e){let n=t.indexOf(e);return n<0?!1:(t.splice(n,1),!0)}function fc(t,e,n){let r=t.indexOf(e);return r<0?!1:(t[r]=n,!0)}function pc(t,e){let n=t.indexOf(e);if(n<=0)return!1;let r=t[n-1];return r.kind===I.Label?!1:r.kind===I.Goto?!0:LEAVING_KINDS.has(r.kind)||n0(r)}function or(t){if(Array.isArray(t))return t.map(or);if(!t||typeof t!="object")return t;let e={};for(let n of Object.keys(t))n==="binding"||n==="bindings"||(e[n]=or(t[n]));return e}function dc(t,e){let n=!1;return Gn(t,{enter(r){r===e&&(n=!0)}}),n}function ro(t,e){if(t.kind===I.LocalDeclaration)for(let n of t.bindings||[])n&&e.add(n);else t.kind===I.LocalFunction&&t.binding&&e.add(t.binding)}function so(t,e){if(t.kind===I.NumericFor&&t.binding)e.add(t.binding);else if(t.kind===I.GenericFor)for(let n of t.bindings||[])n&&e.add(n)}function io(t){if(t.kind===I.If){let e=[t.body];for(let n of t.s||[])e.push(n.body);return t.e&&e.push(t.e),e}return t.kind===I.Do||LOOP_KINDS.has(t.kind)?[t.body]:[]}function kc(t,e){let n=new Set,r=s=>{for(let i of s.statements||[]){if(i===e)return!0;if(dc(i,e)){so(i,n);for(let o of io(i))if(o&&dc(o,e))return r(o);return!1}ro(i,n)}return!1};return r(t)?n:null}function eo(t){let e=new Set;for(let n of t)Gn(n,{enter(r){if(ro(r,e),so(r,e),r.kind===I.Function)for(let s of r.bindings||[])s&&e.add(s)}});return e}function it(t,e=0){let n=t&&t.statements||[];if(!n.length||e>48)return!1;let r=n[n.length-1];if(r.kind===I.Return)return!0;if(r.kind===I.Do)return it(r.body,e+1);if(r.kind===I.If){if(!r.e||!it(r.body,e+1))return!1;for(let s of r.s||[])if(!it(s.body,e+1))return!1;return it(r.e,e+1)}return t0(t,e+1)}function r0(t,e){let n=t.indexOf(e);if(n<0)return null;let r=t.slice(n+1);if(!r.length||r.length>TAIL_STATEMENTS||!it({kind:I.Block,statements:r}))return null;let s=0;for(let i of r)for(let o of Nt(i,()=>!0)){if(o.kind===I.Goto||o.kind===I.Label||o.kind===I.Break||o.kind===I.Continue)return null;s+=1}return s>TAIL_NODES?null:r}function no(t,e,n){let r=kc(t,e);if(!r)return!1;let s=eo(n),i=new Set;for(let u of n)Gn(u,{enter(l){l.kind===I.Name&&l.binding&&i.add(l.binding)}});let o=new Set;for(let u of t.statements||[])Gn(u,{enter(l){ro(l,o),so(l,o)}});for(let u of i)if(!(s.has(u)||r.has(u))&&o.has(u))return!1;return!0}function s0(t){if(!t||t.kind!==I.Return)return null;let e=t.expressions||[];return e.every(r=>{let s=bs.unparen(r);return s.kind===I.Name||bs.LITERALS.has(s.kind)})?bs.I(e.map(r=>or(r))):null}function bc(t){let e=t&&t.statements||[];return e.length?e[e.length-1]:null}function mc(t){let e=bc(t);return e&&(LEAVING_KINDS.has(e.kind)||e.kind===I.Goto)?!0:it(t)}function i0(t,e){let n=bc(t);return n&&n.kind===I.Goto&&n.label===e?n:null}function o0(t){let e=new Set;for(let n of t)if(n.kind===I.LocalDeclaration)for(let r of n.names||[])e.add(r);else n.kind===I.LocalFunction&&n.name&&e.add(n.name);return e}function u0(t){let e=new Set;for(let n of t)Gn(n,{enter(r){r.kind===I.Name&&r.binding&&e.add(r.binding)}});return e}function l0(t){let e=new Map,n=new Map,r=s=>{for(let i of s&&s.statements||[])n.set(i,s)};return r(t),Gn(t,{enter(s){if(s.kind===I.Function)return!1;for(let i of io(s))i&&(e.set(i,s),r(i))}}),{owners:e,blocks:n}}function a0(t,e,n,r){let s=new Set,i=r.get(t),o=t;for(let u=0;u<64;u+=1){let l=n.get(i);if(!l)return null;let c=r.get(l);if(!c)return null;let a=c.statements||[];if(a[a.length-1]!==l)return null;if(l.kind===I.If){if(!l.e)return null;for(let f of io(l)){if(f===i)continue;let h=i0(f,t.name);if(h){s.add(h);continue}if(!mc(f))return null}}else if(l.kind!==I.Do)return null;if(o=l,i=c,s.size===e)return{seat:l,list:a,dropping:s}}return null}function c0(t,e,n,r){let s=(r.get(t)||{}).statements||[],i=s.indexOf(t);if(i<0)return!1;let o=s.slice(i+1);if(!o.length)return!1;let u=e.filter(k=>k.label===t.name);if(!u.length)return!1;let l=a0(t,u.length,n,r);if(!l)return!1;for(let k of u)if(!l.dropping.has(k))return!1;let c=new Set,a=new Set;for(let k of o){for(let w of Nt(k,A=>A.kind===I.Label))c.add(w.name),a.add(w);for(let w of Nt(k,A=>A.kind===I.Goto))a.add(w)}for(let k of e)if(!(a.has(k)||l.dropping.has(k))&&c.has(k.label))return!1;let f=Nt(l.seat,k=>k.kind===I.Label).filter(k=>!a.has(k)&&k!==t);for(let k of a)if(k.kind===I.Goto&&f.some(w=>w.name===k.label))return!1;let h=eo(o),d=eo([l.seat]);for(let k of h)d.delete(k);for(let k of u0(o))if(!h.has(k)&&d.has(k))return!1;let g=l.list.indexOf(l.seat);if(g<0)return!1;let p=o0(o);if(p.size){for(let k=g+1;k<l.list.length;k+=1)for(let w of Nt(l.list[k],A=>A.kind===I.Name))if(p.has(w.name))return!1}s.splice(i,o.length+1);for(let k of l.dropping){let w=(r.get(k)||{}).statements;w&&w.splice(w.indexOf(k),1)}return l.list.splice(g+1,0,...o),!0}function f0(t){let e=0;for(let n of hc(t))for(let r=0;r<64;r+=1){let{gotos:s}=to(n);if(!s.length)break;let{owners:i,blocks:o}=l0(n),u=!1;for(let l of Nt(n,c=>c.kind===I.Label))if(o.has(l)&&c0(l,s,i,o)){u=!0;break}if(!u)break;e+=1}return e}function d0(t){let e=0;for(let n of hc(t)){let{after:r,holder:s,labels:i,gotos:o}=to(n);if(!o.length&&!i.size)continue;for(let l of o){let c=s.get(l);if(!c)continue;if(pc(c,l)){Qi(c,l)&&(e+=1);continue}let a=i.get(l.label);if(!a)continue;let f=r.get(a);if(gc(f,r.get(l))){Qi(c,l)&&(e+=1);continue}if(f&&f.kind==="leave"){fc(c,l,bs.I([]))&&(e+=1);continue}if(f&&f.kind==="statement"){let h=s0(f.node);if(h&&no(n,l,[f.node])&&fc(c,l,h)){e+=1;continue}let d=r0(s.get(a)||[],a);if(!d||!no(n,l,d))continue;let g=c.indexOf(l);if(g<0)continue;c.splice(g,1,...d.map(or)),e+=1}}let u=new Set;Gn(n,{enter(l){if(l.kind===I.Function)return!1;l.kind===I.Goto&&u.add(l.label)}});for(let[l,c]of i){if(u.has(l))continue;let a=s.get(c);a&&Qi(a,c)&&(e+=1)}}return e}wc.exports={ye:or,leaves:it,on:kc,movable:no,survey:to,same:gc,unreachable:pc,stops:mc,pull:f0,clean:d0}});var Fc=F((Bv,Cc)=>{"use strict";var{Kind:Ee,unparen:ur,d:h0}=B(),{walk:xc}=ee(),{c:Sc}=Ne(),{TABLES:g0}=mt(),{jn:p0}=Pe(),k0={ipairs:[null,null,{kind:Ee.Number,value:0}],pairs:[null,null,{kind:Ee.Nil}],gmatch:[null],gfind:[null],lines:[null]},ms=3;function vc(t){return!t||t.kind!==Ee.Name?!1:!t.binding||!Sc(t.binding)}function b0(t){if(!t||t.kind!==Ee.Call)return null;let e=ur(t.base);if(!e)return null;if(vc(e))return e.name;if(e.kind!==Ee.Index)return null;let n=ur(e.base);if(!vc(n)||!g0.has(n.name))return null;let r=e.index;return!r||r.kind!==Ee.String?null:r.value}function m0(t,e){let n=ur(t);return!n||!e||n.kind!==e.kind?!1:n.kind!==Ee.Number?!0:n.value===e.value}function w0(t,e,n){let r=t.expressions||[];if(r.length<n||r.length>ms)return!1;if(r.length===ms&&n===ms)return!0;let s=k0[b0(e)];if(!s)return!1;for(let i=n;i<ms;i+=1){let o=i<s.length?s[i]:{kind:Ee.Nil};if(!o)return!1;if(i<r.length){if(!m0(r[i],o))return!1}else if(o.kind!==Ee.Nil)return!1}return!0}function y0(t,e){let n=t.bindings||[],r=t.names||[];if(!n.length||n.length!==r.length)return!1;let s=e.expressions||[];return s.length<n.length?!1:n.every((i,o)=>{if(!i||!Sc(i)||(i.writes||[]).length)return!1;let u=i.reads||[];return u.length!==1?!1:ur(s[o])===u[0]})}function v0(t){if(!t||t.kind!==Ee.LocalDeclaration)return null;let e=t.expressions||[];if(e.length!==1)return null;let n=ur(e[0]);return h0(n)?n:null}function x0(t){let e=[];return xc(t,{enter(n){if(n.kind!==Ee.Block)return;let r=n.statements||[];r.forEach((s,i)=>{let o=r[i+1];if(!o||o.kind!==Ee.GenericFor)return;let u=v0(s);u&&y0(s,o)&&w0(o,u,(s.bindings||[]).length)&&e.push({block:n,declaration:s,loop:o,call:u})})}}),e}function S0(t){let e=x0(t);if(!e.length)return 0;let n=new Set;for(let r of e)r.loop.expressions=[r.call],n.add(r.declaration);for(let r of e)r.block.statements=r.block.statements.filter(s=>!n.has(s));return e.length}function Nc(t){return t&&t.kind===Ee.Unary&&t.operator==="not"?t.argument:{kind:Ee.Unary,operator:"not",argument:t}}function N0(t){if((t.s||[]).length)return null;let e=n=>{let r=n&&n.statements||[];return r.length===1&&r[0].kind===Ee.Break};return t.e?e(t.e)&&!e(t.body)?{condition:t.condition,body:t.body}:e(t.body)&&!e(t.e)?{condition:Nc(t.condition),body:t.e}:null:null}function C0(t){let e=0;return xc(t,{enter(n){if(n.kind!==Ee.While||!p0(n.condition))return;let r=n.body&&n.body.statements||[];if(r.length!==1||r[0].kind!==Ee.If)return;let s=N0(r[0]);s&&(n.condition=s.condition,n.body=s.body,e+=1)}}),e}Cc.exports={oi:S0,negated:Nc,ui:C0}});var Lc=F((Rv,$c)=>{"use strict";var{Kind:Qe}=B(),{walk:oo,transform:F0}=ee(),{c:qc}=Ne(),{bare:q0}=Pe(),Mc=vt(),ws=cs();function M0(t){let e=Mc.Ks(t);if(e)return e;let n=ws.sn(t);if(!n)return null;let r=q0(n.value);return!r||r.kind!==Qe.Function?null:{binding:n.binding,name:n.name,value:r}}function $0(t){let e=new Set,n=r=>{r&&e.add(r)};return oo(t,{enter(r){for(let s of r.bindings||[])n(s);(r.kind===Qe.LocalFunction||r.kind===Qe.NumericFor)&&n(r.binding)}}),e}function L0(t,e){let n=$0(t);for(let r of ws.Ps(t)){if(n.has(r))continue;let s=r.name;if(!s||(qc(r)?!ws.unshadowed(e,s):e.has(s)))return!1}return!0}function E0(t){let e=new Map;return t.statements.forEach((n,r)=>{let s=0;oo(n,{enter(i){if(i.kind===Qe.Block)s+=1;else if(i.kind===Qe.Name&&i.binding){let o=e.get(i.binding);o?o.count+=1:e.set(i.binding,{count:1,node:i,at:r,direct:s===0})}},leave(i){i.kind===Qe.Block&&(s-=1)}})}),e}function A0(t,e,n,r,s){let i=t.statements,o=r.get(n.binding);if(!o||o.count!==1||!o.direct||o.at<=e)return!1;let u=o.node;if(i.some(c=>c.kind===Qe.Label))return!1;let l=i[o.at];return l.kind===Qe.While||l.kind===Qe.Repeat||Mc.Us(l,u)||!L0(n.value,s)?!1:(F0(l,c=>c===u?n.value:c),i[e]={kind:Qe.Do,body:{kind:Qe.Block,statements:[]}},!0)}function I0(t){let e=0,n=ws.gt(t);return oo(t,{enter(r){if(r.kind!==Qe.Block)return;let s=null;for(let i=0;i<r.statements.length;i+=1){let o=M0(r.statements[i]);!o||!qc(o.binding)||(s||(s=E0(r)),A0(r,i,o,s,n)&&(e+=1))}}}),e}$c.exports={li:I0}});var Bc=F((Dv,_c)=>{"use strict";var Ec=mt(),{dt:O0}=ji(),T0=Yr(),Ac=Gi(),Ic=vt(),_0=Ji(),B0=sc(),In=Zi(),R0=Wi(),Ct=cc(),Oc=yc(),Tc=Fc(),D0=Lc(),P0=8,ys=[["named",t=>_0.ei(t)],["tuples",t=>B0.ni(t)],["services",t=>R0.gather(t)],["copies",t=>Ic.propagate(t)],["temporaries",t=>Ic.Ws(t)],["declarations",t=>In.sink(t)],["filled",t=>In.fill(t)],["pushed",t=>In.Hs(t)],["moved",t=>In.slide(t)],["husks",t=>In.Ys(t)],["functions",t=>In.Zs(t)],["recursions",t=>In.Xs(t)],["assigned",t=>In.Js(t)],["methods",t=>In.Qs(t)],["callbacks",t=>D0.li(t)],["iterators",t=>Tc.oi(t)],["tests",t=>Tc.ui(t)],["jumps",t=>Oc.clean(t)],["tails",t=>Oc.pull(t)],["returns",t=>Ct.ri(t)],["otherwise",t=>Ct.si(t)],["guards",t=>Ct.ti(t)],["branches",t=>Ct.ii(t)],["parens",t=>Ct.ht(t)],["blocks",t=>Ct.flatten(t)]];function j0(t,e){let n=0;n+=T0.run(t,e),t.resolve(),n+=Ac.eliminate(t.chunk,new Ec.Facts(t.chunk),e),t.resolve();let r=O0(t.chunk,new Ec.Facts(t.chunk));return e.unwanted+=r,n+=r,t.resolve(),n+=Ac.Bs(t.chunk,e),t.resolve(),n}function z0(t){let e={eliminated:0,merged:0,idioms:0,unwanted:0};for(let[r]of ys)e[r]=0;t.resolve();for(let r=0;r<P0;r+=1){let s=0;for(let[i,o]of ys){let u=o(t.chunk);u&&(e[i]+=u,s+=u,t.resolve())}if(s+=j0(t,e),!s)break}let n=ys.reduce((r,[s])=>r+e[s],0);n&&t.note(`put back ${e.copies+e.temporaries} value(s), ${e.declarations+e.filled} declaration(s), ${e.named+e.functions+e.assigned+e.methods} function form(s)`,n);for(let r of Object.keys(e))e[r]&&t.bump(`beautify.${r}`,e[r])}_c.exports={name:"09-fmt",run:z0,PASSES:ys}});var jc=F((Pv,Pc)=>{"use strict";var{Kind:N}=B(),{walk:On,collect:G0}=ee(),{y:uo}=Tn(),{c:bn}=Ne(),{m:lr,bt:Ft,mt:vs}=Ms(),{bare:Q}=Pe();function ao(t){let e=[],n=0;for(;n<t.length;){let r=t[n];if(!vs(r)&&!Ft(r)&&!lr(r)){n+=1;continue}let s=n;if(vs(r)){for(;s<t.length&&vs(t[s]);)s+=1;let i=s-n;if(i>=3&&s<t.length&&Ft(t[s]))s-=1;else if(i===1)for(;s<t.length&&(Ft(t[s])||lr(t[s]));)s+=1;else if(s<t.length&&Ft(t[s]))for(;s<t.length&&(Ft(t[s])||lr(t[s]));)s+=1}else for(;s<t.length&&(Ft(t[s])||lr(t[s]));)s+=1;e.push(t.slice(n,s)),n=s}return e}function kn(t){let e=ao(String(t||""));if(!e.length)return null;let n=e[0].toLowerCase(),r=e.slice(1).map(i=>i===i.toUpperCase()&&i.length>1?i:i[0].toUpperCase()+i.slice(1)),s=n+r.join("");return uo(s)?s:null}function K0(t){let e=t.length;for(;e>1&&lr(t[e-1]);)e-=1;return t.slice(0,e)}function co(t){let e=Q(t);return!e||e.kind!==N.String?null:kn(e.value)}function ar(t){if(!t||t.kind!==N.Index)return null;let e=Q(t.index);return!e||e.kind!==N.String?null:e.value}var U0=["Create","New","Make","Build"];function W0(t){let e=String(t||"");for(let n of U0)if(!(e.length<=n.length)&&e.slice(0,n.length)===n&&vs(e[n.length]))return e.slice(n.length);return null}function Rc(t){let e=Q(t);if(!e||e.kind!==N.Table)return null;for(let n of["Title","Name"])for(let r of e.entries||[]){if(r.type!=="key")continue;let s=Q(r.key);if(!s||s.kind!==N.String||s.value!==n)continue;let i=Q(r.value);if(i&&i.kind===N.String)return i.value}return null}var Dc=2;function V0(t){let e=(t||[])[0];if(!e)return null;let n=Q(e),r=n&&n.kind===N.String?n.value:Rc(e);if(!r)return null;let s=ao(String(r));return!s.length||s.length>Dc?null:s.join(" ")}function fo(t){if(!t||t.type!=="key")return null;let e=Q(t.key);return e&&e.kind===N.String?e.value:null}var H0=new Set(["Callback","OnCallback","OnChanged","OnChange","OnClick","OnToggle","OnFocusLost"]),Y0=["Title","Name","Flag"];function X0(t){for(let e of Y0)for(let n of t.entries||[]){if(fo(n)!==e)continue;let r=Q(n.value);if(!r||r.kind!==N.String)continue;let s=ao(r.value);if(!(!s.length||s.length>Dc))return s.join(" ")}return null}function Z0(t){let e=[];return On(t,{enter(n){if(n.kind===N.Table)for(let r of n.entries||[]){if(!H0.has(fo(r)))continue;let s=Q(r.value);!s||s.kind!==N.Function||e.push({word:X0(n),fn:s})}}}),e}function J0(t){let e=new Set;On(t,{enter(s){for(let i of s.bindings||[])e.add(i);(s.kind===N.LocalFunction||s.kind===N.NumericFor)&&e.add(s.binding)}});let n=new Set(G0(t,s=>s.kind===N.Name)),r=new Set;for(let s of n){let i=s.binding;if(!i||!bn(i)||e.has(i))continue;let o=i.writes||[];!o.length||!o.every(u=>n.has(u))||r.add(i)}return r.size===1?[...r][0]:null}var Q0=new Set(["loadstring","load"]),ew=new Set(["raw","main","master","latest","download","releases","release","blob","refs","heads","tags","archive","files","file","lua","init","source","dl","api","v1","v2"]);function nw(t){let e=String(t).split("?")[0].split("#")[0],n=e.indexOf("://"),s=(n<0?e:e.slice(n+3)).split("/").filter(i=>i.length>0);for(let i=s.length-1;i>=1;i-=1){let o=s[i].split(".")[0];if(!o||ew.has(o.toLowerCase()))continue;let u=kn(o);if(u)return u}return null}function tw(t){if(t.kind!==N.Call||(t.args||[]).length)return null;let e=Q(t.base);if(!e||e.kind!==N.Call)return null;let n=Q(e.base);if(!n||n.kind!==N.Name||bn(n.binding)||!Q0.has(n.name))return null;let r=null;return On(e,{enter(s){r===null&&s.kind===N.String&&s.value.indexOf("://")>=0&&(r=s.value)}}),r===null?null:nw(r)}var rw={and:["rhs","lhs"],or:["lhs","rhs"]};function lo(t){let e=Q(t);if(!e)return null;if(e.kind===N.Binary){let n=rw[e.operator];if(!n)return null;for(let r of n){let s=lo(e[r]);if(s)return s}return null}if(e.kind===N.Call||e.kind===N.MethodCall){let n=e.args||[],r=tw(e);if(r)return r;let s=e.kind===N.MethodCall?W0(e.method):null,i=V0(n);if(s){let l=kn(i===null?s:`${i} ${s}`);if(l)return l}if(n.length===1){let l=co(n[0]);if(l)return l}if(e.kind===N.MethodCall){if(i!==null&&Rc(n[0])!==null){let l=kn(`${i} ${e.method}`);if(l)return l}return kn(e.method)}let o=Q(e.base),u=o&&o.kind===N.Index?Q(o.base):null;return u&&u.kind===N.Name&&!bn(u.binding)?kn(K0(u.name)):null}if(e.kind===N.Index){let n=ar(e);return n?kn(n):null}return e.kind===N.Name&&!bn(e.binding)?kn(e.name):null}var sw={InputBegan:"input",InputChanged:"input",InputEnded:"input",PlayerAdded:"player",PlayerRemoving:"player",CharacterAdded:"character",CharacterRemoving:"character",ChildAdded:"child",ChildRemoved:"child",DescendantAdded:"descendant",DescendantRemoving:"descendant",Touched:"part",TouchEnded:"part",Chatted:"message",Heartbeat:"delta",Stepped:"delta",RenderStepped:"delta",PromptButtonHoldBegan:"player"};function iw(t){return!t||t.kind!==N.MethodCall||t.method!=="Connect"?null:ar(Q(t.base))}var ow={ipairs:["index","value"],pairs:["key","value"],next:["key","value"],gmatch:["match"],gfind:["match"],lines:["line"]};function uw(t){let e=Q((t||[])[0]);if(!e)return null;if(e.kind===N.MethodCall)return e.method;if(e.kind===N.Call){let n=Q(e.base);return n?n.kind===N.Name?bn(n.binding)?null:n.name:ar(n):null}return e.kind===N.Name&&!bn(e.binding)?e.name:null}var lw={__index:["object","key"],__newindex:["object","key","value"],__call:["object"],__tostring:["object"],__len:["object"],__unm:["object"],__gc:["object"],__close:["object"],__add:["lhs","rhs"],__sub:["lhs","rhs"],__mul:["lhs","rhs"],__div:["lhs","rhs"],__idiv:["lhs","rhs"],__mod:["lhs","rhs"],__pow:["lhs","rhs"],__concat:["lhs","rhs"],__eq:["lhs","rhs"],__lt:["lhs","rhs"],__le:["lhs","rhs"]};function aw(t){let e=[],n=(r,s)=>{let i=Q(r),o=Q(s);!i||i.kind!==N.String||!o||o.kind!==N.Function||e.push([i.value,o])};return On(t,{enter(r){if(r.kind===N.Table)for(let s of r.entries||[])s.type==="key"&&n(s.key,s.value);else if(r.kind===N.Assignment){let s=r.expressions||[];if(s.length!==(r.targets||[]).length)return;r.targets.forEach((i,o)=>{let u=Q(i);u&&u.kind===N.Index&&n(u.index,s[o])})}else if(r.kind===N.FunctionDeclaration&&!r.ee){let s=Q(r.target);s&&s.kind===N.Index&&n(s.index,r.body)}}}),e}function xs(t){let e=new Map,n=new Set,r=new Map,s=(i,o,u)=>{let l=i.get(o);l?l.push(u):i.set(o,[u])};return On(t,{enter(i){if(i.kind===N.Table)for(let o of i.entries||[])o.type==="key"&&e.set(Q(o.value),Q(o.key));else if(i.kind===N.Call){let o=Q(i.base);o&&n.add(o)}else if(i.kind===N.Assignment){let o=i.expressions||[],u=i.targets||[],l=o.length===u.length;u.forEach((c,a)=>{let f=l?Q(o[a]):null;if(c.kind===N.Name&&c.binding&&s(r,c.binding,f),!l)return;let h=Q(c);h&&h.kind===N.Index&&e.set(f,Q(h.index))})}}}),{fields:e,called:n,steps:r}}function cw(t,e,n){let r=e&&e.reads||[];if(!r.length)return null;let{fields:s}=n||xs(t),i=new Set,o=0;for(let u of r){let l=s.get(u);l!==void 0&&(l&&l.kind===N.String&&i.add(l.value),o+=1)}return o!==r.length||i.size!==1?null:kn([...i][0])}function fw(t,e,n){let r=e&&e.reads||[];if(!r.length)return!1;let{called:s}=n||xs(t),i=0;for(let o of r)s.has(o)&&(i+=1);return i===r.length}var dw={"+":["count","total"],"..":[null,"text"]};function hw(t){let e=Q(t);return e?e.kind===N.Number&&e.value===0?"+":e.kind===N.String&&e.value===""?"..":null:null}function gw(t,e,n,r){let[s,i]=dw[n],o=(r||xs(t)).steps.get(e)||[],u=0,l=0,c=0;for(let a of o){if(!a||a.kind!==N.Binary||a.operator!==n){c+=1;continue}let f=Q(a.lhs),h=Q(a.rhs),d=f&&f.kind===N.Name&&f.binding===e?h:h&&h.kind===N.Name&&h.binding===e?f:null;if(!d){c+=1;continue}u+=1,d.kind===N.Number&&d.value===1&&(l+=1)}return!u||c?null:l===u?s:i}function pw(t){let e=new Map,n=(u,l)=>{!l||!u||!bn(u)||e.has(u)||e.set(u,l)},r=new Map;On(t,{enter(u){if(u.kind!==N.Assignment)return;let l=u.targets||[],c=u.expressions||[];l.length===c.length&&l.forEach((a,f)=>{let h=Q(a);if(ar(h)!=="Name")return;let d=Q(h.base);if(!d||d.kind!==N.Name||!bn(d.binding))return;let g=co(c[f]);g&&!r.has(d.binding)&&r.set(d.binding,g)})}});for(let[u,l]of r)n(u,l);On(t,{enter(u){if(u.kind===N.LocalDeclaration){let l=u.expressions||[];if(l.length!==(u.names||[]).length)return;(u.bindings||[]).forEach((c,a)=>{n(c,lo(l[a]))})}else if(u.kind===N.Assignment){let l=u.targets||[],c=u.expressions||[];if(l.length!==c.length)return;l.forEach((a,f)=>{let h=Q(a);!h||h.kind!==N.Name||n(h.binding,lo(c[f]))})}else if(u.kind===N.GenericFor){let l=ow[uw(u.expressions)]||[];(u.bindings||[]).forEach((c,a)=>n(c,l[a]))}else if(u.kind===N.MethodCall){let l=iw(u),c=l&&sw[l];if(!c)return;for(let a of u.args||[]){let f=Q(a);!f||f.kind!==N.Function||(f.params||[])[0]!=="self"&&n((f.bindings||[])[0],c)}}}});for(let{word:u,fn:l}of Z0(t)){(l.params||[])[0]!=="self"&&n((l.bindings||[])[0],"value");let c=u===null?null:kn(u);c&&n(J0(l),c)}for(let[u,l]of aw(t)){let c=lw[u];c&&(l.bindings||[]).forEach((a,f)=>n(a,c[f]))}let s=new Map;On(t,{enter(u){if(u.kind===N.LocalDeclaration){let l=u.expressions||[];if(l.length!==(u.names||[]).length)return;(u.bindings||[]).forEach((c,a)=>{let f=hw(l[a]);f&&bn(c)&&s.set(c,f)})}}});let i=[];On(t,{enter(u){let l=u.kind===N.Function;if(!(!l&&u.kind!==N.LocalDeclaration))for(let c of u.bindings||[])c&&bn(c)&&!e.has(c)&&i.push([c,l])}});let o=i.length?xs(t):null;for(let[u,l]of i){let c=cw(t,u,o);if(c){n(u,c);continue}if(l&&fw(t,u,o)){n(u,"fn");continue}let a=s.get(u);a&&n(u,gw(t,u,a,o))}return e}function kw(t){return e=>{if(!t.has(e)&&uo(e))return t.add(e),e;for(let n=2;n<1e5;n+=1){let r=`${e}${n}`;if(!t.has(r)&&uo(r))return t.add(r),r}throw new Error("names: candidate pool exhausted")}}Pc.exports={spelled:co,$i:ar,et:fo,suggest:pw,allocator:kw}});var Uc=F((jv,Kc)=>{"use strict";var Ss=Ki(),zc=jc();function Gc(t,e,n){let r=new Set(n),s=Ss.namer(n),i=zc.allocator(n),o=new Map,u=0;for(let[l,c]of Ss.categories(t)){let a=e.get(l);a&&!r.has(a)?(o.set(l,i(a)),u+=1):o.set(l,s(c))}return{chosen:o,described:u}}function bw(t){t.resolve();let e=zc.suggest(t.chunk),n=Ss.reserved(t.chunk),{chosen:r,described:s}=Gc(t.chunk,e,n);if(!r.size)return;let i=Ss.apply(t.chunk,r);t.resolve(),t.note(`named ${s} local(s) from the code`,s),t.bump("name.described",s),t.bump("name.bindings",r.size),t.bump("name.mentions",i)}Kc.exports={name:"10-name",run:bw,plan:Gc}});var Zc=F((zv,Xc)=>{"use strict";var{Kind:we,block:mw,N:ww,R:yw,assignment:vw,name:xw}=B(),{walk:go}=ee(),Wc=180,Sw=24,Vc=12;function ho(t){return t.kind===we.LocalDeclaration?t.names.length:t.kind===we.LocalFunction?1:0}function Hc(t){return t.kind===we.LocalDeclaration?t.bindings||[]:t.kind===we.LocalFunction&&t.binding?[t.binding]:[]}function Nw(t){switch(t.kind){case we.Do:case we.While:return[{body:t.body,extra:0}];case we.Repeat:return[{body:t.body,extra:0,sealed:!0}];case we.NumericFor:return[{body:t.body,extra:4}];case we.GenericFor:return[{body:t.body,extra:t.variables.length+3}];case we.If:{let e=[{body:t.body,extra:0}];for(let n of t.s||[])e.push({body:n.body,extra:0});return t.e&&e.push({body:t.e,extra:0}),e}default:return[]}}function Yc(t,e){let n=[],r=e,s=(i,o,u)=>{let l=o,c=0;for(let a of i.statements){l+=ho(a),c+=ho(a),l>r&&(r=l);for(let f of Nw(a))s(f.body,l+f.extra,f.sealed)}n.push({block:i,base:o,direct:c,sealed:u})};return s(t,e,!1),{peak:r,blocks:n}}function Cw(t){let e=[t];for(;e.length;){let n=e.pop();if(!(!n||typeof n!="object")){if(Array.isArray(n)){for(let r of n)e.push(r);continue}if(n.kind!==we.Function){if(n.kind===we.Label||n.kind===we.Goto)return!0;for(let r of Object.keys(n))r==="binding"||r==="bindings"||e.push(n[r])}}}return!1}function Fw(t){let e=new Map;return t.statements.forEach((n,r)=>{go(n,{enter(s){e.has(s)||e.set(s,r)}})}),e}function qw(t,e){let n=t.statements.length-1,r=new Map;return t.statements.forEach((s,i)=>{let o=Hc(s);if(!o.length)return;let u=i;for(let l of o)for(let c of l.reads.concat(l.writes)){let a=e.get(c);a===void 0?u=n:a>u&&(u=a)}r.set(i,u)}),r}function Mw(t){let e=new Map,n=(s,i)=>{let o=e.get(s);o||(o=new Set,e.set(s,o)),o.add(i)};for(let s of t.statements)for(let i of Hc(s))n(i.name,i.id);go(t,{enter(s){if(s.kind===we.Name&&s.binding&&n(s.name,s.binding.id),s.kind===we.LocalDeclaration)for(let i of s.bindings||[])n(i.name,i.id);if(s.kind===we.LocalFunction&&s.binding&&n(s.binding.name,s.binding.id),s.kind===we.Function)for(let i of s.bindings||[])n(i.name,i.id);if(s.kind===we.GenericFor)for(let i of s.bindings||[])n(i.name,i.id);s.kind===we.NumericFor&&s.binding&&n(s.binding.name,s.binding.id)}});let r=new Set;for(let[s,i]of e)i.size>1&&r.add(s);return r}function $w(t,e,n,r){let s=new Set(t);for(let i=0;i<r;i+=1){let o=!1,u=r;for(let l=r-1;l>=0;l-=1){if(s.has(l)){u=l;continue}if(n.has(l))continue;let c=e.get(l);c!==void 0&&c>=u&&(s.add(l),u=l,o=!0)}if(!o)break}return s}function Lw(t,e,n,r){let s=t.statements.length,i=[],o=0,u=-1,l=0,c=a=>{l&&a>o&&i.push([o,a]),o=a+1,u=a,l=0};for(let a=0;a<s;a+=1){if(n.has(a)){c(a-1),o=a+1,u=a,l=0;continue}if(!r.has(a)){let f=e.get(a);f!==void 0&&(f>u&&(u=f),l+=ho(t.statements[a]))}a>=u&&a-o+1>=Vc&&c(a)}return c(s-1),i}function Ew(t,e){if(e.has(t)||(e.add(t),t.statements.length<Vc*2)||Cw(t))return 0;let n=Fw(t),r=qw(t,n);if(!r.size)return 0;let s=Mw(t),i=new Set,o=new Set;for(let[g,p]of r){if(p-g<=Sw)continue;let k=t.statements[g];if(k.kind!==we.LocalDeclaration||k.names.some(w=>s.has(w))){o.add(g);continue}i.add(g)}let u=$w(o,r,i,t.statements.length);for(let g of u)i.delete(g);let l=Lw(t,r,u,i);if(!l.length)return 0;let c=[],a=new Map;for(let g of i){let p=t.statements[g];for(let k of p.names)c.push(k);a.set(g,p.expressions.length?vw(p.names.map(k=>xw(k)),p.expressions):null)}let f=[];c.length&&f.push(yw(c));let h=(g,p)=>{let k=a.has(p)?a.get(p):t.statements[p];k&&g.push(k)},d=0;for(let[g,p]of l){for(;d<g;)h(f,d),d+=1;let k=[];for(;d<=p;)h(k,d),d+=1;k.length&&f.push(ww(mw(k)))}for(;d<t.statements.length;)h(f,d),d+=1;return t.statements=f,l.length}function Aw(t,e,n=Wc){let r=0,s=[{body:t.body,base:0}];go(t,{enter(o){o.kind===we.Function&&s.push({body:o.body,base:(o.params||[]).length})}});let i=new Set;for(let o of s)for(let u=0;u<16;u+=1){let l=Yc(o.body,o.base);if(l.peak<=n)break;let c=l.blocks.filter(f=>!f.sealed&&f.direct>0&&!i.has(f.block)).sort((f,h)=>h.direct-f.direct)[0];if(!c)break;let a=Ew(c.block,i);a&&(r+=a,e())}return r}Xc.exports={fit:Aw,survey:Yc,LIMIT:Wc}});var Qc=F((Gv,Jc)=>{"use strict";var Iw=Zc();function Ow(t){t.resolve();let e=Iw.fit(t.chunk,()=>t.resolve());e&&(t.note(`narrowed ${e} scope(s) to fit the local limit`,e),t.bump("scope.narrowed",e))}Jc.exports={name:"11-scope",run:Ow}});var rf=F((Kv,tf)=>{"use strict";var{resolve:Tw}=Ne(),{unparse:_w}=Os(),{Ht:Bw}=_s(),{detect:Rw}=vn(),Ns=class{constructor(e,n={}){this.chunk=e,this.options=n,this.notes=[],this.stats={},this.warnings=[],this.step=null,this.resolved=null}note(e,n){this.notes.push({step:this.step,message:e,count:n})}warn(e){this.warnings.push({step:this.step,message:e})}bump(e,n=1){this.stats[e]=(this.stats[e]||0)+n}resolve(){return this.resolved=Tw(this.chunk),this.resolved}V(e,n={}){if(typeof this.options.pt=="function")try{this.options.pt(e,{step:this.step,...n,stats:this.stats})}catch{}}source(){return _w(this.chunk,this.options.print)}},nf=[_s(),Fr(),pi(),Ql(),Wr(),ha(),Gi(),Ki(),Bc(),Uc(),Qc()],Dw=["03-str","06-proxy","07-opt"],ef=["08-vars","09-fmt","10-name","11-scope"],Pw=4,jw=8;function po(t,e,n,r,s){t.step=e.name,t.V("start",{step:e.name,pass:r,layer:s});let i=Date.now();try{e.run(t)}catch(o){if(n.strict)throw o;t.warn(`step failed: ${o.message}`),n.verbose&&console.error(o.stack)}if(t.bump(`time.${e.name}`,Date.now()-i),t.V("end",{step:e.name,pass:r,layer:s}),n.trace){let o=require("fs"),u=require("path");o.mkdirSync(n.trace,{recursive:!0});let l=s>1?`.layer${s}`:"",c=r>1?`.pass${r}`:"";o.writeFileSync(u.join(n.trace,`${e.name}${l}${c}.lua`),t.source(),"latin1")}}function zw(t,e,n,r){let s=new Set(["03-str","06-proxy"]);for(let i=2;i<=Pw;i+=1){let o=t.notes.length,u=!1;for(let l of e){let c=t.notes.length;po(t,l,n,i,r),s.has(l.name)&&t.notes.length>c&&(u=!0)}if(t.notes.length===o||!u)return}}function Gw(t){if(Bw(t.chunk.body))return!0;t.resolve();try{return Rw(t.chunk).instances.length>0}catch{return!1}}function Kw(t,e={}){let n=new Ns(t,e),r=e.only?new Set(e.only):null,s=e.skip?new Set(e.skip):new Set,i=nf.filter(a=>(!r||r.has(a.name))&&!s.has(a.name)),o=i.filter(a=>!ef.includes(a.name)),u=i.filter(a=>ef.includes(a.name)),l=Dw.map(a=>o.find(f=>f.name===a)).filter(Boolean),c=l.length?Math.max(...l.map(a=>o.indexOf(a))):-1;for(let a=1;a<=jw&&o.length;a+=1){let f=n.notes.length;for(let h=0;h<o.length;h+=1)po(n,o[h],e,1,a),h===c&&zw(n,l,e,a);if(n.notes.length===f||!Gw(n))break;n.bump("layers.stacked")}for(let a of u)po(n,a,e,1,1);return n.step=null,n}tf.exports={Context:Ns,STEPS:nf,run:Kw}});var af=F((Wv,lf)=>{"use strict";var{Lexer:Uw,TokenKind:Kn,LuaSyntaxError:Ww}=$s(),{Kind:W}=B(),{walk:uf,collect:Uv}=ee(),sf=t=>t!==void 0&&t!==""&&(t>="a"&&t<="z"||t>="A"&&t<="Z"||t>="0"&&t<="9"||t==="_"),Cs=t=>t>="0"&&t<="9",bo="\\",Vw=`
-`,Hw="\r",Yw="	",Xw=new Set(["n","r","t","a","b","v",'"',"'"]),Zw=new Set([7,8,9,10,11,13,32,34,39,45,126]),Jw=new Set([" ","-","~"]),Qw=new Set([bo,"n","r",'"',"'"]),ey=new Set([bo,'"',"'"]),ny=[{literal:t=>Jw.has(t),named:Xw,numeric:t=>!Zw.has(t)},{literal:t=>{let e=t.charCodeAt(0);return e>=32&&e<=126&&!ey.has(t)},named:Qw,numeric:t=>t<32?t!==10&&t!==13:t>126}];function ty(t,e,n){let r=t.length-1,s=1;for(;s<r;){let i=t[s];if(i!==bo){if(!e.literal(i))return{at:s,message:`unescaped ${ko(i)} in string`};n.Ne+=1,s+=1;continue}let o=t[s+1];if(e.named.has(o)){n.Ce+=1,s+=2;continue}if(!Cs(o))return{at:s,message:`invalid escape \\${o}`};if(!Cs(t[s+2])||!Cs(t[s+3]))return{at:s,message:"short decimal escape"};let u=Number(t.slice(s+1,s+4));if(u>255)return{at:s,message:`decimal escape > 255 (\\${t.slice(s+1,s+4)})`};if(!e.numeric(u))return{at:s,message:`redundant byte escape \\${t.slice(s+1,s+4)}`};n.le+=1,s+=4}return null}function ry(t,e,n){if(t[0]!=='"'){e(t.startsWith("[")?"bracket string":"single-quoted string");return}let r=null;for(let s of ny){let i={Ne:0,Ce:0,le:0},o=ty(t,s,i);if(o){(!r||o.at>r.at)&&(r=o);continue}n.Ne+=i.Ne,n.Ce+=i.Ce,n.le+=i.le,i.le>0&&(n.un+=1);return}e(r.message)}function ko(t){if(t===void 0)return"EOF";let e=t.charCodeAt(0);return e<32||e>126?`byte ${e}`:`'${t}'`}function sy(t,e,n,r){let s=t.toLowerCase();if(s.startsWith("0x")){t!==s&&t!==t.toUpperCase()&&(r.Fe+=1);return}if(s.startsWith("0b")){n("binary literal");return}if(t!==s){n(`uppercase in number ${t}`);return}if(t.endsWith(".")){n(`trailing decimal point in ${t}`);return}if(t.length>1&&t[0]==="0"&&Cs(t[1])){n(`zero-padded number ${t}`);return}t.startsWith("0.")&&!(e&&e.kind===Kn.Symbol&&e.value==="-")&&n(`leading zero in ${t}`)}var of=12;function iy(t,e,n,r,s){if(t==="")return;if(t!==" "){t.includes("--")?s("comment"):t.includes(Vw)||t.includes(Hw)?s("newline"):t.includes(Yw)?s("tab character"):s("excess whitespace");return}let i=e[e.length-1],o=r[0];sf(i)||sf(o)||s(`unexpected space between ${ko(i)} and ${ko(o)}`)}function oy(t){let e=[],n=a=>{e.length<of&&e.push(a)},r={tokens:0,strings:0,numbers:0,ln:0,qe:0,un:0,Fe:0,Ce:0,le:0,Ne:0,banner:0},s=new Uw(t),i=[],o=null,u="",l=0,c=null;for(;;){let a;try{a=s.next()}catch(d){if(!(d instanceof Ww))throw d;return n(`lexer error: ${d.message}`),{violations:e,counts:r,truncated:!0}}let f=a.kind===Kn.Eof?"":t.slice(a.offset,s.pos),h=t.slice(l,a.offset);if(o===null||a.kind===Kn.Eof?r.banner+=h.length:iy(h,u,a,f,n),c){if(!(a.kind===Kn.Symbol&&a.value==="(")){let d=c.frame;d&&d.ch==="{"?(r.ln+=1,d.semi=!0,d.comma&&!d.mixed&&(d.mixed=!0,r.qe+=1)):n("unexpected ';'")}c=null}if(a.kind===Kn.Eof)break;if(r.tokens+=1,a.kind===Kn.String)r.strings+=1,ry(f,n,r);else if(a.kind===Kn.Number)r.numbers+=1,sy(a.text,o,n,r);else if(a.kind===Kn.Symbol){if(a.value==="("||a.value==="["||a.value==="{")i.push({ch:a.value,comma:!1,semi:!1,mixed:!1});else if(a.value===")"||a.value==="]"||a.value==="}")i.pop();else if(a.value===";")c={frame:i[i.length-1]||null};else if(a.value===","){let d=i[i.length-1];d&&d.ch==="{"&&(d.comma=!0,d.semi&&!d.mixed&&(d.mixed=!0,r.qe+=1))}}if(e.length>=of)return{violations:e,counts:r,truncated:!0};o=a,u=f,l=s.pos}return{violations:e,counts:r,truncated:!1}}function uy(t){let e=[new Set],n=new Set,r=0,s=0,i=0,o=0,u=a=>a>="a"&&a<="z"||a>="A"&&a<="Z",l=a=>{if(!(typeof a!="string"||a.length===0)){r+=1,u(a[0])&&(s+=1),a.length<=2&&(i+=1),a.length===1&&n.add(a);for(let f=0;f<e.length;f+=1)if(e[f].has(a)){o+=1;break}e[e.length-1].add(a)}},c=new Set([W.Function,W.Block,W.NumericFor,W.GenericFor,W.Repeat]);return uf(t,{enter:a=>{switch(c.has(a.kind)&&e.push(new Set),a.kind){case W.Function:for(let f of a.params||[])l(f);break;case W.LocalDeclaration:for(let f of a.names||[])l(f);break;case W.LocalFunction:l(a.name);break;case W.NumericFor:l(a.variable);break;case W.GenericFor:for(let f of a.variables||[])l(f);break;default:break}},leave:a=>{c.has(a.kind)&&e.pop()}}),{declared:r,kt:s,short:i,shadowed:o,breadth:n.size}}var en=t=>{let e=t;for(;e&&e.kind===W.Paren;)e=e.expression;return e},ly=(t,e)=>!!t&&t.kind===W.Number&&t.value===e;function ay(t){if(t.kind!==W.Return||t.expressions.length!==1)return!1;let e=en(t.expressions[0]);if(!e||e.kind!==W.Call||e.args.length!==1||en(e.args[0]).kind!==W.Vararg)return!1;let n=en(e.base);return!n||n.kind!==W.Function?!1:n.w===!0&&(n.params||[]).length===0}function cy(t){if(t.kind!==W.GenericFor||t.expressions.length!==1||(t.variables||[]).length!==2)return!1;let e=en(t.expressions[0]);if(!e||e.kind!==W.Call||e.args.length!==1)return!1;let n=en(e.base);if(!n||n.kind!==W.Name||n.name!=="ipairs")return!1;let r=en(e.args[0]);if(!r||r.kind!==W.Table||r.entries.length!==3)return!1;for(let o of r.entries){if(o.key)return!1;let u=en(o.value);if(!u||u.kind!==W.Table||u.entries.length!==2||u.entries[0].key||u.entries[1].key)return!1}let s=t.body?t.body.statements:[];if(s.length!==1||s[0].kind!==W.While)return!1;let i=s[0].body?s[0].body.statements:[];return i.length!==1||i[0].kind!==W.Assignment?!1:i[0].targets.length===4&&i[0].expressions.length===4}var fy=new Set(["__add","__sub","__index","__mul","__div","__pow","__concat"]);function dy(t){if(t.kind!==W.Table||t.entries.length!==3)return!1;for(let e of t.entries){let n=e.key;if(!n||n.kind!==W.String||!fy.has(n.value))return!1}return!0}var hy=35184372088832,gy=257,py=new Set(["<",">","<=",">="]);function ky(t){let e=en(t.condition);return!e||e.kind!==W.Name?null:{name:e.name,ifs:0,assigns:!1,compares:!1}}var by=t=>t.ifs>=2&&t.assigns&&t.compares;function my(t){let e={wrapper:!1,rotate:!1,proxy:!1,dispatcher:!1,an:!1,cn:!1,dn:!1,stepless:!1},n=[];return uf(t,{enter:r=>{switch(r.kind){case W.While:n.push(ky(r));break;case W.If:for(let s of n)s&&(s.ifs+=1);break;case W.Assignment:for(let s of n)if(!(!s||s.assigns))for(let i of r.targets){let o=en(i);o&&o.kind===W.Name&&o.name===s.name&&(s.assigns=!0)}break;case W.Binary:if(py.has(r.operator)){let s=en(r.lhs),i=en(r.rhs);for(let o of n)!o||o.compares||(s&&s.kind===W.Name&&s.name===o.name||i&&i.kind===W.Name&&i.name===o.name)&&(o.compares=!0)}break;case W.Return:!e.wrapper&&ay(r)&&(e.wrapper=!0);break;case W.Number:r.value===hy?e.an=!0:r.value===gy&&(e.cn=!0);break;case W.Table:!e.proxy&&dy(r)&&(e.proxy=!0);break;case W.GenericFor:!e.rotate&&cy(r)&&(e.rotate=!0);break;case W.NumericFor:r.step?ly(en(r.step),1)&&(e.dn=!0):e.stepless=!0;break;default:break}},leave:r=>{if(r.kind!==W.While)return;let s=n.pop();s&&by(s)&&(e.dispatcher=!0)}}),e}var wy={declared:0,kt:0,short:0,shadowed:0,breadth:0},yy={wrapper:!1,rotate:!1,proxy:!1,dispatcher:!1,an:!1,cn:!1,dn:!1,stepless:!1};function vy(t,e,n){let r=[],s=(o,u)=>r.push({weight:o,label:u}),i=t.counts;return n.dispatcher&&s(2,"a register machine dispatch loop"),n.an&&n.cn&&s(2,"the string cipher's 2^45 modulus and 257 prime"),n.rotate&&s(2,"the constant table's rotation loop"),i.un>0&&s(2,`${i.un} string(s) carrying numeric escapes for printable text`),i.Fe>0&&s(i.Fe>1?2:1,`${i.Fe} hexadecimal number(s) in mixed case`),n.wrapper&&s(1,"the vararg wrapper around the whole program"),i.qe>0?s(1,`${i.qe} table(s) separated by both ',' and ';'`):i.ln>0&&s(1,`${i.ln} table entries separated by ';'`),n.proxy&&s(1,"a three metamethod proxy metatable"),n.dn&&s(1,"a numeric for loop with its default step written out"),e.breadth>=12&&s(1,`${e.breadth} distinct single letter local names`),e.shadowed>0&&s(1,`${e.shadowed} local name(s) shadowing a name already in scope`),e.declared>=2&&e.short===e.declared&&e.kt===e.declared&&s(1,`${e.declared} local names, all one or two letters`),r}function xy(t){return t>=2e3?4:t>=300?2:1}function Sy(t,e){let n=t.trim(),r=oy(n),s=e?uy(e):wy,i=e?my(e):yy,o=vy(r,s,i),u=o.reduce((a,f)=>a+f.weight,0),l=xy(r.counts.tokens),c=r.violations.slice();return!c.length&&i.stepless&&c.push("for loop without step"),!c.length&&u<l&&c.push("insufficient Prometheus signatures"+(o.length?` (${o.map(a=>a.label).join(", ")})`:"")),{prometheus:c.length===0,reasons:c,evidence:o,weight:u,required:l,names:s,shapes:i,counts:r.counts}}lf.exports={identify:Sy}});var gf=F((Vv,hf)=>{"use strict";var{parse:cf}=Ao(),{unparse:Ny}=Os(),{Context:Cy,STEPS:Fy,run:ff}=rf(),{identify:df}=af(),Fs=class extends Error{constructor(e){super(`unsupported Prometheus payload: ${e.reasons.join("; ")}`),this.name="NotPrometheusError",this.report=e}};function qy(t,e={}){let n=e.name||"chunk",r=null,s=null;try{r=cf(t,{name:n})}catch(u){s=u}let i=null;if(e.detect!==!1&&(i=df(t,r),!i.prometheus))throw new Fs(i);if(s)throw s;let o=ff(r,e);return{code:o.source(),chunk:r,notes:o.notes,warnings:o.warnings,stats:o.stats,context:o,detected:i}}hf.exports={deobfuscate:qy,NotPrometheusError:Fs,identify:df,parse:cf,unparse:Ny,run:ff,Context:Cy,STEPS:Fy,ast:B(),detect:vn().detect,tn:Ni().tn}});module.exports=gf();
+"use strict";
+
+var a = (a, b) => () => {
+  try {
+    return b || a((b = {
+      exports: {}
+    }).exports, b), b.exports;
+  } catch (a) {
+    throw b = 0, a;
+  }
+};
+var b = a((a, b) => {
+  "use strict";
+
+  var c = {
+      "Eof": "Eof",
+      "Name": "Name",
+      "Keyword": "Keyword",
+      "Number": "Number",
+      "String": "String",
+      "Symbol": "Symbol"
+    },
+    d = new Set(["and", "break", "do", "else", "elseif", "end", "false", "for", "function", "goto", "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while", "continue"]),
+    e = ["...", "..=", "==", "~=", "<=", ">=", "..", "::", "->", "//", "<<", ">>", "+=", "-=", "*=", "/=", "%=", "^=", "+", "-", "*", "/", "%", "^", "#", "=", "<", ">", "(", ")", "{", "}", "[", "]", ";", ":", ",", ".", "?", "|", "&", "~"];
+  b.exports = {
+    "TokenKind": c,
+    "KEYWORDS": d,
+    "SYMBOLS": e
+  };
+});
+var c = a((a, b) => {
+  "use strict";
+
+  var c = a => a >= "0" && a <= "9",
+    d = a => a >= "0" && a <= "9" || a >= "a" && a <= "f" || a >= "A" && a <= "F",
+    e = a => a >= "a" && a <= "z",
+    f = a => a >= "A" && a <= "Z",
+    g = a => e(a) || f(a) || a === "_",
+    h = a => g(a) || c(a),
+    i = a => a === " " || a === "\t" || a === "\r" || a === `\n` || a === "\v" || a === "\f",
+    j = a => a === `\n` || a === "\r",
+    k = {
+      a: "",
+      b: "\b",
+      f: "\f",
+      n: `\n`,
+      r: "\r",
+      t: "\t",
+      v: "\v",
+      "\\": "\\",
+      '"': '"',
+      "'": "'"
+    };
+  function l(a) {
+    let b = a.slice(2),
+      c = b.search(/[pP]/),
+      d = c === -1 ? b : b.slice(0, c),
+      e = c === -1 ? void 0 : b.slice(c + 1),
+      f = d["indexOf"]("."),
+      g = f === -1 ? d : d.slice(0, f),
+      h = f === -1 ? "" : d.slice(f + 1),
+      i = g ? parseInt(g, 16) : 0;
+    for (let a = 0; a < h.length; a += 1) i += parseInt(h[a], 16) / 16 ** (a + 1);
+    return e !== void 0 && e !== "" && (i *= 2 ** Number(e)), i;
+  }
+  function m(a) {
+    return a < 128 ? String["fromCharCode"](a) : a < 2048 ? String["fromCharCode"](192 | a >> 6, 128 | a & 63) : a < 65536 ? String["fromCharCode"](224 | a >> 12, 128 | a >> 6 & 63, 128 | a & 63) : String["fromCharCode"](240 | a >> 18, 128 | a >> 12 & 63, 128 | a >> 6 & 63, 128 | a & 63);
+  }
+  b.exports = {
+    m: c,
+    "Me": d,
+    bt: e,
+    mt: f,
+    wt: g,
+    yt: h,
+    hn: i,
+    "A": j,
+    "ESCAPES": k,
+    vt: l,
+    "utf8Encode": m
+  };
+});
+var d = a((a, d) => {
+  "use strict";
+
+  var {
+      "TokenKind": e,
+      "KEYWORDS": f,
+      "SYMBOLS": g
+    } = b(),
+    h = c(),
+    i = class extends Error {
+      constructor(a, b, c) {
+        super(`${a} (line ${b}, col ${c})`), this.name = "LuaSyntaxError", this.line = b, this.column = c;
+      }
+    },
+    j = class {
+      constructor(a) {
+        this.src = a, this.len = a.length, this.pos = 0, this.line = 1, this.$e = 0;
+      }
+      error(a) {
+        throw new i(a, this.line, this.pos - this.$e + 1);
+      }
+      peek(a = 0) {
+        let b = this.pos + a;
+        return b < this.len ? this.src[b] : "";
+      }
+      newline() {
+        let a = this.src[this.pos];
+        this.pos += 1;
+        let b = this.src[this.pos];
+        (b === `\n` || b === "\r") && b !== a && (this.pos += 1), this.line += 1, this.$e = this.pos;
+      }
+      xt() {
+        for (;;) {
+          let a = this.peek();
+          if (a === "") return;
+          if (h["A"](a)) {
+            this.newline();
+            continue;
+          }
+          if (h.hn(a)) {
+            this.pos += 1;
+            continue;
+          }
+          if (a === "-" && this.peek(1) === "-") {
+            this.pos += 2;
+            let a = this.gn();
+            if (a !== null) {
+              this.pn(a);
+              continue;
+            }
+            for (; this.pos < this.len && !h["A"](this.src[this.pos]);) this.pos += 1;
+            continue;
+          }
+          return;
+        }
+      }
+      gn() {
+        if (this.peek() !== "[") return null;
+        let a = this.pos + 1,
+          b = 0;
+        for (; a < this.len && this.src[a] === "=";) b += 1, a += 1;
+        return this.src[a] !== "[" ? null : (this.pos = a + 1, b);
+      }
+      pn(a) {
+        h["A"](this.peek()) && this.newline();
+        let b = `]${"=".repeat(a)}]`,
+          c = "";
+        for (;;) {
+          if (this.pos >= this.len && this.error("unterminated long string/comment"), this.src["startsWith"](b, this.pos)) return this.pos += b.length, c;
+          let a = this.src[this.pos];
+          if (h["A"](a)) {
+            this.newline(), c += `\n`;
+            continue;
+          }
+          c += a, this.pos += 1;
+        }
+      }
+      "St"(a) {
+        this.pos += 1;
+        let b = "";
+        for (;;) {
+          this.pos >= this.len && this.error("unterminated string");
+          let c = this.src[this.pos];
+          if (c === a) return this.pos += 1, b;
+          if (h["A"](c) && this.error("unterminated string"), c !== "\\") {
+            b += c, this.pos += 1;
+            continue;
+          }
+          this.pos += 1, b += this["Nt"]();
+        }
+      }
+      "Nt"() {
+        let a = this.peek();
+        if (a === "" && this.error("unterminated escape sequence"), h["A"](a)) return this.newline(), `\n`;
+        if (Object.prototype["hasOwnProperty"].call(h["ESCAPES"], a)) return this.pos += 1, h["ESCAPES"][a];
+        if (a === "x" || a === "X") {
+          this.pos += 1;
+          let a = "";
+          for (; a.length < 2 && h["Me"](this.peek());) a += this.src[this.pos], this.pos += 1;
+          return a.length === 0 && this.error("hex digit expected"), String["fromCharCode"](parseInt(a, 16));
+        }
+        if (a === "z") {
+          for (this.pos += 1; this.pos < this.len && h.hn(this.src[this.pos]);) h["A"](this.src[this.pos]) ? this.newline() : this.pos += 1;
+          return "";
+        }
+        if (a === "u") {
+          this.pos += 1, this.peek() !== "{" && this.error("expected '{' after \\u"), this.pos += 1;
+          let a = "";
+          for (; h["Me"](this.peek());) a += this.src[this.pos], this.pos += 1;
+          return this.peek() !== "}" && this.error("expected '}'"), this.pos += 1, h["utf8Encode"](parseInt(a, 16));
+        }
+        if (h.m(a)) {
+          let a = "";
+          for (; a.length < 3 && h.m(this.peek());) a += this.src[this.pos], this.pos += 1;
+          let b = parseInt(a, 10);
+          return b > 255 && this.error("decimal escape out of range"), String["fromCharCode"](b);
+        }
+        return this.error(`invalid escape '\\${a}'`);
+      }
+      "Ct"() {
+        let a = this.pos;
+        if (this.peek() === "0" && (this.peek(1) === "x" || this.peek(1) === "X")) {
+          for (this.pos += 2; h["Me"](this.peek()) || this.peek() === ".";) this.pos += 1;
+          if (this.peek() === "p" || this.peek() === "P") for (this.pos += 1, (this.peek() === "+" || this.peek() === "-") && (this.pos += 1); h.m(this.peek());) this.pos += 1;
+          let b = this.src.slice(a, this.pos);
+          return {
+            text: b,
+            value: h.vt(b)
+          };
+        }
+        if (this.peek() === "0" && (this.peek(1) === "b" || this.peek(1) === "B")) {
+          for (this.pos += 2; this.peek() === "0" || this.peek() === "1";) this.pos += 1;
+          let b = this.src.slice(a, this.pos);
+          return {
+            text: b,
+            value: parseInt(b.slice(2), 2)
+          };
+        }
+        for (; h.m(this.peek());) this.pos += 1;
+        if (this.peek() === ".") for (this.pos += 1; h.m(this.peek());) this.pos += 1;
+        if (this.peek() === "e" || this.peek() === "E") for (this.pos += 1, (this.peek() === "+" || this.peek() === "-") && (this.pos += 1); h.m(this.peek());) this.pos += 1;
+        let b = this.src.slice(a, this.pos),
+          c = Number(b);
+        return Number["isNaN"](c) && this.error(`malformed number '${b}'`), {
+          text: b,
+          value: c
+        };
+      }
+      next() {
+        this.xt();
+        let a = this.line,
+          b = this.pos - this.$e + 1,
+          c = this.pos;
+        if (this.pos >= this.len) return {
+          kind: e["Eof"],
+          value: null,
+          line: a,
+          column: b,
+          offset: c
+        };
+        let d = this.src[this.pos];
+        if (h.wt(d)) {
+          let d = this.pos;
+          for (; d < this.len && h.yt(this.src[d]);) d += 1;
+          let g = this.src.slice(this.pos, d);
+          return this.pos = d, {
+            kind: f.has(g) ? e["Keyword"] : e["Name"],
+            value: g,
+            line: a,
+            column: b,
+            offset: c
+          };
+        }
+        if (h.m(d) || d === "." && h.m(this.peek(1))) {
+          let d = this["Ct"]();
+          return {
+            kind: e["Number"],
+            value: d.value,
+            text: d.text,
+            line: a,
+            column: b,
+            offset: c
+          };
+        }
+        if (d === '"' || d === "'") return {
+          kind: e["String"],
+          value: this["St"](d),
+          line: a,
+          column: b,
+          offset: c
+        };
+        if (d === "[") {
+          let d = this.gn();
+          if (d !== null) {
+            let f = this.pn(d);
+            return {
+              kind: e["String"],
+              value: f,
+              long: !0,
+              level: d,
+              line: a,
+              column: b,
+              offset: c
+            };
+          }
+        }
+        for (let d = 0; d < g.length; d += 1) {
+          let f = g[d];
+          if (this.src["startsWith"](f, this.pos)) return this.pos += f.length, {
+            kind: e["Symbol"],
+            value: f,
+            line: a,
+            column: b,
+            offset: c
+          };
+        }
+        return this.error(`unexpected char '${d}'`);
+      }
+      tokenize() {
+        let a = [];
+        for (;;) {
+          let b = this.next();
+          if (a.push(b), b.kind === e["Eof"]) return a;
+        }
+      }
+    };
+  function k(a) {
+    return new j(a).tokenize();
+  }
+  d.exports = {
+    "Lexer": j,
+    tokenize: k,
+    "LuaSyntaxError": i,
+    "TokenKind": e
+  };
+});
+var e = a((a, b) => {
+  "use strict";
+
+  var c = {
+      "Chunk": "Chunk",
+      "Block": "Block",
+      "LocalDeclaration": "LocalDeclaration",
+      "LocalFunction": "LocalFunction",
+      "FunctionDeclaration": "FunctionDeclaration",
+      "Assignment": "Assignment",
+      "CallStatement": "CallStatement",
+      "Return": "Return",
+      "Break": "Break",
+      "Continue": "Continue",
+      "Do": "Do",
+      "While": "While",
+      "Repeat": "Repeat",
+      "If": "If",
+      "NumericFor": "NumericFor",
+      "GenericFor": "GenericFor",
+      "Goto": "Goto",
+      "Label": "Label",
+      "Nil": "Nil",
+      "True": "True",
+      "False": "False",
+      "Number": "Number",
+      "String": "String",
+      "Vararg": "Vararg",
+      "Function": "Function",
+      "Table": "Table",
+      "Binary": "Binary",
+      "Unary": "Unary",
+      "Index": "Index",
+      "Call": "Call",
+      "MethodCall": "MethodCall",
+      "Name": "Name",
+      "Paren": "Paren"
+    },
+    d = new Set([c["Nil"], c["True"], c["False"], c["Number"], c["String"], c["Vararg"], c["Function"], c["Table"], c["Binary"], c["Unary"], c["Index"], c["Call"], c["MethodCall"], c["Name"], c["Paren"]]),
+    e = new Set([c["Nil"], c["True"], c["False"], c["Number"], c["String"]]),
+    f = new Set([c["Name"], c["Index"]]),
+    g = new Set([c["Call"], c["MethodCall"], c["Vararg"]]),
+    h = (a = []) => ({
+      kind: c["Block"],
+      statements: a
+    }),
+    i = a => ({
+      kind: c["Chunk"],
+      body: a || h()
+    }),
+    j = () => ({
+      kind: c["Nil"]
+    }),
+    k = a => ({
+      kind: a ? c["True"] : c["False"]
+    }),
+    l = a => ({
+      kind: c["Number"],
+      value: a
+    }),
+    m = a => ({
+      kind: c["String"],
+      value: a
+    }),
+    n = () => ({
+      kind: c["Vararg"]
+    }),
+    o = a => ({
+      kind: c["Name"],
+      name: a
+    }),
+    p = a => ({
+      kind: c["Paren"],
+      expression: a
+    }),
+    q = (a, b, d) => ({
+      kind: c["Binary"],
+      operator: a,
+      lhs: b,
+      rhs: d
+    }),
+    r = (a, b) => ({
+      kind: c["Unary"],
+      operator: a,
+      argument: b
+    }),
+    s = (a, b, d = !1) => ({
+      kind: c["Index"],
+      base: a,
+      index: b,
+      dot: d
+    }),
+    t = (a, b = []) => ({
+      kind: c["Call"],
+      base: a,
+      args: b
+    }),
+    u = (a, b, d = []) => ({
+      kind: c["MethodCall"],
+      base: a,
+      method: b,
+      args: d
+    }),
+    v = (a = []) => ({
+      kind: c["Table"],
+      entries: a
+    }),
+    w = (a, b, d = !1) => ({
+      kind: c["Function"],
+      params: a,
+      body: b || h(),
+      w: d
+    }),
+    x = (a, b = []) => ({
+      kind: c["LocalDeclaration"],
+      names: a,
+      expressions: b
+    }),
+    y = (a, b) => ({
+      kind: c["Assignment"],
+      targets: a,
+      expressions: b
+    }),
+    z = a => ({
+      kind: c["CallStatement"],
+      expression: a
+    }),
+    aa = (a = []) => ({
+      kind: c["Return"],
+      expressions: a
+    }),
+    ab = () => ({
+      kind: c["Break"]
+    }),
+    ac = a => ({
+      kind: c["Do"],
+      body: a
+    }),
+    ad = (a, b) => ({
+      kind: c["While"],
+      condition: a,
+      body: b
+    }),
+    ae = (a, b) => ({
+      kind: c["Repeat"],
+      body: a,
+      condition: b
+    }),
+    af = (a, b, d = [], e = null) => ({
+      kind: c["If"],
+      condition: a,
+      body: b,
+      s: d,
+      e: e
+    }),
+    ag = (a, b, d, e, f) => ({
+      kind: c["NumericFor"],
+      variable: a,
+      start: b,
+      limit: d,
+      step: e,
+      body: f
+    }),
+    ah = (a, b, d) => ({
+      kind: c["GenericFor"],
+      variables: a,
+      expressions: b,
+      body: d
+    }),
+    ai = a => {
+      let b = a;
+      for (; b && b.kind === c["Paren"];) b = b.expression;
+      return b;
+    },
+    aj = a => !!a && e.has(a.kind),
+    ak = a => !!a && g.has(a.kind),
+    al = a => !!a && d.has(a.kind);
+  b.exports = {
+    "Kind": c,
+    "LITERALS": e,
+    "ASSIGNABLE": f,
+    "Y": aj,
+    unparen: ai,
+    d: ak,
+    kn: al,
+    block: h,
+    chunk: i,
+    nil: j,
+    boolean: k,
+    number: l,
+    string: m,
+    vararg: n,
+    name: o,
+    paren: p,
+    binary: q,
+    unary: r,
+    index: s,
+    call: t,
+    "Le": u,
+    table: v,
+    func: w,
+    "R": x,
+    assignment: y,
+    "X": z,
+    "I": aa,
+    "Ee": ab,
+    "N": ac,
+    ae: ad,
+    bn: ae,
+    "Z": af,
+    mn: ag,
+    wn: ah
+  };
+});
+var f = a((a, c) => {
+  "use strict";
+
+  var {
+      tokenize: f,
+      "LuaSyntaxError": g
+    } = d(),
+    {
+      "TokenKind": h
+    } = b(),
+    i = e(),
+    {
+      "Kind": j
+    } = i,
+    k = {
+      or: [1, 1],
+      and: [2, 2],
+      "<": [3, 3],
+      ">": [3, 3],
+      "<=": [3, 3],
+      ">=": [3, 3],
+      "~=": [3, 3],
+      "==": [3, 3],
+      "|": [4, 4],
+      "~": [5, 5],
+      "&": [6, 6],
+      "<<": [7, 7],
+      ">>": [7, 7],
+      "..": [9, 8],
+      "+": [10, 10],
+      "-": [10, 10],
+      "*": [11, 11],
+      "/": [11, 11],
+      "//": [11, 11],
+      "%": [11, 11],
+      "^": [14, 13]
+    },
+    l = 12,
+    m = new Set(["-", "not", "#", "~"]),
+    n = {
+      "+=": "+",
+      "-=": "-",
+      "*=": "*",
+      "/=": "/",
+      "%=": "%",
+      "^=": "^",
+      "..=": ".."
+    },
+    o = new Set(["end", "else", "elseif", "until"]),
+    p = class {
+      constructor(a) {
+        this.tokens = f(a), this.index = 0;
+      }
+      get token() {
+        return this.tokens[this.index];
+      }
+      peek(a = 1) {
+        let b = this.index + a;
+        return b < this.tokens.length ? this.tokens[b] : this.tokens[this.tokens.length - 1];
+      }
+      advance() {
+        let a = this.tokens[this.index];
+        return this.index < this.tokens.length - 1 && (this.index += 1), a;
+      }
+      error(a, b = this.token) {
+        throw new g(a, b.line, b.column);
+      }
+      at(a) {
+        let b = this.token;
+        return (b.kind === h["Symbol"] || b.kind === h["Keyword"]) && b.value === a;
+      }
+      accept(a) {
+        return this.at(a) ? (this.advance(), !0) : !1;
+      }
+      expect(a) {
+        return this.at(a) || this.error(`expected '${a}', got '${q(this.token)}'`), this.advance();
+      }
+      g() {
+        return this.token.kind !== h["Name"] && this.error(`expected identifier, got '${q(this.token)}'`), this.advance().value;
+      }
+      "Ft"() {
+        let a = this.k();
+        return this.token.kind !== h["Eof"] && this.error(`expected EOF, got '${q(this.token)}'`), i.chunk(a);
+      }
+      k() {
+        let a = [];
+        for (; this.token.kind !== h["Eof"] && !(this.token.kind === h["Keyword"] && o.has(this.token.value));) if (!this.accept(";")) {
+          if (this.token.kind === h["Keyword"] && this.token.value === "return") {
+            a.push(this.qt()), this.accept(";");
+            break;
+          }
+          a.push(this["Mt"]());
+        }
+        return i.block(a);
+      }
+      qt() {
+        this.expect("return");
+        let a = this.$t() || this.at(";") ? [] : this["J"]();
+        return i["I"](a);
+      }
+      $t() {
+        let a = this.token;
+        return a.kind === h["Eof"] ? !0 : a.kind === h["Keyword"] && o.has(a.value);
+      }
+      "Mt"() {
+        let a = this.token;
+        if (a.kind === h["Keyword"]) switch (a.value) {
+          case "local":
+            return this["Lt"]();
+          case "if":
+            return this["Et"]();
+          case "while":
+            return this["At"]();
+          case "do":
+            {
+              this.advance();
+              let a = this.k();
+              return this.expect("end"), i["N"](a);
+            }
+          case "for":
+            return this["It"]();
+          case "repeat":
+            return this["Ot"]();
+          case "function":
+            return this["Tt"]();
+          case "break":
+            return this.advance(), i["Ee"]();
+          case "continue":
+            return this.advance(), {
+              kind: j["Continue"]
+            };
+          case "goto":
+            return this.advance(), {
+              kind: j["Goto"],
+              label: this.g()
+            };
+          default:
+            break;
+        }
+        if (this.at("::")) {
+          this.advance();
+          let a = this.g();
+          return this.expect("::"), {
+            kind: j["Label"],
+            name: a
+          };
+        }
+        return this["_t"]();
+      }
+      "Lt"() {
+        if (this.expect("local"), this.accept("function")) {
+          let a = this.g(),
+            b = this["Ae"]();
+          return {
+            kind: j["LocalFunction"],
+            name: a,
+            body: b
+          };
+        }
+        let a = [this["Q"]()];
+        for (; this.accept(",");) a.push(this["Q"]());
+        let b = this.accept("=") ? this["J"]() : [];
+        return i["R"](a, b);
+      }
+      "Q"() {
+        let a = this.g();
+        return this.at("<") ? (this.advance(), this.g(), this.expect(">")) : this.at(":") && (this.advance(), this["Ie"]()), a;
+      }
+      "Ie"() {
+        let a = 0;
+        for (;;) {
+          let b = this.token;
+          if (b.kind === h["Eof"]) return;
+          if (b.kind === h["Symbol"]) {
+            if (b.value === "(" || b.value === "{" || b.value === "<") a += 1;else if (b.value === ")" || b.value === "}" || b.value === ">") {
+              if (a === 0) return;
+              a -= 1;
+            } else if (a === 0 && (b.value === "," || b.value === "=" || b.value === ";")) return;
+          } else if (b.kind === h["Keyword"] && a === 0 && b.value !== "nil") return;
+          this.advance();
+        }
+      }
+      "Et"() {
+        this.expect("if");
+        let a = this.u();
+        this.expect("then");
+        let b = this.k(),
+          c = [],
+          d = null;
+        for (;;) {
+          if (this.accept("elseif")) {
+            let a = this.u();
+            this.expect("then"), c.push({
+              condition: a,
+              body: this.k()
+            });
+            continue;
+          }
+          this.accept("else") && (d = this.k());
+          break;
+        }
+        return this.expect("end"), i["Z"](a, b, c, d);
+      }
+      "At"() {
+        this.expect("while");
+        let a = this.u();
+        this.expect("do");
+        let b = this.k();
+        return this.expect("end"), i.ae(a, b);
+      }
+      "Ot"() {
+        this.expect("repeat");
+        let a = this.k();
+        return this.expect("until"), i.bn(a, this.u());
+      }
+      "It"() {
+        this.expect("for");
+        let a = this["Q"]();
+        if (this.accept("=")) {
+          let b = this.u();
+          this.expect(",");
+          let c = this.u(),
+            d = this.accept(",") ? this.u() : null;
+          this.expect("do");
+          let e = this.k();
+          return this.expect("end"), i.mn(a, b, c, d, e);
+        }
+        let b = [a];
+        for (; this.accept(",");) b.push(this["Q"]());
+        this.expect("in");
+        let c = this["J"]();
+        this.expect("do");
+        let d = this.k();
+        return this.expect("end"), i.wn(b, c, d);
+      }
+      "Tt"() {
+        this.expect("function");
+        let a = i.name(this.g()),
+          b = !1;
+        for (;;) {
+          if (this.accept(".")) {
+            a = i.index(a, i.string(this.g()));
+            continue;
+          }
+          this.accept(":") && (a = i.index(a, i.string(this.g())), b = !0);
+          break;
+        }
+        let c = this["Ae"](b);
+        return {
+          kind: j["FunctionDeclaration"],
+          target: a,
+          ee: b,
+          body: c
+        };
+      }
+      "Ae"(a = !1) {
+        this.at("<") && this["Bt"](), this.expect("(");
+        let b = a ? ["self"] : [],
+          c = !1;
+        if (!this.at(")")) do {
+          if (this.accept("...")) {
+            c = !0, this.accept(":") && this["Ie"]();
+            break;
+          }
+          b.push(this["Q"]());
+        } while (this.accept(","));
+        this.expect(")"), this.accept(":") && this["Ie"]();
+        let d = this.k();
+        return this.expect("end"), i.func(b, d, c);
+      }
+      "Bt"() {
+        this.expect("<");
+        let a = 1;
+        for (; a > 0 && this.token.kind !== h["Eof"];) this.at("<") ? a += 1 : this.at(">") && (a -= 1), this.advance();
+      }
+      "_t"() {
+        let a = this["Oe"]();
+        if (this.at("=") || this.at(",")) {
+          let b = [a];
+          for (; this.accept(",");) b.push(this["Oe"]());
+          this.expect("=");
+          let c = this["J"]();
+          for (let a of b) i["ASSIGNABLE"].has(a.kind) || this.error("invalid assignment target");
+          return i.assignment(b, c);
+        }
+        let b = this.token.kind === h["Symbol"] ? n[this.token.value] : void 0;
+        if (b) {
+          this.advance();
+          let c = this.u();
+          return i.assignment([a], [i.binary(b, a, c)]);
+        }
+        return a.kind !== j["Call"] && a.kind !== j["MethodCall"] && this.error("unexpected expression statement"), i["X"](a);
+      }
+      "J"() {
+        let a = [this.u()];
+        for (; this.accept(",");) a.push(this.u());
+        return a;
+      }
+      u(a = 0) {
+        let b,
+          c = this.token;
+        if (c.kind === h["Symbol"] && m.has(c.value) || c.kind === h["Keyword"] && c.value === "not") {
+          let a = this.advance().value;
+          b = i.unary(a, this.u(l));
+        } else b = this["Rt"]();
+        for (;;) {
+          let c = this.token;
+          if (!((c.kind === h["Symbol"] || c.kind === h["Keyword"]) && Object.prototype["hasOwnProperty"].call(k, c.value))) break;
+          let [d, e] = k[c.value];
+          if (d <= a) break;
+          this.advance(), b = i.binary(c.value, b, this.u(e));
+        }
+        return b;
+      }
+      "Rt"() {
+        let a = this.token;
+        switch (a.kind) {
+          case h["Number"]:
+            return this.advance(), i.number(a.value);
+          case h["String"]:
+            return this.advance(), i.string(a.value);
+          case h["Keyword"]:
+            if (a.value === "nil") return this.advance(), i.nil();
+            if (a.value === "true") return this.advance(), i.boolean(!0);
+            if (a.value === "false") return this.advance(), i.boolean(!1);
+            if (a.value === "function") return this.advance(), this["Ae"]();
+            break;
+          case h["Symbol"]:
+            if (a.value === "...") return this.advance(), i.vararg();
+            if (a.value === "{") return this.yn();
+            break;
+          default:
+            break;
+        }
+        return this["Oe"]();
+      }
+      "Dt"() {
+        if (this.accept("(")) {
+          let a = this.u();
+          return this.expect(")"), i.paren(a);
+        }
+        return this.token.kind === h["Name"] ? i.name(this.advance().value) : this.error(`unexpected token '${q(this.token)}'`);
+      }
+      "Oe"() {
+        let a = this["Dt"]();
+        for (;;) {
+          if (this.accept(".")) {
+            a = i.index(a, i.string(this.g()), !0);
+            continue;
+          }
+          if (this.accept("[")) {
+            let b = this.u();
+            this.expect("]"), a = i.index(a, b);
+            continue;
+          }
+          if (this.at(":") && this.peek().kind === h["Name"]) {
+            this.advance();
+            let b = this.g();
+            a = i["Le"](a, b, this.vn());
+            continue;
+          }
+          if (this.at("(") || this.at("{") || this.token.kind === h["String"]) {
+            a = i.call(a, this.vn());
+            continue;
+          }
+          return a;
+        }
+      }
+      vn() {
+        if (this.token.kind === h["String"]) return [i.string(this.advance().value)];
+        if (this.at("{")) return [this.yn()];
+        if (this.expect("("), this.accept(")")) return [];
+        let a = this["J"]();
+        return this.expect(")"), a;
+      }
+      yn() {
+        this.expect("{");
+        let a = [];
+        for (; !this.at("}");) {
+          if (this.accept("[")) {
+            let b = this.u();
+            this.expect("]"), this.expect("="), a.push({
+              type: "key",
+              key: b,
+              value: this.u()
+            });
+          } else if (this.token.kind === h["Name"] && this.peek().kind === h["Symbol"] && this.peek().value === "=") {
+            let b = i.string(this.advance().value);
+            this.advance(), a.push({
+              type: "key",
+              key: b,
+              value: this.u()
+            });
+          } else a.push({
+            type: "item",
+            value: this.u()
+          });
+          if (!this.accept(",") && !this.accept(";")) break;
+        }
+        return this.expect("}"), i.table(a);
+      }
+    };
+  function q(a) {
+    return a.kind === h["Eof"] ? "<eof>" : a.kind === h["String"] ? `"${a.value}"` : String(a.value);
+  }
+  function r(a) {
+    return new p(a)["Ft"]();
+  }
+  c.exports = {
+    parse: r,
+    "LuaSyntaxError": g
+  };
+});
+var g = a((a, c) => {
+  "use strict";
+
+  var {
+      "Kind": d
+    } = e(),
+    {
+      "KEYWORDS": f
+    } = b(),
+    g = {
+      or: [1, "left"],
+      and: [2, "left"],
+      "<": [3, "left"],
+      ">": [3, "left"],
+      "<=": [3, "left"],
+      ">=": [3, "left"],
+      "~=": [3, "left"],
+      "==": [3, "left"],
+      "|": [4, "left"],
+      "~": [5, "left"],
+      "&": [6, "left"],
+      "<<": [7, "left"],
+      ">>": [7, "left"],
+      "..": [8, "right"],
+      "+": [9, "left"],
+      "-": [9, "left"],
+      "*": [10, "left"],
+      "/": [10, "left"],
+      "//": [10, "left"],
+      "%": [10, "left"],
+      "^": [12, "right"]
+    },
+    h = 11,
+    i = 100,
+    j = new Set([d["Name"], d["Index"], d["Call"], d["MethodCall"], d["Paren"]]),
+    k = /[A-Za-z_]/,
+    l = /[A-Za-z0-9_]/;
+  function m(a) {
+    if (typeof a != "string" || a.length === 0 || !k.test(a[0])) return !1;
+    for (let b = 1; b < a.length; b += 1) if (!l.test(a[b])) return !1;
+    return !f.has(a);
+  }
+  function n(a) {
+    return typeof a != "number" ? String(a) : Number["isNaN"](a) ? "(0 / 0)" : a === 1 / 0 ? "math.huge" : a === -1 / 0 ? "-math.huge" : Object.is(a, -0) ? "0" : (Number["isInteger"](a) && Math.abs(a) < 1e15, String(a));
+  }
+  var o = {
+      "\n": "\\n",
+      "\r": "\\r",
+      "\t": "\\t",
+      "\\": "\\\\",
+      '"': '\\"'
+    },
+    p = new Set([160, 173, 8232, 8233, 65279]);
+  function q(a, b) {
+    let c = a["charCodeAt"](b),
+      d = a["charCodeAt"](b + 1),
+      e = c => {
+        for (let d = 1; d <= c; d += 1) {
+          let c = a["charCodeAt"](b + d);
+          if (!(c >= 128 && c <= 191)) return !1;
+        }
+        return !0;
+      },
+      f = 0,
+      g = 0;
+    if (c >= 194 && c <= 223 && e(1)) f = 2, g = (c & 31) << 6 | d & 63;else if (c >= 224 && c <= 239 && e(2)) {
+      if (f = 3, g = (c & 15) << 12 | (d & 63) << 6 | a["charCodeAt"](b + 2) & 63, g < 2048 || g >= 55296 && g <= 57343) return 0;
+    } else if (c >= 240 && c <= 244 && e(3)) {
+      if (f = 4, g = (c & 7) << 18 | (d & 63) << 12 | (a["charCodeAt"](b + 2) & 63) << 6 | a["charCodeAt"](b + 3) & 63, g < 65536 || g > 1114111) return 0;
+    } else return 0;
+    return g <= 159 || p.has(g) ? 0 : f;
+  }
+  function r(a) {
+    let b = '"';
+    for (let c = 0; c < a.length; c += 1) {
+      let d = a[c],
+        e = o[d];
+      if (e !== void 0) {
+        b += e;
+        continue;
+      }
+      let f = a["charCodeAt"](c);
+      if (f >= 32 && f <= 126) {
+        b += d;
+        continue;
+      }
+      if (f >= 194 && f <= 244) {
+        let d = q(a, c);
+        if (d) {
+          b += a.slice(c, c + d), c += d - 1;
+          continue;
+        }
+      }
+      let g = a[c + 1],
+        h = g !== void 0 && g >= "0" && g <= "9";
+      b += `\\${h ? String(f)["padStart"](3, "0") : String(f)}`;
+    }
+    return `${b}"`;
+  }
+  function s(a) {
+    if (!a.includes(`\n`) || a.includes("]]") || a["startsWith"](`\n`) || a["endsWith"]("]")) return !1;
+    for (let b = 0; b < a.length; b += 1) {
+      let c = a["charCodeAt"](b);
+      if (!(c >= 32 && c <= 126 || c === 10 || c === 9)) return !1;
+    }
+    return !0;
+  }
+  function t(a) {
+    return s(a) ? `[[\n${a}]]` : r(a);
+  }
+  c.exports = {
+    "BINARY": g,
+    "UNARY_PREC": h,
+    "ATOM_PREC": i,
+    "PREFIXES": j,
+    y: m,
+    "Pt": n,
+    jt: t
+  };
+});
+var h = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    d = 4,
+    f = 4;
+  function g(a) {
+    let b = a;
+    for (let a = 0; a < 1e3 && b; a += 1) switch (b.kind) {
+      case c["Name"]:
+        return b.name;
+      case c["Paren"]:
+        b = b.expression;
+        break;
+      case c["Index"]:
+        b = b.base;
+        break;
+      case c["Call"]:
+      case c["MethodCall"]:
+        b = b.base;
+        break;
+      default:
+        return null;
+    }
+    return null;
+  }
+  function h(a) {
+    if (!a) return null;
+    switch (a.kind) {
+      case c["LocalDeclaration"]:
+        return (a.names || [])[0] || null;
+      case c["LocalFunction"]:
+        return a.name || null;
+      case c["FunctionDeclaration"]:
+        return g(a.target);
+      case c["Assignment"]:
+        return g((a.targets || [])[0]);
+      case c["CallStatement"]:
+        return g(a.expression);
+      default:
+        return null;
+    }
+  }
+  function i(a) {
+    let b = [],
+      c = [],
+      d = -1,
+      e = null;
+    return (a || [])["forEach"]((a, f) => {
+      let g = h(a);
+      (f === 0 || g === null || e === null || g !== e) && (d += 1, c.push(0)), b.push(d), c[d] += 1, e = g;
+    }), {
+      index: b,
+      sizes: c,
+      count: b.length
+    };
+  }
+  function j(a, b, c, e) {
+    if (!b) return !1;
+    if (c || e) return !0;
+    if (a.count < d) return !1;
+    let f = a.index[b],
+      g = a.index[b - 1];
+    return f === g ? !1 : a.sizes[f] >= 2 || a.sizes[g] >= 2;
+  }
+  function k(a) {
+    let b = 0;
+    for (let c of a) c.type === "key" && (b += 1);
+    return b >= f;
+  }
+  b.exports = {
+    ai: g,
+    groups: i,
+    record: k,
+    separates: j
+  };
+});
+var i = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    d = g(),
+    f = h(),
+    i = {
+      indent: "  ",
+      ne: 96
+    },
+    j = new Set(["do", "then", "else", "repeat"]),
+    k = new Set(["and", "or"]);
+  function l(a) {
+    let b = a["trimEnd"]();
+    if (!b) return "";
+    let c = a => a >= "a" && a <= "z" || a >= "A" && a <= "Z" || a >= "0" && a <= "9" || a === "_",
+      d = b.length;
+    if (!c(b[d - 1])) return b[d - 1];
+    let e = d;
+    for (; e > 0 && c(b[e - 1]);) e -= 1;
+    return b.slice(e, d);
+  }
+  var m = class a {
+    constructor(a = {}) {
+      this.options = {
+        ...i,
+        ...a
+      }, this.lines = [], this.depth = 0, this.tail = "", this.column = 0, this.tight = !1;
+    }
+    push(a) {
+      this.lines.push(a === "" ? "" : this.options.indent.repeat(this.depth) + a), a !== "" && (this.tail = l(a));
+    }
+    continues() {
+      return this.lines.length ? !(j.has(this.tail) || this.tail === ";" || this.tail === ":") : !1;
+    }
+    blank() {
+      this.lines.length && this.lines[this.lines.length - 1] !== "" && this.lines.push("");
+    }
+    indented(a) {
+      this.depth += 1, a(), this.depth -= 1;
+    }
+    from(a, b) {
+      let c = this.column;
+      this.column = a;
+      let d = b();
+      return this.column = c, d;
+    }
+    after(a, b) {
+      return a + this.from(this.zt(a), b);
+    }
+    packed(a) {
+      let b = this.tight;
+      this.tight = !0;
+      let c = a();
+      return this.tight = b, c;
+    }
+    zt(a) {
+      return this.column + a.length;
+    }
+    wrap(a, b) {
+      let c = a + b.join(", ");
+      if (this.fits(c)) return c;
+      let d = this.options.indent.repeat(this.depth + 1),
+        e = [],
+        f = a["trimEnd"](),
+        g = this.column;
+      for (let a = 0; a < b.length; a += 1) {
+        let c = a === b.length - 1 ? b[a] : `${b[a]},`,
+          h = f ? `${f} ${c}` : c;
+        g + h.length <= this.options.ne ? f = h : (e.push(f), f = c, g = d.length);
+      }
+      return e.push(f), e.join(`\n${d}`);
+    }
+    fits(a) {
+      return !a.includes(`\n`) && this.column + a.length <= this.options.ne;
+    }
+    inner() {
+      let b = new a(this.options);
+      return b.tight = this.tight, b.depth = this.depth + 1, b.column = this.options.indent.length * b.depth, b;
+    }
+    "toString"() {
+      return `${this.lines.join(`\n`).replace(/\s+$/, "")}\n`;
+    }
+    block(a) {
+      if (!a || !a.statements) return;
+      let b = a.statements,
+        c = f.groups(b),
+        d = !1;
+      for (let a = 0; a < b.length; a += 1) {
+        let e = this.lines.length;
+        this.statement(b[a]);
+        let g = this.lines.length - e,
+          h = g > 1 || g === 1 && this.lines[e]["indexOf"](`\n`) >= 0;
+        f.separates(c, a, h, d) && this.lines.splice(e, 0, ""), d = h;
+      }
+    }
+    statement(a) {
+      switch (this.column = this.options.indent.length * this.depth, a.kind) {
+        case c["LocalDeclaration"]:
+          {
+            let b = a.names.join(", ");
+            !a.expressions || a.expressions.length === 0 ? this.push(this.wrap("local ", a.names)) : this.push(this.after(`local ${b} = `, () => this["F"](a.expressions)));
+            return;
+          }
+        case c["LocalFunction"]:
+          this.xn(`local function ${a.name}`, a.body);
+          return;
+        case c["FunctionDeclaration"]:
+          {
+            let b = this["Gt"](a.target, a.ee);
+            this.xn(`function ${b}`, a.body, a.ee);
+            return;
+          }
+        case c["Assignment"]:
+          {
+            let b = this.after(`${this["F"](a.targets)} = `, () => this["F"](a.expressions));
+            this.push(b["startsWith"]("(") && this.continues() ? `;${b}` : b);
+            return;
+          }
+        case c["CallStatement"]:
+          {
+            let b = this.expression(a.expression);
+            this.push(b["startsWith"]("(") && this.continues() ? `;${b}` : b);
+            return;
+          }
+        case c["Return"]:
+          !a.expressions || a.expressions.length === 0 ? this.push("return") : this.push(this.after("return ", () => this["F"](a.expressions)));
+          return;
+        case c["Break"]:
+          this.push("break");
+          return;
+        case c["Continue"]:
+          this.push("continue");
+          return;
+        case c["Goto"]:
+          this.push(`goto ${a.label}`);
+          return;
+        case c["Label"]:
+          this.push(`::${a.name}::`);
+          return;
+        case c["Do"]:
+          this.push("do"), this.indented(() => this.block(a.body)), this.push("end");
+          return;
+        case c["While"]:
+          this.push(`${this.after("while ", () => this.expression(a.condition))} do`), this.indented(() => this.block(a.body)), this.push("end");
+          return;
+        case c["Repeat"]:
+          this.push("repeat"), this.indented(() => this.block(a.body)), this.push(this.after("until ", () => this.expression(a.condition)));
+          return;
+        case c["If"]:
+          this["Z"](a);
+          return;
+        case c["NumericFor"]:
+          {
+            let b = [a.start, a.limit];
+            a.step && b.push(a.step), this.push(`${this.after(`for ${a.variable} = `, () => this["F"](b))} do`), this.indented(() => this.block(a.body)), this.push("end");
+            return;
+          }
+        case c["GenericFor"]:
+          this.push(`${this.after(`for ${a.variables.join(", ")} in `, () => this["F"](a.expressions))} do`), this.indented(() => this.block(a.body)), this.push("end");
+          return;
+        default:
+          this.push(`--[[ unsupported statement ${a.kind} ]]`);
+      }
+    }
+    "Z"(a) {
+      this.push(`${this.after("if ", () => this.expression(a.condition))} then`), this.indented(() => this.block(a.body));
+      for (let b of a.s || []) this.push(`${this.after("elseif ", () => this.expression(b.condition))} then`), this.indented(() => this.block(b.body));
+      a.e && (this.push("else"), this.indented(() => this.block(a.e))), this.push("end");
+    }
+    "Gt"(a, b) {
+      if (a.kind !== c["Index"]) return this.expression(a);
+      let e = a.index;
+      return b && e.kind === c["String"] && d.y(e.value) ? `${this.expression(a.base)}:${e.value}` : this.expression(a);
+    }
+    xn(a, b, c = !1) {
+      let d = (b.params || []).slice();
+      c && d[0] === "self" && d.shift(), b.w && d.push("..."), this.push(`${a}(${d.join(", ")})`), this.indented(() => this.block(b.body)), this.push("end");
+    }
+    "F"(a) {
+      return a.map(a => this.expression(a)).join(", ");
+    }
+    static ce(a) {
+      let b = a.expression;
+      return !!b && (b.kind === c["Call"] || b.kind === c["MethodCall"] || b.kind === c["Vararg"]);
+    }
+    static "Sn"(b) {
+      if (b.kind === c["Paren"]) return a.ce(b) ? d["ATOM_PREC"] : a["Sn"](b.expression || b);
+      if (b.kind === c["Binary"]) {
+        let a = d["BINARY"][b.operator];
+        return a ? a[0] : 0;
+      }
+      return b.kind === c["Unary"] ? d["UNARY_PREC"] : d["ATOM_PREC"];
+    }
+    expression(b) {
+      if (!b) return "nil";
+      switch (b.kind) {
+        case c["Nil"]:
+          return "nil";
+        case c["True"]:
+          return "true";
+        case c["False"]:
+          return "false";
+        case c["Vararg"]:
+          return "...";
+        case c["Number"]:
+          return d["Pt"](b.value);
+        case c["String"]:
+          return d.jt(b.value);
+        case c["Name"]:
+          return b.name;
+        case c["Function"]:
+          return this.te(b);
+        case c["Table"]:
+          return this["Kt"](b);
+        case c["Binary"]:
+          return this["Ut"](b);
+        case c["Unary"]:
+          return this["Wt"](b);
+        case c["Index"]:
+          return this["Vt"](b);
+        case c["Call"]:
+          {
+            let a = this.prefix(b.base);
+            return a + this.from(this.column + a.length, () => this.arguments(b.args));
+          }
+        case c["MethodCall"]:
+          {
+            let a = `${this.prefix(b.base)}:${b.method}`;
+            return a + this.from(this.column + a.length, () => this.arguments(b.args));
+          }
+        case c["Paren"]:
+          return a.ce(b) ? `(${this.expression(b.expression)})` : this.expression(b.expression);
+        default:
+          return `--[[ ${b.kind} ]]nil`;
+      }
+    }
+    operand(b, d, e, f) {
+      let g = this.expression(b),
+        h = a["Sn"](b),
+        i = b;
+      for (; i.kind === c["Paren"] && !a.ce(i);) i = i.expression;
+      let j = h < d;
+      return h === d && i.kind === c["Binary"] && !k.has(i.operator) && (e === "left" && f === "right" && (j = !0), e === "right" && f === "left" && (j = !0)), j ? `(${g})` : g;
+    }
+    "Ut"(a) {
+      let b = d["BINARY"][a.operator] || [0, "left"],
+        [c, e] = b,
+        f = [];
+      this.chain(a, a.operator, e, f);
+      let g = this.packed(() => this.operands(this, f, c, e).join(` ${a.operator} `));
+      return this.tight || g.includes(`\n`) || this.fits(g) ? g : this.spread(f, a.operator, c, e);
+    }
+    chain(b, d, e, f) {
+      let g = b;
+      for (; g.kind === c["Paren"] && !a.ce(g);) g = g.expression;
+      if (g.kind !== c["Binary"] || g.operator !== d) {
+        f.push(b);
+        return;
+      }
+      let h = k.has(d);
+      h || e === "left" ? this.chain(g.lhs, d, e, f) : f.push(g.lhs), h || e === "right" ? this.chain(g.rhs, d, e, f) : f.push(g.rhs);
+    }
+    operands(a, b, c, d, e) {
+      let f = b.length - 1,
+        g = d === "right" ? a => a !== f : a => a === 0;
+      return b.map((b, f) => {
+        let h = g(f) ? "left" : "right",
+          i = () => a.operand(b, c, h, d);
+        return e ? a.from(e(f), i) : i();
+      });
+    }
+    spread(a, b, c, d) {
+      let e = this.inner(),
+        f = this.options.indent.repeat(e.depth),
+        g = `${b} `,
+        h = this.operands(e, a, c, d, a => a === 0 ? this.column : f.length + g.length).map((a, b) => b === 0 ? a : `${g}${a}`),
+        i = h.some(a => a.includes(`\n`)),
+        j = [],
+        k = h[0],
+        l = this.column;
+      for (let a = 1; a < h.length; a += 1) {
+        let b = `${k} ${h[a]}`;
+        !i && l + b.length <= this.options.ne ? k = b : (j.push(k), k = h[a], l = f.length);
+      }
+      return j.push(k), j.join(`\n${f}`);
+    }
+    "Wt"(a) {
+      let b = this.operand(a.argument, d["UNARY_PREC"], "right", "right");
+      if (a.operator === "not") return `not ${b}`;
+      let c = a.operator === "-" && b["startsWith"]("-") ? " " : "";
+      return `${a.operator}${c}${b}`;
+    }
+    prefix(a) {
+      if (a.kind === c["Paren"]) {
+        let b = a.expression;
+        return b && (b.kind === c["Name"] || b.kind === c["Index"]) ? this.prefix(b) : `(${this.expression(b)})`;
+      }
+      let b = this.expression(a);
+      return d["PREFIXES"].has(a.kind) ? b : `(${b})`;
+    }
+    "Vt"(a) {
+      let b = a.index;
+      return b && b.kind === c["String"] && d.y(b.value) ? `${this.prefix(a.base)}.${b.value}` : `${this.prefix(a.base)}[${this.expression(b)}]`;
+    }
+    arguments(a) {
+      let b = a || [];
+      if (!b.length) return "()";
+      let c = `(${this["F"](b)})`;
+      if (b.length < 2 || c.includes(`\n`) || this.fits(c)) return c;
+      let d = this.hug(b);
+      if (d) return d;
+      let e = this.inner(),
+        f = this.options.indent.repeat(e.depth),
+        g = b.map(a => ({
+          text: e.expression(a),
+          alone: !1
+        })),
+        h = this.options.indent.repeat(this.depth);
+      return `(\n${this.filled(g, f, "").join(`\n`)}\n${h})`;
+    }
+    hug(a) {
+      let b = a[a.length - 1];
+      if (b.kind !== c["Table"] && b.kind !== c["Function"]) return null;
+      let d = `(${this["F"](a.slice(0, -1))}, `,
+        e = this.column + d.length;
+      return d.includes(`\n`) || e > this.options.ne ? null : `${d}${this.from(e, () => this.expression(b))})`;
+    }
+    te(a) {
+      let b = (a.params || []).slice();
+      a.w && b.push("...");
+      let c = `function(${b.join(", ")})`,
+        d = this.inner();
+      if (d.block(a.body), d.lines.length < 2) {
+        let a = d.lines.length ? d.lines[0].trim() : "",
+          b = a ? `${c} ${a} end` : `${c} end`;
+        if (this.fits(b)) return b;
+      }
+      let e = this.options.indent.repeat(this.depth),
+        f = d.lines.length ? `\n${d.lines.join(`\n`)}` : "";
+      return `${c}${f}\n${e}end`;
+    }
+    filled(a, b, c = ",") {
+      let d = [],
+        e = "",
+        f = () => {
+          e && d.push(e), e = "";
+        };
+      return a["forEach"]((g, h) => {
+        let i = h === a.length - 1 ? c : ",",
+          j = `${b}${g.text}${i}`,
+          k = e ? `${e} ${g.text}${i}` : j;
+        g.alone ? (f(), d.push(j)) : e && k.length > this.options.ne ? (f(), e = j) : e = k;
+      }), f(), d;
+    }
+    "Kt"(a) {
+      let b = a.entries || [];
+      if (b.length === 0) return "{}";
+      let c = `{ ${b.map(a => this["Nn"](a, !1)).join(", ")} }`;
+      if (!f.record(b) && this.fits(c)) return c;
+      let d = this.inner(),
+        e = b.map(a => {
+          let b = d["Nn"](a, !0);
+          return {
+            text: b,
+            alone: a.type === "key" || b.includes(`\n`)
+          };
+        }),
+        g = this.options.indent.repeat(d.depth),
+        h = this.options.indent.repeat(this.depth);
+      return `{\n${this.filled(e, g).join(`\n`)}\n${h}}`;
+    }
+    "Nn"(a) {
+      if (a.type === "key") {
+        let b = a.key,
+          e = b.kind === c["String"] && d.y(b.value) ? `${b.value} = ` : `[${this.expression(b)}] = `;
+        return this.after(e, () => this.expression(a.value));
+      }
+      return this.expression(a.value);
+    }
+  };
+  function n(a, b) {
+    let d = new m(b);
+    if (!a) return "";
+    if (a.kind === c["Chunk"]) d.block(a.body);else if (a.kind === c["Block"]) d.block(a);else {
+      if (a.kind && e().kn(a)) return d.expression(a);
+      d.statement(a);
+    }
+    return d["toString"]();
+  }
+  b.exports = {
+    unparse: n
+  };
+});
+var j = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    d = 0,
+    f = class {
+      constructor(a, b, c = {}) {
+        d += 1, this.id = d, this.name = a, this.kind = b, this.declaration = c.declaration || null, this.l = c.l || 0, this.reads = [], this.writes = [], this.initializer = c.initializer || null, this.captured = !1;
+      }
+      get ci() {
+        return this.writes.length + (this.initializer ? 1 : 0);
+      }
+      get fi() {
+        return this.writes.length === 0;
+      }
+    },
+    g = class {
+      constructor(a, b) {
+        this.parent = a, this.l = b, this.bindings = new Map();
+      }
+      declare(a, b, c) {
+        let d = new f(a, b, {
+          ...c,
+          l: this.l
+        });
+        return this.bindings.set(a, d), d;
+      }
+      lookup(a) {
+        let b = this;
+        for (; b;) {
+          let c = b.bindings.get(a);
+          if (c) return c;
+          b = b.parent;
+        }
+        return null;
+      }
+    },
+    h = class {
+      constructor() {
+        this.globals = new Map(), this["Cn"] = [], this.l = 0;
+      }
+      global(a) {
+        let b = this.globals.get(a);
+        return b || (b = new f(a, "global", {}), this.globals.set(a, b), this["Cn"].push(b)), b;
+      }
+      declare(a, b, c, d) {
+        let e = a.declare(b, c, d);
+        return this["Cn"].push(e), e;
+      }
+      reference(a, b, c) {
+        let d = a.lookup(b.name) || this.global(b.name);
+        return b.binding = d, d.l !== void 0 && d.kind !== "global" && d.l < this.l && (d.captured = !0), c === "write" ? d.writes.push(b) : d.reads.push(b), d;
+      }
+      block(a, b) {
+        let c = new g(b, this.l);
+        a.scope = c;
+        for (let b of a.statements) this.statement(b, c);
+        return c;
+      }
+      statement(a, b) {
+        switch (a.kind) {
+          case c["LocalDeclaration"]:
+            {
+              for (let c of a.expressions) this.expression(c, b);
+              a.bindings = a.names.map(c => this.declare(b, c, "local", {
+                declaration: a,
+                initializer: a
+              }));
+              return;
+            }
+          case c["LocalFunction"]:
+            {
+              let c = this.declare(b, a.name, "local", {
+                declaration: a,
+                initializer: a
+              });
+              a.binding = c, this.te(a.body, b);
+              return;
+            }
+          case c["FunctionDeclaration"]:
+            this.expression(a.target, b, "write"), this.te(a.body, b);
+            return;
+          case c["Assignment"]:
+            for (let c of a.expressions) this.expression(c, b);
+            for (let c of a.targets) this.expression(c, b, "write");
+            return;
+          case c["CallStatement"]:
+            this.expression(a.expression, b);
+            return;
+          case c["Return"]:
+            for (let c of a.expressions) this.expression(c, b);
+            return;
+          case c["Break"]:
+          case c["Continue"]:
+          case c["Goto"]:
+          case c["Label"]:
+            return;
+          case c["Do"]:
+            this.block(a.body, b);
+            return;
+          case c["While"]:
+            this.expression(a.condition, b), this.block(a.body, b);
+            return;
+          case c["Repeat"]:
+            {
+              let c = new g(b, this.l);
+              a.body.scope = c;
+              for (let b of a.body.statements) this.statement(b, c);
+              this.expression(a.condition, c);
+              return;
+            }
+          case c["If"]:
+            {
+              this.expression(a.condition, b), this.block(a.body, b);
+              for (let c of a.s || []) this.expression(c.condition, b), this.block(c.body, b);
+              a.e && this.block(a.e, b);
+              return;
+            }
+          case c["NumericFor"]:
+            {
+              this.expression(a.start, b), this.expression(a.limit, b), a.step && this.expression(a.step, b);
+              let c = new g(b, this.l);
+              a.binding = this.declare(c, a.variable, "local", {
+                declaration: a
+              }), a.body.scope = c;
+              for (let b of a.body.statements) this.statement(b, c);
+              return;
+            }
+          case c["GenericFor"]:
+            {
+              for (let c of a.expressions) this.expression(c, b);
+              let c = new g(b, this.l);
+              a.bindings = a.variables.map(b => this.declare(c, b, "local", {
+                declaration: a
+              })), a.body.scope = c;
+              for (let b of a.body.statements) this.statement(b, c);
+              return;
+            }
+          default:
+            throw new Error(`unsupported statement: ${a.kind}`);
+        }
+      }
+      te(a, b) {
+        this.l += 1;
+        let c = new g(b, this.l);
+        a.bindings = (a.params || []).map(b => this.declare(c, b, "param", {
+          declaration: a
+        })), a.body.scope = c;
+        for (let b of a.body.statements) this.statement(b, c);
+        this.l -= 1;
+      }
+      expression(a, b, d = "read") {
+        if (a) switch (a.kind) {
+          case c["Name"]:
+            this.reference(b, a, d);
+            return;
+          case c["Index"]:
+            this.expression(a.base, b), this.expression(a.index, b);
+            return;
+          case c["Call"]:
+            this.expression(a.base, b);
+            for (let c of a.args) this.expression(c, b);
+            return;
+          case c["MethodCall"]:
+            this.expression(a.base, b);
+            for (let c of a.args) this.expression(c, b);
+            return;
+          case c["Function"]:
+            this.te(a, b);
+            return;
+          case c["Table"]:
+            for (let c of a.entries) c.key && this.expression(c.key, b), this.expression(c.value, b);
+            return;
+          case c["Binary"]:
+            this.expression(a.lhs, b), this.expression(a.rhs, b);
+            return;
+          case c["Unary"]:
+            this.expression(a.argument, b);
+            return;
+          case c["Paren"]:
+            this.expression(a.expression, b);
+            return;
+          default:
+            return;
+        }
+      }
+    };
+  function i(a) {
+    let b = new h(),
+      d = new g(null, 0);
+    b["Te"] = d;
+    let e = a.kind === c["Chunk"] ? a.body : a;
+    return b.block(e, d), b;
+  }
+  function j(a) {
+    return !a || a.kind !== c["Name"] ? !1 : !a.binding || a.binding.kind === "global";
+  }
+  function k(a) {
+    return !!a && a.kind !== "global";
+  }
+  b.exports = {
+    resolve: i,
+    "Scope": g,
+    "D": j,
+    c: k
+  };
+});
+var k = a((a, b) => {
+  "use strict";
+
+  var {
+    "Kind": c
+  } = e();
+  function d(a) {
+    if (!a || !a.statements.length) return null;
+    let b = a.statements[a.statements.length - 1];
+    if (b.kind !== c["Return"] || b.expressions.length !== 1) return null;
+    let d = b.expressions[0];
+    if (!d || d.kind !== c["Call"]) return null;
+    let e = d.base;
+    for (; e && e.kind === c["Paren"];) e = e.expression;
+    if (!e || e.kind !== c["Function"] || (e.params || []).length !== 0) return null;
+    for (let a of d.args) if (a.kind !== c["Vararg"]) return null;
+    return d.args.length > 1 ? null : e;
+  }
+  function f(a) {
+    let b = 0;
+    for (;;) {
+      let c = a.chunk.body,
+        e = d(c);
+      if (!e || (c.statements.splice(c.statements.length - 1, 1, ...e.body.statements), b += 1, b > 64)) break;
+    }
+    b && (a.note(`removed ${b} WrapInFunction layer(s)`, b), a.bump("unwrap.layers", b));
+  }
+  b.exports = {
+    name: "01-wrap",
+    run: f,
+    "Ht": d
+  };
+});
+var l = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    d = {
+      [c["Chunk"]]: {
+        body: "node"
+      },
+      [c["Block"]]: {
+        statements: "list"
+      },
+      [c["LocalDeclaration"]]: {
+        expressions: "list"
+      },
+      [c["LocalFunction"]]: {
+        body: "node"
+      },
+      [c["FunctionDeclaration"]]: {
+        target: "node",
+        body: "node"
+      },
+      [c["Assignment"]]: {
+        targets: "list",
+        expressions: "list"
+      },
+      [c["CallStatement"]]: {
+        expression: "node"
+      },
+      [c["Return"]]: {
+        expressions: "list"
+      },
+      [c["Break"]]: {},
+      [c["Continue"]]: {},
+      [c["Goto"]]: {},
+      [c["Label"]]: {},
+      [c["Do"]]: {
+        body: "node"
+      },
+      [c["While"]]: {
+        condition: "node",
+        body: "node"
+      },
+      [c["Repeat"]]: {
+        body: "node",
+        condition: "node"
+      },
+      [c["If"]]: {
+        condition: "node",
+        body: "node",
+        s: "clauses",
+        e: "node"
+      },
+      [c["NumericFor"]]: {
+        start: "node",
+        limit: "node",
+        step: "node",
+        body: "node"
+      },
+      [c["GenericFor"]]: {
+        expressions: "list",
+        body: "node"
+      },
+      [c["Nil"]]: {},
+      [c["True"]]: {},
+      [c["False"]]: {},
+      [c["Number"]]: {},
+      [c["String"]]: {},
+      [c["Vararg"]]: {},
+      [c["Name"]]: {},
+      [c["Function"]]: {
+        body: "node"
+      },
+      [c["Table"]]: {
+        entries: "entries"
+      },
+      [c["Binary"]]: {
+        lhs: "node",
+        rhs: "node"
+      },
+      [c["Unary"]]: {
+        argument: "node"
+      },
+      [c["Index"]]: {
+        base: "node",
+        index: "node"
+      },
+      [c["Call"]]: {
+        base: "node",
+        args: "list"
+      },
+      [c["MethodCall"]]: {
+        base: "node",
+        args: "list"
+      },
+      [c["Paren"]]: {
+        expression: "node"
+      }
+    },
+    f = {};
+  for (let a of Object.keys(d)) f[a] = Object.entries(d[a]);
+  var g = [];
+  function h(a) {
+    let b = a ? f[a.kind] : null;
+    if (!b || b.length === 0) return g;
+    let c = [];
+    for (let d = 0; d < b.length; d += 1) {
+      let e = b[d][0],
+        f = a[e];
+      if (f == null) continue;
+      let g = b[d][1];
+      if (g === "node") c.push({
+        parent: a,
+        key: e,
+        index: null,
+        node: f
+      });else if (g === "list") for (let b = 0; b < f.length; b += 1) c.push({
+        parent: a,
+        key: e,
+        index: b,
+        node: f[b]
+      });else if (g === "clauses") for (let a = 0; a < f.length; a += 1) {
+        let b = f[a];
+        c.push({
+          parent: b,
+          key: "condition",
+          index: null,
+          node: b.condition
+        }), c.push({
+          parent: b,
+          key: "body",
+          index: null,
+          node: b.body
+        });
+      } else for (let a = 0; a < f.length; a += 1) {
+        let b = f[a];
+        b.key && c.push({
+          parent: b,
+          key: "key",
+          index: null,
+          node: b.key
+        }), c.push({
+          parent: b,
+          key: "value",
+          index: null,
+          node: b.value
+        });
+      }
+    }
+    return c;
+  }
+  function i(a) {
+    let b = a ? f[a.kind] : null;
+    if (!b || b.length === 0) return g;
+    let c = [];
+    for (let d = 0; d < b.length; d += 1) {
+      let e = a[b[d][0]];
+      if (e == null) continue;
+      let f = b[d][1];
+      if (f === "node") c.push(e);else if (f === "list") for (let a = 0; a < e.length; a += 1) c.push(e[a]);else if (f === "clauses") for (let a = 0; a < e.length; a += 1) c.push(e[a].condition), c.push(e[a].body);else for (let a = 0; a < e.length; a += 1) e[a].key && c.push(e[a].key), c.push(e[a].value);
+    }
+    return c;
+  }
+  function j(a) {
+    return a.enter && a.enter.length > 1 || a.leave && a.leave.length > 1;
+  }
+  function k(a, b) {
+    if (!a || !a.kind || b.enter && b.enter(a) === !1) return;
+    let c = i(a);
+    for (let a = 0; a < c.length; a += 1) k(c[a], b);
+    b.leave(a);
+  }
+  function l(a, b) {
+    if (b.leave) {
+      k(a, b);
+      return;
+    }
+    let c = b.enter;
+    if (!c) return;
+    let d = [a],
+      e = 1;
+    for (; e > 0;) {
+      e -= 1;
+      let a = d[e];
+      if (!a || !a.kind || c(a) === !1) continue;
+      let b = f[a.kind];
+      if (b) for (let c = b.length - 1; c >= 0; c -= 1) {
+        let f = a[b[c][0]];
+        if (f == null) continue;
+        let g = b[c][1];
+        if (g === "node") d[e] = f, e += 1;else if (g === "list") for (let a = f.length - 1; a >= 0; a -= 1) d[e] = f[a], e += 1;else if (g === "clauses") for (let a = f.length - 1; a >= 0; a -= 1) d[e] = f[a].body, e += 1, d[e] = f[a].condition, e += 1;else for (let a = f.length - 1; a >= 0; a -= 1) d[e] = f[a].value, e += 1, f[a].key && (d[e] = f[a].key, e += 1);
+      }
+    }
+  }
+  function m(a, b) {
+    let d = [a],
+      e = [null],
+      g = 1;
+    for (; g > 0;) {
+      g -= 1;
+      let a = d[g],
+        h = e[g];
+      if (!a || !a.kind) continue;
+      if (b(a, h), a.kind === c["Block"]) {
+        let b = a.statements,
+          c = h ? h.depth + 1 : 1;
+        for (let f = b.length - 1; f >= 0; f -= 1) d[g] = b[f], e[g] = {
+          block: a,
+          at: f,
+          up: h,
+          depth: c
+        }, g += 1;
+        continue;
+      }
+      let i = f[a.kind];
+      if (i) for (let b = i.length - 1; b >= 0; b -= 1) {
+        let c = a[i[b][0]];
+        if (c == null) continue;
+        let f = i[b][1];
+        if (f === "node") d[g] = c, e[g] = h, g += 1;else if (f === "list") for (let a = c.length - 1; a >= 0; a -= 1) d[g] = c[a], e[g] = h, g += 1;else if (f === "clauses") for (let a = c.length - 1; a >= 0; a -= 1) d[g] = c[a].body, e[g] = h, g += 1, d[g] = c[a].condition, e[g] = h, g += 1;else for (let a = c.length - 1; a >= 0; a -= 1) d[g] = c[a].value, e[g] = h, g += 1, c[a].key && (d[g] = c[a].key, e[g] = h, g += 1);
+      }
+    }
+  }
+  function n(a, b, c = null) {
+    if (c === null && !j(b)) {
+      l(a, b);
+      return;
+    }
+    if (!a || !a.kind || b.enter && b.enter(a, c) === !1) return;
+    let d = h(a);
+    for (let a = 0; a < d.length; a += 1) n(d[a].node, b, d[a]);
+    b.leave && b.leave(a, c);
+  }
+  function o(a, b) {
+    if (!a || !a.kind) return a;
+    let c = h(a);
+    for (let a = 0; a < c.length; a += 1) {
+      let d = c[a],
+        e = o(d.node, b);
+      e !== d.node && (d.index === null ? d.parent[d.key] = e : d.parent[d.key][d.index] = e);
+    }
+    let d = b(a);
+    return d === void 0 ? a : d;
+  }
+  function p(a, b) {
+    let c = [];
+    return n(a, {
+      enter(a) {
+        b(a) && c.push(a);
+      }
+    }), c;
+  }
+  b.exports = {
+    "CHILDREN": d,
+    children: h,
+    framed: m,
+    walk: n,
+    transform: o,
+    collect: p
+  };
+});
+var m = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c,
+      unparen: d
+    } = e(),
+    {
+      walk: f,
+      children: g,
+      collect: h
+    } = l(),
+    i = a => !!a && a.kind === c["Name"],
+    j = a => {
+      let b = d(a);
+      return i(b) && b.binding || null;
+    };
+  function k(a) {
+    let b = new Map();
+    return f(a, {
+      enter(a, c) {
+        c && b.set(a, c.parent);
+      }
+    }), b;
+  }
+  function m(a) {
+    let b = new Map(),
+      d = new Map(),
+      e = (a, c) => {
+        if (!a) return;
+        let e = b.get(a) || [];
+        e.push(c || null), b.set(a, e);
+        let f = c ? j(c) : null;
+        if (!f) return;
+        let g = d.get(f) || [];
+        g.push(a), d.set(f, g);
+      };
+    return f(a, {
+      enter(a) {
+        if (a.kind === c["Assignment"]) {
+          let b = a.targets || [],
+            c = a.expressions || [],
+            d = b.length === c.length;
+          b["forEach"]((a, b) => {
+            e(j(a), d ? c[b] : null);
+          });
+        } else if (a.kind === c["LocalDeclaration"]) {
+          let b = a.expressions || [];
+          if (!b.length) return;
+          let c = b.length === (a.names || []).length;
+          (a.bindings || [])["forEach"]((a, d) => {
+            e(a, c ? b[d] : null);
+          });
+        } else if (a.kind === c["LocalFunction"]) e(a.binding, a.body);else if (a.kind === c["NumericFor"]) e(a.binding, null);else if (a.kind === c["GenericFor"]) for (let b of a.bindings || []) e(b, null);
+      }
+    }), {
+      writes: b,
+      moves: d
+    };
+  }
+  function n(a, b) {
+    if (!b || !a) return null;
+    b.carriers || (b.carriers = new Map());
+    let c = b.carriers.get(a);
+    if (c) return c;
+    let d = new Set([a]),
+      e = [a];
+    for (; e.length;) {
+      let a = e.pop();
+      for (let c of b.moves.get(a) || []) d.has(c) || (d.add(c), e.push(c));
+    }
+    return b.carriers.set(a, d), d;
+  }
+  function o(a, b, c) {
+    if (!a) return !1;
+    if (a === b) return !0;
+    let d = n(b, c);
+    return !!d && d.has(a);
+  }
+  function p(a, b, c) {
+    return o(j(a), b, c);
+  }
+  function q(a, b) {
+    return a ? c => o(j(c), a, b) : () => !1;
+  }
+  function r(a, b) {
+    let c = [...a].filter(Boolean);
+    return c.length ? a => {
+      let d = j(a);
+      return d ? c.some(a => o(d, a, b)) : !1;
+    } : () => !1;
+  }
+  function s(a, b, c, e = new Set()) {
+    let f = d(a);
+    if (!f) return !1;
+    if (f.kind === b) return !0;
+    let g = j(f);
+    if (!g || !c || e.has(g)) return !1;
+    e.add(g);
+    for (let a of c.writes.get(g) || []) if (a && s(a, b, c, e)) return !0;
+    return !1;
+  }
+  function t(a, b) {
+    let c = a;
+    for (let a = 0; b && c && a < 8 && (c.reads || []).length === 1; a += 1) {
+      let a = b.moves.get(c) || [];
+      if (a.length !== 1) break;
+      let d = b.writes.get(a[0]) || [];
+      if (d.length !== 1 || !d[0]) break;
+      c = a[0];
+    }
+    return c;
+  }
+  function u(a, b) {
+    let c = a;
+    for (let a = 0; b && c && a < 8; a += 1) {
+      let a = b.writes.get(c) || [];
+      if (a.length !== 1 || !a[0]) break;
+      let d = j(a[0]);
+      if (!d || d === c) break;
+      c = d;
+    }
+    return c;
+  }
+  var v = [["env", ["getfenv", "_ENV", "getfenv2"]], ["unpack", ["unpack"]], ["newproxy", ["newproxy"]], ["setmetatable", ["setmetatable"]], ["getmetatable", ["getmetatable"]], ["select", ["select"]]];
+  function w(a) {
+    let b = new Set();
+    return f(a, {
+      enter(a) {
+        a.kind === c["Name"] && a.binding && a.binding.kind === "global" && b.add(a.binding.name);
+      }
+    }), b;
+  }
+  function x(a) {
+    let b = d(a);
+    if (!b) return null;
+    if (b.kind === c["Table"]) return "varargs";
+    let e = w(b);
+    for (let [a, b] of v) for (let c of b) if (e.has(c)) return a;
+    return e.has("table") ? "unpack" : null;
+  }
+  function y(a, b) {
+    let c = x(a);
+    if (c) return c;
+    let e = j(d(a));
+    if (!e || !b) return null;
+    let f = new Set([e]),
+      g = [e];
+    for (; g.length;) {
+      let a = g.shift(),
+        c = b.writes.get(a) || [];
+      for (let a = c.length - 1; a >= 0; a -= 1) {
+        let b = c[a];
+        if (!b) continue;
+        let d = x(b);
+        if (d) return d;
+        let e = j(b);
+        e && !f.has(e) && (f.add(e), g.push(e));
+      }
+    }
+    return null;
+  }
+  function z(a) {
+    if (!a || !a.w) return !1;
+    let b = !1;
+    return f(a.body, {
+      enter(a) {
+        if (b || a.kind === c["Function"]) return !1;
+        a.kind === c["Vararg"] && (b = !0);
+      }
+    }), b;
+  }
+  function aa(a) {
+    let b = d(a);
+    return !b || b.kind !== c["Table"] ? !1 : (b.entries || []).some(a => !a.key && a.value && d(a.value).kind === c["Vararg"]);
+  }
+  function ab(a, b) {
+    if (!a || a.kind !== c["Function"] || z(a) || !a.params || a.params.length !== 4 || !a.bindings) return null;
+    let e = a.body.statements;
+    if (e.length < 2) return null;
+    let f = new Set([a.bindings[0]]);
+    for (let c of b && b.moves.get(a.bindings[0]) || []) f.add(c);
+    let g = -1;
+    for (let a = 0; a < e.length; a += 1) {
+      let b = e[a];
+      if (b.kind === c["While"] && f.has(j(b.condition))) {
+        g = a;
+        break;
+      }
+    }
+    if (g < 0) return null;
+    let h = j(e[g].condition),
+      i = new Set(),
+      k = [],
+      l = null;
+    for (let a = 0; a < g; a += 1) {
+      let b = e[a];
+      if (b.kind === c["LocalDeclaration"] && b.bindings) {
+        let a = b.expressions || [];
+        for (let e = 0; e < b.bindings.length; e += 1) {
+          let f = b.bindings[e];
+          i.add(f);
+          let g = d(a[e]);
+          g && g.kind === c["Table"] ? l = f : k.push(f);
+        }
+        continue;
+      }
+      if (b.kind === c["Assignment"]) {
+        let a = b.targets || [],
+          e = b.expressions || [];
+        if (a.length !== e.length) return null;
+        for (let b = 0; b < a.length; b += 1) {
+          let f = j(a[b]);
+          if (!f || !i.has(f)) return null;
+          let g = d(e[b]);
+          g && g.kind === c["Table"] && (l = f);
+        }
+        continue;
+      }
+      return null;
+    }
+    let m = e[e.length - 1];
+    if (!m || m.kind !== c["Return"] || m.expressions.length !== 1) return null;
+    let n = d(m.expressions[0]);
+    if (!n || n.kind !== c["Call"] || n.args.length !== 1) return null;
+    let o = j(n.base),
+      p = j(n.args[0]);
+    if (!o || !p) return null;
+    let q = t(a.bindings[1], b),
+      r = t(a.bindings[2], b),
+      s = t(a.bindings[3], b),
+      u = new Set([l, q, r, s]);
+    return {
+      fn: a,
+      dispatch: e[g],
+      registers: k.filter(a => !u.has(a)),
+      spill: l,
+      "Fn": o,
+      "Yt": p,
+      pos: h,
+      args: q,
+      upvals: r,
+      qn: s
+    };
+  }
+  function ac(a, b, e) {
+    if (!a || a.kind !== c["Function"] || z(a) || !a.params || a.params.length !== 2 || !a.bindings) return null;
+    let [g, h] = a.bindings,
+      i = null;
+    if (f(a.body, {
+      enter(a) {
+        if (a.kind !== c["Function"]) return;
+        let f = a.body.statements,
+          j = f[f.length - 1];
+        if (!j || j.kind !== c["Return"] || j.expressions.length !== 1) return;
+        let k = d(j.expressions[0]);
+        if (!(!k || k.kind !== c["Call"] || k.args.length !== 4) && p(k.base, b, e) && p(k.args[0], g, e) && p(k.args[2], h, e) && s(k.args[1], c["Table"], e)) return i = {
+          inner: a,
+          table: k.args[1],
+          di: k.args[3]
+        }, !1;
+      }
+    }), !i) return null;
+    let k = null;
+    return f(a.body, {
+      enter(a) {
+        if (k) return !1;
+        a.kind !== c["Call"] || a.args.length !== 1 || p(a.args[0], h, e) && (k = j(a.base));
+      }
+    }), {
+      fn: a,
+      arity: (i.inner.params || []).length,
+      vararg: aa(i.table),
+      "_e": k
+    };
+  }
+  function ad(a) {
+    if (!a || a.kind !== c["Function"] || z(a) || (a.params || []).length !== 0) return null;
+    let b = a.body.statements;
+    if (b.length !== 3) return null;
+    let [e, f, g] = b;
+    if (e.kind !== c["Assignment"] || e.targets.length !== 1) return null;
+    let h = j(e.targets[0]);
+    if (!h) return null;
+    let i = d(e.expressions[0]);
+    if (!i || i.kind !== c["Binary"] || i.operator !== "+" || ![j(i.lhs), j(i.rhs)].includes(h) || f.kind !== c["Assignment"] || f.targets.length !== 1) return null;
+    let k = d(f.targets[0]);
+    if (!k || k.kind !== c["Index"] || j(k.index) !== h) return null;
+    let l = j(k.base);
+    return !l || g.kind !== c["Return"] || j(g.expressions[0]) !== h ? null : {
+      counter: h,
+      refs: l
+    };
+  }
+  function ae(a, b, e) {
+    let g = [];
+    f(a, {
+      enter(a) {
+        if (a.kind === c["Assignment"] && a.expressions.every(a => d(a).kind === c["Nil"])) for (let b of a.targets || []) {
+          let a = d(b);
+          if (!a || a.kind !== c["Index"]) continue;
+          let f = u(j(a.base), e),
+            h = j(a.index);
+          f && h && g.push({
+            base: f,
+            key: h
+          });
+        }
+      }
+    });
+    let h = new Set();
+    for (let a of g) a.base === b && h.add(a.key);
+    for (let a of g) if (a.base !== b && h.has(a.key)) return a.base;
+    return null;
+  }
+  function af(a, b, e) {
+    let g = new Set();
+    for (let h of a) {
+      let a = !1;
+      if (f(h.body, {
+        enter(e) {
+          if (e.kind === c["Assignment"]) for (let f of e.targets || []) {
+            let e = d(f);
+            e && e.kind === c["Index"] && b(e.base) && (a = !0);
+          }
+        }
+      }), !a) continue;
+      let i = ah(h, e);
+      i && g.add(i);
+    }
+    return g;
+  }
+  function ag(a, b) {
+    let d = a,
+      e = b.get(d);
+    for (; e && e.kind === c["Paren"];) d = e, e = b.get(d);
+    return {
+      node: d,
+      parent: e
+    };
+  }
+  function ah(a, b) {
+    let {
+      node: d,
+      parent: e
+    } = ag(a, b);
+    if (!e) return null;
+    if (e.kind === c["Assignment"]) {
+      let a = e.expressions["indexOf"](d);
+      return a < 0 ? null : j(e.targets[a]);
+    }
+    if (e.kind === c["LocalDeclaration"]) {
+      let a = e.expressions["indexOf"](d);
+      return a < 0 || !e.bindings ? null : e.bindings[a] || null;
+    }
+    return e.kind === c["LocalFunction"] && e.binding || null;
+  }
+  function ai(a, b) {
+    let d = b.get(a);
+    for (; d;) {
+      if (d.kind === c["Function"]) return d;
+      d = b.get(d);
+    }
+    return null;
+  }
+  function aj(a) {
+    let b = new Set();
+    return f(a, {
+      enter(a) {
+        b.add(a);
+      }
+    }), b;
+  }
+  function ak(a, b) {
+    let d = [];
+    return f(a, {
+      enter(e) {
+        if (e === b) return !1;
+        e.kind === c["Function"] && e !== a && d.push(e);
+      }
+    }), d;
+  }
+  function al(a, b) {
+    let d = a,
+      e = b.get(d);
+    for (; e && e.kind !== c["Block"];) d = e, e = b.get(d);
+    if (!e) return null;
+    let f = e.statements["indexOf"](d);
+    return f < 0 ? null : {
+      block: e,
+      index: f
+    };
+  }
+  function am(a, b, c, d) {
+    if (!a || !b || a.block !== b.block || b.index <= a.index) return !1;
+    for (let e of c && c.writes || []) {
+      let c = al(e, d);
+      if (!(!c || c.block !== a.block) && c.index > a.index && c.index < b.index) return !1;
+    }
+    return !0;
+  }
+  function an(a, b, e) {
+    let f = null;
+    for (let g of a.reads || []) {
+      let {
+        node: h,
+        parent: i
+      } = ag(g, e);
+      if (!i || i.kind !== c["Call"] || d(i.base) !== h) continue;
+      let j = al(g, e);
+      am(b, j, a, e) && (!f || j.index < f.index) && (f = {
+        call: i,
+        index: j.index
+      });
+    }
+    return f ? f.call : null;
+  }
+  function ao(a, b) {
+    let c = [],
+      d = new Set([a]),
+      e = [a];
+    for (; e.length && c.length < 16;) {
+      let a = e.pop();
+      for (let f of b && b.moves.get(a) || []) d.has(f) || (d.add(f), (b.writes.get(f) || []).length === 1 && (c.push(f), e.push(f)));
+    }
+    return c;
+  }
+  function ap(a, b, c) {
+    let d = b && b.writes.get(a) || [];
+    return d.length !== 1 || !d[0] ? null : al(d[0], c);
+  }
+  function aq(a, b, e) {
+    let {
+      parent: f
+    } = ag(a, b);
+    if (f && f.kind === c["Call"] && d(f.base) === a) return f;
+    let g = ah(a, b);
+    if (!g) return null;
+    let h = al(a, b);
+    if (!h) return null;
+    let i = an(g, h, b);
+    if (i) return i;
+    for (let a of ao(g, e)) {
+      let c = ap(a, e, b),
+        d = c ? an(a, c, b) : null;
+      if (d) return d;
+    }
+    return null;
+  }
+  function ar(a) {
+    let b = new Map();
+    return f(a, {
+      enter(a) {
+        if (a.kind !== c["Index"]) return;
+        let d = j(a.base);
+        d && b.set(d, (b.get(d) || 0) + 1);
+      }
+    }), b;
+  }
+  function as(a, b) {
+    let c = new Set([a.spill, a.pos, a.args, a.upvals, a.qn, ...a.registers, ...(a.fn.bindings || [])]),
+      d = null,
+      e = 0;
+    for (let [f, g] of ar(a.fn)) c.has(f) || b.has(f) || g > e && (d = f, e = g);
+    return d;
+  }
+  function at(a, b, e) {
+    let g = ai(a.fn, b);
+    if (!g) return {
+      ok: !1,
+      reason: "container is not wrapped"
+    };
+    let h = aq(g, b, e);
+    if (!h) return {
+      ok: !1,
+      reason: "wrapper is not invoked"
+    };
+    let i = ah(a.fn, b);
+    if (!i) return {
+      ok: !1,
+      reason: "container is not bound to a name"
+    };
+    let k = {};
+    for (let a = 0; a < h.args.length; a += 1) {
+      let b = y(h.args[a], e),
+        c = (g.bindings || [])[a];
+      b && c && !k[b] && (k[b] = t(c, e));
+    }
+    !k.unpack && a["Fn"] && (k.unpack = a["Fn"]);
+    let l = ak(g, a.fn),
+      m = new Map(),
+      n = new Set(),
+      p = null,
+      s = null;
+    for (let a of l) {
+      let c = ac(a, i, e);
+      if (c) {
+        n.add(a);
+        let d = ah(a, b);
+        d && (m.set(d, c), c["_e"] && (s = c["_e"]));
+        continue;
+      }
+      if (!p) {
+        let c = ad(a);
+        c && (p = {
+          alloc: ah(a, b),
+          counter: c.counter,
+          refs: c.refs,
+          table: ae(g, c.refs, e)
+        });
+      }
+    }
+    if (m.size === 0) return {
+      ok: !1,
+      reason: "no closure creator"
+    };
+    p && (p["Xt"] = q(p.alloc, e), p["Zt"] = q(p.table, e), p["Mn"] = q(p.refs, e), p.helpers = af(l.filter(a => !n.has(a)), p["Mn"], b), p["Jt"] = r(p.helpers, e)), a["Qt"] = q(a.upvals, e);
+    let u = a => {
+      let b = j(a);
+      if (!b) return null;
+      let c = m.get(b);
+      if (c) return c;
+      for (let [a, c] of m) if (o(b, a, e)) return c;
+      return null;
+    };
+    if (!k.env) {
+      let b = new Set([...Object.values(k), ...m.keys(), s, p && p.alloc, p && p.counter, p && p.refs, p && p.table]);
+      k.env = as(a, b);
+    }
+    if (!k.env) return {
+      ok: !1,
+      reason: "no environment argument"
+    };
+    let v = null,
+      w = aj(a.fn);
+    return f(g, {
+      enter(a) {
+        if (v || w.has(a)) return !1;
+        if (a.kind !== c["Call"]) return;
+        let b = d(a.base);
+        if (!b || b.kind !== c["Call"]) return;
+        let e = j(b.base),
+          f = u(b.base);
+        if (!f) return;
+        let g = d(b.args[0]);
+        if (!(!g || g.kind !== c["Number"])) return v = {
+          "O": g.value,
+          gi: e,
+          vararg: f.vararg,
+          arity: f.arity,
+          er: b.args[1] || null,
+          call: a
+        }, !1;
+      }
+    }), v ? {
+      ok: !0,
+      vm: {
+        wrapper: g,
+        fe: h,
+        container: a,
+        nr: i,
+        roles: k,
+        creators: m,
+        "T": u,
+        upvalues: p,
+        "_e": s,
+        entry: v
+      }
+    } : {
+      ok: !1,
+      reason: "no entry closure"
+    };
+  }
+  function au(a) {
+    let b = k(a),
+      d = m(a),
+      e = [],
+      f = [];
+    for (let g of h(a, a => a.kind === c["Function"])) {
+      let a = ab(g, d);
+      if (!a) continue;
+      let c = at(a, b, d);
+      c.ok ? e.push(c.vm) : f.push({
+        fn: g,
+        reason: c.reason
+      });
+    }
+    return {
+      instances: e,
+      rejected: f,
+      parents: b
+    };
+  }
+  b.exports = {
+    unparen: d,
+    de: j,
+    tr: k,
+    carries: p,
+    detect: au
+  };
+});
+var n = a((a, b) => {
+  "use strict";
+
+  var c = 0,
+    d = [],
+    e = {
+      meta: !0
+    };
+  function f() {
+    return c += 1, c;
+  }
+  function g(a, b, c) {
+    for (let f = 0; f < d.length; f += 1) {
+      let g = d[f];
+      if (g.writes && g.writes.add(b), a <= g.since && (g.escaped = !0, g.older && g.last !== b && (g.last = b, g.older.add(b))), g.slots && c !== void 0) {
+        let a = g.slots.get(b);
+        a || (a = new Map(), g.slots.set(b, a)), a.has(c) || a.set(c, c === e ? b.metatable : b.map.get(c));
+      }
+      !g.saved || g.saved.has(b) || (b && b.map ? g.tables.add(b) : b && g.saved.set(b, b.value));
+    }
+  }
+  function h(a) {
+    for (let [b, c] of a.saved) b.value = c;
+    for (let [b, c] of a.slots) for (let [a, d] of c) a === e ? b.metatable = d : d === void 0 ? b.map.delete(a) : b.map.set(a, d);
+    a.saved.clear(), a.slots.clear();
+  }
+  function i(a) {
+    for (let [b, c] of a.saved) b.value = c;
+    a.saved.clear(), a.slots.clear();
+  }
+  function j(a) {
+    let b = {
+      since: c,
+      escaped: !1,
+      value: void 0,
+      saved: new Map(),
+      tables: new Set(),
+      slots: new Map()
+    };
+    d.push(b);
+    try {
+      b.value = a();
+    } catch (a) {
+      throw d.pop(), h(b), a;
+    }
+    return d.pop(), b;
+  }
+  function k(a) {
+    let b = {
+      since: c,
+      escaped: !1,
+      older: new Set(),
+      last: null
+    };
+    d.push(b);
+    try {
+      return {
+        value: a(),
+        escaped: b.escaped,
+        older: b.older
+      };
+    } finally {
+      d.pop();
+    }
+  }
+  function l(a) {
+    let b = {
+      since: -1,
+      escaped: !1,
+      writes: new Set()
+    };
+    d.push(b);
+    try {
+      return {
+        value: a(),
+        writes: b.writes
+      };
+    } finally {
+      d.pop();
+    }
+  }
+  b.exports = {
+    "META": e,
+    fresh: f,
+    touch: g,
+    attempt: j,
+    undo: h,
+    commit: i,
+    record: l,
+    witness: k
+  };
+});
+var o = a((a, b) => {
+  "use strict";
+
+  var c = n(),
+    d = class extends Error {
+      constructor(a, b) {
+        super(typeof a == "string" ? a : "(error object)"), this.name = "LuaError", this.value = a, this.pi = b;
+      }
+    },
+    e = class a {
+      constructor() {
+        this.map = new Map(), this.metatable = void 0, this.stamp = c.fresh();
+      }
+      static from(b) {
+        let c = new a();
+        for (let a = 0; a < b.length; a += 1) c.set(a + 1, b[a]);
+        return c;
+      }
+      static ki(b) {
+        let c = new a();
+        for (let [a, d] of b) c.set(a, d);
+        return c;
+      }
+      get(a) {
+        return typeof a == "number" && Object.is(a, -0) ? this.map.get(0) : this.map.get(a);
+      }
+      set(a, b) {
+        let d = typeof a == "number" && Object.is(a, -0) ? 0 : a;
+        c.touch(this.stamp, this, d), b === void 0 ? this.map.delete(d) : this.map.set(d, b);
+      }
+      $n(a) {
+        c.touch(this.stamp, this, c["META"]), this.metatable = a;
+      }
+      length() {
+        let a = 0;
+        for (; this.map.get(a + 1) !== void 0;) a += 1;
+        return a;
+      }
+      rr() {
+        let a = [],
+          b = this.length();
+        for (let c = 1; c <= b; c += 1) a.push(this.map.get(c));
+        return a;
+      }
+      keys() {
+        return [...this.map.keys()];
+      }
+    },
+    f = class {
+      constructor(a, b, c) {
+        this.node = a, this.closure = b, this.name = c || null;
+      }
+    },
+    g = a => typeof a == "function" || a instanceof f;
+  function h(a) {
+    if (a == null) return "nil";
+    switch (typeof a) {
+      case "boolean":
+        return "boolean";
+      case "number":
+        return "number";
+      case "string":
+        return "string";
+      case "function":
+        return "function";
+      default:
+        break;
+    }
+    return a instanceof e ? "table" : a instanceof f ? "function" : "userdata";
+  }
+  var i = a => a != null && a !== !1;
+  function j(a, b = 14) {
+    if (Number["isNaN"](a)) return "nan";
+    if (a === 1 / 0) return "inf";
+    if (a === -1 / 0) return "-inf";
+    if (a === 0) return Object.is(a, -0) ? "-0" : "0";
+    let c = Math.floor(Math.log10(Math.abs(a)));
+    if (c < -4 || c >= b) {
+      let d = (a / 10 ** c).bi(b);
+      d.includes(".") && (d = d.replace(/0+$/, "").replace(/\.$/, ""));
+      let e = c < 0 ? "-" : "+",
+        f = String(Math.abs(c))["padStart"](2, "0");
+      return `${d}e${e}${f}`;
+    }
+    let d = a["Ln"](Math.max(0, b - 1 - c));
+    return d.includes(".") && (d = d.replace(/0+$/, "").replace(/\.$/, "")), d;
+  }
+  function k(a) {
+    return Number["isInteger"](a) && Math.abs(a) < 1e15 ? String(a) : j(a);
+  }
+  function l(a) {
+    let b = a.replace(/^[\s\f]+|[\s\f]+$/g, "");
+    if (b === "") return;
+    if (/^[-+]?0[xX][0-9a-fA-F]+$/.test(b)) {
+      let a = b[0] === "-",
+        c = b.replace(/^[-+]/, ""),
+        d = parseInt(c.slice(2), 16);
+      return a ? -d : d;
+    }
+    if (!/^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(b)) return;
+    let c = Number(b);
+    return Number["isNaN"](c) ? void 0 : c;
+  }
+  function m(a) {
+    if (typeof a == "number") return a;
+    if (typeof a == "string") return l(a);
+  }
+  b.exports = {
+    "LuaError": d,
+    "LuaTable": e,
+    "LuaFunction": f,
+    "_": g,
+    he: h,
+    truthy: i,
+    sr: j,
+    re: k,
+    o: m
+  };
+});
+var p = a((a, b) => {
+  "use strict";
+
+  var c = o(),
+    {
+      "LuaError": d,
+      "LuaTable": e,
+      he: f,
+      truthy: g,
+      o: h
+    } = c,
+    i = {
+      "+": "__add",
+      "-": "__sub",
+      "*": "__mul",
+      "/": "__div",
+      "%": "__mod",
+      "^": "__pow",
+      "..": "__concat"
+    };
+  function j(a, b) {
+    throw new d(`cannot perform ${a} on ${f(b)}`);
+  }
+  function k(a, b, c, d) {
+    let e = i[b],
+      f = a.metamethod(c, e) || a.metamethod(d, e);
+    if (f) return a.call(f, [c, d])[0];
+    let g = h(c) === void 0 ? c : d;
+    return j(`arithmetic (${b})`, g);
+  }
+  function l(a, b, c, e) {
+    let f = h(c),
+      g = h(e);
+    if (f === void 0 || g === void 0) return k(a, b, c, e);
+    switch (b) {
+      case "+":
+        return f + g;
+      case "-":
+        return f - g;
+      case "*":
+        return f * g;
+      case "/":
+        return f / g;
+      case "%":
+        return f - Math.floor(f / g) * g;
+      case "^":
+        return f ** g;
+      case "//":
+        return Math.floor(f / g);
+      default:
+        throw new d(`unknown operator '${b}'`);
+    }
+  }
+  function m(a, b) {
+    let c = h(b);
+    if (c !== void 0) return -c;
+    let d = a.metamethod(b, "__unm");
+    return d ? a.call(d, [b, b])[0] : j("arithmetic (-)", b);
+  }
+  function n(a, b) {
+    if (typeof b == "string") return b.length;
+    let c = a.metamethod(b, "__len");
+    return c ? a.call(c, [b])[0] : b instanceof e ? b.length() : j("get length of", b);
+  }
+  function p(a, b, c) {
+    let d = typeof b == "string" || typeof b == "number";
+    if (d && (typeof c == "string" || typeof c == "number")) return q(b) + q(c);
+    let e = a.metamethod(b, "__concat") || a.metamethod(c, "__concat");
+    return e ? a.call(e, [b, c])[0] : j("concatenation", d ? c : b);
+  }
+  function q(a) {
+    return typeof a == "number" ? c.re(a) : a;
+  }
+  function r(a, b) {
+    return a == null ? b == null : a === b;
+  }
+  function s(a, b, c) {
+    if (r(b, c)) return !0;
+    if (f(b) !== f(c) || !(b instanceof e) && f(b) !== "userdata") return !1;
+    let d = a.metamethod(b, "__eq") || a.metamethod(c, "__eq");
+    return d ? g(a.call(d, [b, c])[0]) : !1;
+  }
+  function t(a, b, c) {
+    if (typeof b == "number" && typeof c == "number" || typeof b == "string" && typeof c == "string") return b < c;
+    let e = a.metamethod(b, "__lt") || a.metamethod(c, "__lt");
+    if (e) return g(a.call(e, [b, c])[0]);
+    throw new d(`cannot compare ${f(b)} with ${f(c)}`);
+  }
+  function u(a, b, c) {
+    if (typeof b == "number" && typeof c == "number" || typeof b == "string" && typeof c == "string") return b <= c;
+    let e = a.metamethod(b, "__le") || a.metamethod(c, "__le");
+    if (e) return g(a.call(e, [b, c])[0]);
+    let h = a.metamethod(b, "__lt") || a.metamethod(c, "__lt");
+    if (h) return !g(a.call(h, [c, b])[0]);
+    throw new d(`cannot compare ${f(b)} with ${f(c)}`);
+  }
+  function v(a, b, d) {
+    if (b instanceof e) {
+      let e = b.get(d);
+      if (e != null) return e;
+      let f = a.metamethod(b, "__index");
+      return f ? c["_"](f) ? a.call(f, [b, d])[0] : v(a, f, d) : void 0;
+    }
+    let f = a.metamethod(b, "__index");
+    return f ? c["_"](f) ? a.call(f, [b, d])[0] : v(a, f, d) : j(`index (key '${q(d)}')`, b);
+  }
+  function w(a, b, f, g) {
+    if (b instanceof e) {
+      if (b.get(f) === void 0) {
+        let d = a.metamethod(b, "__newindex");
+        if (d) {
+          if (c["_"](d)) {
+            a.call(d, [b, f, g]);
+            return;
+          }
+          w(a, d, f, g);
+          return;
+        }
+      }
+      if (f == null) throw new d("table index is nil");
+      if (typeof f == "number" && Number["isNaN"](f)) throw new d("table index is NaN");
+      b.set(f, g);
+      return;
+    }
+    let h = a.metamethod(b, "__newindex");
+    if (!h) {
+      j(`index (key '${q(f)}')`, b);
+      return;
+    }
+    c["_"](h) ? a.call(h, [b, f, g]) : w(a, h, f, g);
+  }
+  function x(a, b) {
+    let d = a.metamethod(b, "__tostring");
+    if (d) return a.call(d, [b])[0];
+    let e = f(b);
+    switch (e) {
+      case "nil":
+        return "nil";
+      case "boolean":
+        return b ? "true" : "false";
+      case "number":
+        return c.re(b);
+      case "string":
+        return b;
+      default:
+        return `${e}: 0x${a["En"](b)}`;
+    }
+  }
+  b.exports = {
+    arith: l,
+    "Be": m,
+    length: n,
+    concat: p,
+    equals: s,
+    ir: r,
+    q: t,
+    "P": u,
+    index: v,
+    "Re": w,
+    tostring: x,
+    stringify: q
+  };
+});
+var q = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    d = e(),
+    f = p(),
+    g = o(),
+    h = {
+      metamethod: () => {},
+      call() {
+        throw new Error("pure eval: calls not allowed");
+      },
+      "En": () => "0"
+    },
+    i = Symbol("none");
+  function j(a) {
+    if (!a) return i;
+    switch (a.kind) {
+      case c["Nil"]:
+        return;
+      case c["True"]:
+        return !0;
+      case c["False"]:
+        return !1;
+      case c["Number"]:
+        return a.value;
+      case c["String"]:
+        return a.value;
+      case c["Paren"]:
+        return j(a.expression);
+      default:
+        return i;
+    }
+  }
+  var k = a => j(a) !== i;
+  function l(a) {
+    if (!a) return null;
+    if (a.kind === c["Paren"]) return l(a.expression);
+    if (a.kind === c["Table"] || a.kind === c["Function"]) return !0;
+    let b = j(a);
+    return b === i ? null : b !== void 0 && b !== !1;
+  }
+  function m(a) {
+    return a == null ? d.nil() : a === !0 ? d.boolean(!0) : a === !1 ? d.boolean(!1) : typeof a == "number" ? d.number(a) : typeof a == "string" ? d.string(a) : null;
+  }
+  function n(a, b, c) {
+    let d = j(b),
+      e = j(c);
+    if (d === i || e === i) return null;
+    try {
+      switch (a) {
+        case "and":
+          return m(g.truthy(d) ? e : d);
+        case "or":
+          return m(g.truthy(d) ? d : e);
+        case "..":
+          return typeof d != "string" && typeof d != "number" || typeof e != "string" && typeof e != "number" ? null : m(f.concat(h, d, e));
+        case "==":
+          return m(f.equals(h, d, e));
+        case "~=":
+          return m(!f.equals(h, d, e));
+        case "<":
+          return m(f.q(h, d, e));
+        case ">":
+          return m(f.q(h, e, d));
+        case "<=":
+          return m(f["P"](h, d, e));
+        case ">=":
+          return m(f["P"](h, e, d));
+        default:
+          return typeof d == "boolean" || typeof e == "boolean" || d === void 0 || e === void 0 ? null : m(f.arith(h, a, d, e));
+      }
+    } catch {
+      return null;
+    }
+  }
+  function q(a, b) {
+    let c = j(b);
+    if (c === i) return null;
+    try {
+      switch (a) {
+        case "-":
+          return typeof c == "boolean" || c === void 0 ? null : m(f["Be"](h, c));
+        case "not":
+          return m(!g.truthy(c));
+        case "#":
+          return null;
+        default:
+          return null;
+      }
+    } catch {
+      return null;
+    }
+  }
+  b.exports = {
+    "An": m,
+    j: k,
+    truthiness: l,
+    ur: n,
+    lr: q
+  };
+});
+var r = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    {
+      transform: d
+    } = l(),
+    f = q(),
+    g = new Set(["+", "-", "*", "/", "%", "^", ".."]),
+    h = new Set(["-"]),
+    i = new Set([...g, "==", "~=", "<", "<=", ">", ">=", "and", "or"]),
+    j = new Set([...h, "not"]);
+  function k(a, b = {}) {
+    let e = b.binary || g,
+      i = b.unary || h,
+      j = 0;
+    return d(a, a => {
+      if (a.kind === c["Binary"]) {
+        if (!e.has(a.operator)) return a;
+        let b = f.ur(a.operator, a.lhs, a.rhs);
+        return b ? (j += 1, b) : a;
+      }
+      if (a.kind === c["Unary"]) {
+        if (!i.has(a.operator)) return a;
+        let b = f.lr(a.operator, a.argument);
+        return b ? (j += 1, b) : a;
+      }
+      if (a.kind === c["Paren"]) {
+        let b = a.expression;
+        return b && f.j(b) ? (j += 1, b) : a;
+      }
+      return a;
+    }), j;
+  }
+  function m(a) {
+    let b = k(a.chunk);
+    b && (a.note(`folded ${b} constant expression(s)`, b), a.bump("fold.count", b));
+  }
+  b.exports = {
+    name: "02-fold",
+    run: m,
+    ar: k,
+    "BINARY": i,
+    "LOGIC": j
+  };
+});
+var s = a((a, b) => {
+  "use strict";
+
+  var {
+      "LuaError": c
+    } = o(),
+    d = "%",
+    e = 32,
+    f = -1,
+    g = -2,
+    h = a => a >= 48 && a <= 57,
+    i = a => a >= 65 && a <= 90 || a >= 97 && a <= 122,
+    j = a => a >= 97 && a <= 122,
+    k = a => a >= 65 && a <= 90,
+    l = a => a === 32 || a >= 9 && a <= 13,
+    m = a => a < 32 || a === 127,
+    n = a => a >= 33 && a <= 47 || a >= 58 && a <= 64 || a >= 91 && a <= 96 || a >= 123 && a <= 126,
+    p = a => h(a) || a >= 97 && a <= 102 || a >= 65 && a <= 70;
+  function q(a, b) {
+    let c;
+    switch (b["toLowerCase"]()) {
+      case "a":
+        c = i(a);
+        break;
+      case "c":
+        c = m(a);
+        break;
+      case "d":
+        c = h(a);
+        break;
+      case "l":
+        c = j(a);
+        break;
+      case "p":
+        c = n(a);
+        break;
+      case "s":
+        c = l(a);
+        break;
+      case "u":
+        c = k(a);
+        break;
+      case "w":
+        c = i(a) || h(a);
+        break;
+      case "x":
+        c = p(a);
+        break;
+      case "z":
+        c = a === 0;
+        break;
+      default:
+        return b["charCodeAt"](0) === a;
+    }
+    return b >= "A" && b <= "Z" ? !c : c;
+  }
+  var r = class {
+    constructor(a, b) {
+      this.src = a, this.pattern = b, this.level = 0, this.se = new Array(e).fill(0), this["M"] = new Array(e).fill(0), this.depth = 0;
+    }
+    error(a) {
+      throw new c(a);
+    }
+    "In"(a) {
+      let b = this.pattern,
+        c = b[a];
+      if (a += 1, c === d) return a >= b.length && this.error("pattern ends with '%'"), a + 1;
+      if (c === "[") {
+        b[a] === "^" && (a += 1);
+        do {
+          a >= b.length && this.error("missing ']' in pattern");
+          let c = b[a];
+          a += 1, c === d && (a >= b.length && this.error("pattern ends with '%'"), a += 1);
+        } while (b[a] !== "]");
+        return a + 1;
+      }
+      return a;
+    }
+    "De"(a, b, c) {
+      let e = this.pattern,
+        f = !1;
+      for (b += 1, e[b] === "^" && (f = !0, b += 1); b < c;) if (e[b] === d) {
+        if (b += 1, q(a, e[b])) return !f;
+        b += 1;
+      } else if (e[b + 1] === "-" && b + 2 < c) {
+        if (e["charCodeAt"](b) <= a && a <= e["charCodeAt"](b + 2)) return !f;
+        b += 3;
+      } else {
+        if (e["charCodeAt"](b) === a) return !f;
+        b += 1;
+      }
+      return f;
+    }
+    "Pe"(a, b, c) {
+      if (a >= this.src.length) return !1;
+      let e = this.src["charCodeAt"](a),
+        f = this.pattern[b];
+      return f === "." ? !0 : f === d ? q(e, this.pattern[b + 1]) : f === "[" ? this["De"](e, b, c - 1) : this.pattern["charCodeAt"](b) === e;
+    }
+    cr(a, b) {
+      if (b + 1 >= this.pattern.length && this.error("missing '%b' arguments"), this.src[a] !== this.pattern[b]) return -1;
+      let c = this.pattern[b],
+        d = this.pattern[b + 1],
+        e = 1,
+        f = a + 1;
+      for (; f < this.src.length;) {
+        let a = this.src[f];
+        if (a === d) {
+          if (e -= 1, e === 0) return f + 1;
+        } else a === c && (e += 1);
+        f += 1;
+      }
+      return -1;
+    }
+    "On"(a, b, c) {
+      let d = 0;
+      for (; this["Pe"](a + d, b, c);) d += 1;
+      for (; d >= 0;) {
+        let b = this.match(a + d, c + 1);
+        if (b !== -1) return b;
+        d -= 1;
+      }
+      return -1;
+    }
+    fr(a, b, c) {
+      for (;;) {
+        let d = this.match(a, c + 1);
+        if (d !== -1) return d;
+        if (this["Pe"](a, b, c)) a += 1;else return -1;
+      }
+    }
+    "Tn"(a, b, c) {
+      let d = this.level;
+      d >= maxcaptures && this.error("too many captures"), this.se[d] = a, this["M"][d] = c, this.level = d + 1;
+      let e = this.match(a, b);
+      return e === -1 && (this.level -= 1), e;
+    }
+    dr(a, b) {
+      let c = this.hr();
+      this["M"][c] = a - this.se[c];
+      let d = this.match(a, b);
+      return d === -1 && (this["M"][c] = capunfinished), d;
+    }
+    hr() {
+      for (let a = this.level - 1; a >= 0; a -= 1) if (this["M"][a] === capunfinished) return a;
+      return this.error("invalid capture");
+    }
+    gr(a, b) {
+      let c = b - 49;
+      (c < 0 || c >= this.level || this["M"][c] === capunfinished) && this.error(`invalid capture index %${c + 1}`);
+      let d = this["M"][c],
+        e = this.src.substr(this.se[c], d);
+      return this.src.substr(a, d) === e ? a + d : -1;
+    }
+    match(a, b) {
+      this.depth += 1, this.depth > 220 && this.error("pattern too complex");
+      try {
+        return this.pr(a, b);
+      } finally {
+        this.depth -= 1;
+      }
+    }
+    pr(a, b) {
+      let c = this.pattern;
+      for (;;) {
+        if (b >= c.length) return a;
+        switch (c[b]) {
+          case "(":
+            return c[b + 1] === ")" ? this["Tn"](a, b + 2, g) : this["Tn"](a, b + 1, f);
+          case ")":
+            return this.dr(a, b + 1);
+          case "$":
+            if (b + 1 === c.length) return a === this.src.length ? a : -1;
+            break;
+          case d:
+            switch (c[b + 1]) {
+              case "b":
+                {
+                  let c = this.cr(a, b + 2);
+                  if (c === -1) return -1;
+                  a = c, b += 4;
+                  continue;
+                }
+              case "f":
+                {
+                  b += 2, c[b] !== "[" && this.error("expected '[' after '%f'");
+                  let d = this["In"](b),
+                    e = a === 0 ? 0 : this.src["charCodeAt"](a - 1),
+                    f = a < this.src.length ? this.src["charCodeAt"](a) : 0;
+                  if (!this["De"](e, b, d - 1) && this["De"](f, b, d - 1)) {
+                    b = d;
+                    continue;
+                  }
+                  return -1;
+                }
+              default:
+                if (h(c["charCodeAt"](b + 1))) {
+                  let d = this.gr(a, c["charCodeAt"](b + 1));
+                  if (d === -1) return -1;
+                  a = d, b += 2;
+                  continue;
+                }
+                break;
+            }
+            break;
+          default:
+            break;
+        }
+        let e = this["In"](b),
+          i = this["Pe"](a, b, e),
+          j = e < c.length ? c[e] : "";
+        if (j === "?") {
+          if (i) {
+            let b = this.match(a + 1, e + 1);
+            if (b !== -1) return b;
+          }
+          b = e + 1;
+          continue;
+        }
+        if (j === "+") return i ? this["On"](a + 1, b, e) : -1;
+        if (j === "*") return this["On"](a, b, e);
+        if (j === "-") return this.fr(a, b, e);
+        if (!i) return -1;
+        a += 1, b = e;
+      }
+    }
+    captures(a, b, c = !0) {
+      if (this.level === 0 && c) return [this.src.slice(a, b)];
+      let d = [];
+      for (let a = 0; a < this.level; a += 1) this["M"][a] === g ? d.push(this.se[a] + 1) : d.push(this.src.substr(this.se[a], this["M"][a]));
+      return d;
+    }
+  };
+  function s(a, b, c = 0) {
+    let d = b[0] === "^",
+      e = d ? 1 : 0,
+      f = c;
+    do {
+      let c = new r(a, b);
+      c.level = 0;
+      let d = c.match(f, e);
+      if (d !== -1) return {
+        start: f,
+        end: d,
+        captures: c.captures(f, d),
+        matcher: c
+      };
+      f += 1;
+    } while (f <= a.length && !d);
+    return null;
+  }
+  b.exports = {
+    find: s,
+    "Matcher": r
+  };
+});
+var t = a((a, b) => {
+  "use strict";
+
+  var c = o(),
+    d = p(),
+    e = s(),
+    {
+      "LuaError": f,
+      "LuaTable": g,
+      he: h
+    } = c,
+    i = (a, b, c, d) => {
+      throw new f(`${b}: arg #${a} expected ${c}, got ${h(d)}`);
+    };
+  function j(a, b, d) {
+    let e = a[b];
+    return typeof e == "string" ? e : typeof e == "number" ? c.re(e) : i(b + 1, d, "string", e);
+  }
+  function k(a, b, d) {
+    let e = c.o(a[b]);
+    return e === void 0 ? i(b + 1, d, "number", a[b]) : e;
+  }
+  function l(a, b, d) {
+    if (a[b] === void 0 || a[b] === null) return d;
+    let e = c.o(a[b]);
+    return e === void 0 ? d : e;
+  }
+  function m(a, b) {
+    return a >= 0 ? a : -a > b ? 0 : b + a + 1;
+  }
+  function n(a, b, e) {
+    let g = b[b.length - 1],
+      h = b.slice(1, -1),
+      i = /^([-+ #0]*)(\d*)(?:\.(\d+))?$/.exec(h) || ["", "", "", void 0],
+      [, j, l, m] = i,
+      n = l ? Number(l) : 0,
+      o = m === void 0 ? void 0 : Number(m),
+      p;
+    switch (g) {
+      case "d":
+      case "i":
+        {
+          let a = Math.trunc(k([e], 0, "format"));
+          p = String(Math.abs(a)), o !== void 0 && (p = p["padStart"](o, "0")), a < 0 ? p = `-${p}` : j.includes("+") && (p = `+${p}`);
+          break;
+        }
+      case "u":
+        p = String(Math.trunc(Math.abs(k([e], 0, "format"))));
+        break;
+      case "c":
+        p = String["fromCharCode"](k([e], 0, "format"));
+        break;
+      case "x":
+      case "X":
+        {
+          let a = Math.trunc(k([e], 0, "format"));
+          p = (a < 0 ? a >>> 0 : a)["toString"](16), o !== void 0 && (p = p["padStart"](o, "0")), g === "X" && (p = p["toUpperCase"]()), j.includes("#") && (p = `0${g}${p}`);
+          break;
+        }
+      case "o":
+        p = Math.trunc(k([e], 0, "format"))["toString"](8);
+        break;
+      case "f":
+      case "F":
+        p = k([e], 0, "format")["Ln"](o === void 0 ? 6 : o);
+        break;
+      case "e":
+      case "E":
+        {
+          p = k([e], 0, "format").mi(o === void 0 ? 6 : o), p = p.replace(/e([-+])(\d)$/, "e$10$2"), g === "E" && (p = p["toUpperCase"]());
+          break;
+        }
+      case "g":
+      case "G":
+        {
+          p = c.sr(k([e], 0, "format"), o === void 0 ? 6 : o), g === "G" && (p = p["toUpperCase"]());
+          break;
+        }
+      case "s":
+        {
+          p = d.tostring(a, e), o !== void 0 && (p = p.slice(0, o));
+          break;
+        }
+      case "q":
+        {
+          let b = typeof e == "string" ? e : d.tostring(a, e),
+            c = '"';
+          for (let a = 0; a < b.length; a += 1) {
+            let d = b[a],
+              e = b["charCodeAt"](a);
+            d === '"' || d === "\\" || d === `\n` ? c += `\\${d === `\n` ? "n" : d}` : e === 0 ? c += "\\0" : e < 32 || e === 127 ? c += `\\${e}` : c += d;
+          }
+          p = `${c}"`;
+          break;
+        }
+      default:
+        throw new f(`format: invalid option '%${g}'`);
+    }
+    return n > p.length && (p = j.includes("-") ? p["padEnd"](n, " ") : p["padStart"](n, j.includes("0") && "dioxXufFeEgG".includes(g) ? "0" : " ")), p;
+  }
+  function q(a, b) {
+    let c = j(b, 0, "format"),
+      d = "",
+      e = 1,
+      f = 0;
+    for (; f < c.length;) {
+      let g = c[f];
+      if (g !== "%") {
+        d += g, f += 1;
+        continue;
+      }
+      if (c[f + 1] === "%") {
+        d += "%", f += 2;
+        continue;
+      }
+      let h = f + 1;
+      for (; h < c.length && "-+ #0".includes(c[h]);) h += 1;
+      for (; h < c.length && c[h] >= "0" && c[h] <= "9";) h += 1;
+      if (c[h] === ".") for (h += 1; h < c.length && c[h] >= "0" && c[h] <= "9";) h += 1;
+      let i = c.slice(f, h + 1);
+      d += n(a, i, b[e]), e += 1, f = h + 1;
+    }
+    return [d];
+  }
+  function r(a, b, d) {
+    let e = "";
+    for (let g = 0; g < a.length; g += 1) {
+      let h = a[g];
+      if (h !== "%") {
+        e += h;
+        continue;
+      }
+      let i = a[g + 1];
+      if (g += 1, i === "%") {
+        e += "%";
+        continue;
+      }
+      if (i >= "0" && i <= "9") {
+        if (i === "0") e += b;else {
+          let a = d[Number(i) - 1];
+          e += typeof a == "number" ? c.re(a) : a;
+        }
+        continue;
+      }
+      throw new f("gsub: invalid '%' in replacement");
+    }
+    return e;
+  }
+  function t(a, b) {
+    let d = j(b, 0, "gsub"),
+      h = j(b, 1, "gsub"),
+      i = b[2],
+      k = l(b, 3, 1 / 0),
+      m = "",
+      n = 0,
+      o = 0,
+      p = h[0] === "^";
+    for (; o < k;) {
+      let b = new e["Matcher"](d, h),
+        j = b.match(n, p ? 1 : 0);
+      if (j !== -1) {
+        o += 1;
+        let e = d.slice(n, j),
+          h = b.captures(n, j),
+          k;
+        if (typeof i == "string" || typeof i == "number") k = r(String(i), e, h);else if (i instanceof g) k = i.get(h[0]);else if (c["_"](i)) k = a.call(i, h)[0];else throw new f("gsub: invalid replacement type");
+        if (k == null || k === !1) m += e;else if (typeof k == "number") m += c.re(k);else if (typeof k == "string") m += k;else throw new f("gsub: invalid replacement value");
+        j > n ? n = j : (n < d.length && (m += d[n]), n += 1);
+      } else n < d.length && (m += d[n]), n += 1;
+      if (n > d.length || p) break;
+    }
+    return m += d.slice(Math.min(n, d.length)), [m, o];
+  }
+  function u(a, b, d) {
+    let f = j(b, 0, "find"),
+      g = j(b, 1, "find"),
+      h = m(l(b, 2, 1), f.length),
+      i = c.truthy(b[3]),
+      k = Math.max(0, h - 1);
+    if (k > f.length) return [void 0];
+    if (!d && i) {
+      let a = f["indexOf"](g, k);
+      return a === -1 ? [void 0] : [a + 1, a + g.length];
+    }
+    let n = e.find(f, g, k);
+    return n ? d ? n.captures : [n.start + 1, n.end, ...n.matcher.captures(n.start, n.end, !1)] : [void 0];
+  }
+  function v(a, b) {
+    let c = j(b, 0, "gmatch"),
+      d = j(b, 1, "gmatch"),
+      f = 0;
+    return [() => {
+      for (; f <= c.length;) {
+        let a = new e["Matcher"](c, d),
+          b = a.match(f, 0);
+        if (b !== -1) {
+          let c = a.captures(f, b);
+          return f = b > f ? b : f + 1, c;
+        }
+        f += 1;
+      }
+      return [void 0];
+    }];
+  }
+  function w(a) {
+    let b = new g(),
+      c = (a, c) => b.set(a, c);
+    c("len", (a, b) => [j(b, 0, "len").length]), c("sub", (a, b) => {
+      let c = j(b, 0, "sub"),
+        d = m(l(b, 1, 1), c.length),
+        e = m(l(b, 2, -1), c.length);
+      return d < 1 && (d = 1), e > c.length && (e = c.length), [d > e ? "" : c.slice(d - 1, e)];
+    }), c("upper", (a, b) => [j(b, 0, "upper")["toUpperCase"]()]), c("lower", (a, b) => [j(b, 0, "lower")["toLowerCase"]()]), c("reverse", (a, b) => [[...j(b, 0, "reverse")].reverse().join("")]), c("rep", (a, b) => {
+      let c = j(b, 0, "rep"),
+        d = Math.floor(k(b, 1, "rep")),
+        e = b[2] === void 0 ? "" : j(b, 2, "rep");
+      return d <= 0 ? [""] : [new Array(d).fill(c).join(e)];
+    }), c("byte", (a, b) => {
+      let c = j(b, 0, "byte"),
+        d = m(l(b, 1, 1), c.length),
+        e = m(l(b, 2, d), c.length);
+      d < 1 && (d = 1), e > c.length && (e = c.length);
+      let f = [];
+      for (let a = d; a <= e; a += 1) f.push(c["charCodeAt"](a - 1));
+      return f;
+    }), c("char", (a, b) => {
+      let c = "";
+      for (let a = 0; a < b.length; a += 1) c += String["fromCharCode"](Math.floor(k(b, a, "char")) & 255);
+      return [c];
+    }), c("format", q), c("gsub", t), c("find", (a, b) => u(a, b, !1)), c("match", (a, b) => u(a, b, !0)), c("gmatch", v), a.globals.set("string", b);
+    let d = new g();
+    return d.set("__index", b), a.je = d, b;
+  }
+  b.exports = {
+    install: w,
+    $: k
+  };
+});
+var u = a((a, b) => {
+  "use strict";
+
+  var c = o(),
+    d = p(),
+    e = t(),
+    {
+      "LuaError": f,
+      "LuaTable": g,
+      "LuaFunction": h,
+      he: i,
+      truthy: j
+    } = c;
+  function k(a) {
+    let b = a.globals;
+    b.set("_VERSION", "Lua 5.1"), b.set("_G", b), b.set("print", (a, b) => {
+      let c = b.map(b => d.tostring(a, b));
+      return a.output.push(c.join("\t")), [];
+    }), b.set("type", (a, b) => [i(b[0])]), b.set("tostring", (a, b) => [d.tostring(a, b[0])]), b.set("tonumber", (a, b) => {
+      if (b[1] === void 0 || b[1] === null) return [c.o(b[0])];
+      let d = Math.floor(c.o(b[1])),
+        e = typeof b[0] == "string" ? b[0].trim() : void 0;
+      if (e === void 0) return [void 0];
+      let f = parseInt(e, d);
+      return [Number["isNaN"](f) ? void 0 : f];
+    }), b.set("rawget", (a, b) => [b[0] instanceof g ? b[0].get(b[1]) : void 0]), b.set("rawset", (a, b) => (b[0] instanceof g && b[0].set(b[1], b[2]), [b[0]])), b.set("rawequal", (a, b) => [d.ir(b[0], b[1])]), b.set("rawlen", (a, b) => [d.length(a, b[0])]), b.set("setmetatable", (a, b) => {
+      if (!(b[0] instanceof g)) throw new f("setmetatable: expected table");
+      return b[0].$n(b[1] === void 0 || b[1] === null ? void 0 : b[1]), [b[0]];
+    }), b.set("getmetatable", (a, b) => {
+      let c = b[0],
+        d = c instanceof g ? c.metatable : typeof c == "string" ? a.je : c && c["__metatable"];
+      if (!d) return [void 0];
+      let e = d.get("__metatable");
+      return [e === void 0 ? d : e];
+    }), b.set("assert", (a, b) => {
+      if (!j(b[0])) throw new f(b[1] === void 0 ? "assertion failed!" : b[1]);
+      return b;
+    }), b.set("error", (a, b) => {
+      let d = b[0],
+        e = b[1] === void 0 ? 1 : c.o(b[1]);
+      throw typeof d == "string" && e !== 0 ? new f(`deobf:0: ${d}`) : new f(d);
+    }), b.set("select", (a, b) => {
+      let d = b[0],
+        e = b.slice(1);
+      if (d === "#") return [e.length];
+      let f = Math.floor(c.o(d));
+      return f < 0 ? e.slice(e.length + f) : e.slice(f - 1);
+    }), b.set("unpack", (a, b) => {
+      let d = b[0];
+      if (!(d instanceof g)) return [];
+      let e = b[1] === void 0 ? 1 : Math.floor(c.o(b[1])),
+        f = b[2] === void 0 ? d.length() : Math.floor(c.o(b[2])),
+        h = [];
+      for (let a = e; a <= f; a += 1) h.push(d.get(a));
+      return h;
+    }), b.set("next", (a, b) => l(b[0], b[1])), b.set("pairs", (a, c) => {
+      let d = c[0],
+        e = a.metamethod(d, "__pairs");
+      return e ? a.call(e, [d]) : [b.get("next"), d, void 0];
+    }), b.set("ipairs", (a, b) => {
+      let e = b[0];
+      return [(a, b) => {
+        let e = Math.floor(c.o(b[1])) + 1,
+          f = d.index(a, b[0], e);
+        return f == null ? [void 0] : [e, f];
+      }, e, 0];
+    }), b.set("pcall", (a, b) => {
+      let c = b[0];
+      try {
+        return [!0, ...a.call(c, b.slice(1))];
+      } catch (b) {
+        if (b && b.sandbox || b && b.name === "LuaLimitError") throw b;
+        return a.swallows = (a.swallows || 0) + 1, b instanceof f ? [!1, b.value] : [!1, String(b && b.message ? b.message : b)];
+      }
+    }), b.set("xpcall", (a, b) => {
+      let [c, d] = b;
+      try {
+        return [!0, ...a.call(c, b.slice(2))];
+      } catch (b) {
+        if (b && b.sandbox || !(b instanceof f) && b && b.name === "LuaLimitError") throw b;
+        a.swallows = (a.swallows || 0) + 1;
+        let c = b instanceof f ? b.value : String(b.message || b);
+        return [!1, ...a.call(d, [c])];
+      }
+    }), b.set("getfenv", a => [a.globals]), b.set("setfenv", (a, b) => [b[0]]), b.set("collectgarbage", () => [0]), b.set("require", () => []), b.set("newproxy", (a, b) => {
+      let c = {
+        userdata: !0,
+        "__metatable": void 0
+      };
+      return j(b[0]) && (c["__metatable"] = new g()), [c];
+    });
+  }
+  function l(a, b) {
+    if (!(a instanceof g)) throw new f("next: expected table");
+    let c = a.keys();
+    if (b == null) return c.length === 0 ? [void 0] : [c[0], a.get(c[0])];
+    let d = c["indexOf"](typeof b == "number" && Object.is(b, -0) ? 0 : b);
+    if (d === -1 || d === c.length - 1) return [void 0];
+    let e = c[d + 1];
+    return [e, a.get(e)];
+  }
+  function m(a) {
+    let b = new g();
+    b.set("insert", (a, b) => {
+      let d = b[0];
+      if (!(d instanceof g)) throw new f("table.insert: expected table");
+      if (b.length <= 2) return d.set(d.length() + 1, b[1]), [];
+      let e = Math.floor(c.o(b[1])),
+        h = d.length();
+      for (let a = h; a >= e; a -= 1) d.set(a + 1, d.get(a));
+      return d.set(e, b[2]), [];
+    }), b.set("remove", (a, b) => {
+      let d = b[0];
+      if (!(d instanceof g)) throw new f("table.remove: expected table");
+      let e = d.length(),
+        h = b[1] === void 0 ? e : Math.floor(c.o(b[1]));
+      if (e === 0) return [void 0];
+      let i = d.get(h);
+      for (let a = h; a < e; a += 1) d.set(a, d.get(a + 1));
+      return d.set(e, void 0), [i];
+    }), b.set("concat", (a, b) => {
+      let e = b[0],
+        g = b[1] === void 0 ? "" : d.stringify(b[1]),
+        h = b[2] === void 0 ? 1 : Math.floor(c.o(b[2])),
+        i = b[3] === void 0 ? e.length() : Math.floor(c.o(b[3])),
+        j = [];
+      for (let a = h; a <= i; a += 1) {
+        let b = e.get(a);
+        if (typeof b != "string" && typeof b != "number") throw new f(`table.concat: invalid value at index ${a}`);
+        j.push(d.stringify(b));
+      }
+      return [j.join(g)];
+    }), b.set("unpack", a.globals.get("unpack")), b.set("pack", (a, b) => {
+      let c = g.from(b);
+      return c.set("n", b.length), [c];
+    }), b.set("sort", (a, b) => {
+      let c = b[0],
+        e = b[1],
+        f = c.rr(),
+        g = e ? (b, c) => j(a.call(e, [b, c])[0]) ? -1 : j(a.call(e, [c, b])[0]) ? 1 : 0 : (b, c) => d.q(a, b, c) ? -1 : d.q(a, c, b) ? 1 : 0;
+      f.sort(g);
+      for (let a = 0; a < f.length; a += 1) c.set(a + 1, f[a]);
+      return [];
+    }), b.set("getn", (a, b) => [b[0].length()]), a.globals.set("table", b);
+  }
+  function n(a) {
+    let b = new g(),
+      d = a => (b, c) => [a(e.$(c, 0, "math"))];
+    b.set("floor", d(Math.floor)), b.set("ceil", d(Math.ceil)), b.set("abs", d(Math.abs)), b.set("sqrt", d(Math.sqrt)), b.set("sin", d(Math.sin)), b.set("cos", d(Math.cos)), b.set("tan", d(Math.tan)), b.set("asin", d(Math.asin)), b.set("acos", d(Math.acos)), b.set("atan", d(Math.atan)), b.set("exp", d(Math.exp)), b.set("log", (a, b) => {
+      let c = e.$(b, 0, "log");
+      return b[1] === void 0 ? [Math.log(c)] : [Math.log(c) / Math.log(e.$(b, 1, "log"))];
+    }), b.set("log10", d(Math.log10)), b.set("pow", (a, b) => [e.$(b, 0, "pow") ** e.$(b, 1, "pow")]), b.set("fmod", (a, b) => {
+      let c = e.$(b, 0, "fmod"),
+        d = e.$(b, 1, "fmod");
+      return [c % d];
+    }), b.set("modf", (a, b) => {
+      let c = e.$(b, 0, "modf"),
+        d = c >= 0 ? Math.floor(c) : Math.ceil(c);
+      return [d, c - d];
+    }), b.set("max", (a, b) => [Math.max(...b.map(a => c.o(a)))]), b.set("min", (a, b) => [Math.min(...b.map(a => c.o(a)))]), b.set("huge", 1 / 0), b.set("pi", Math["PI"]), b.set("random", (a, b) => {
+      let d = a.random();
+      if (b.length === 0) return [d];
+      let e = b.length === 1 ? 1 : Math.floor(c.o(b[0])),
+        f = b.length === 1 ? Math.floor(c.o(b[0])) : Math.floor(c.o(b[1]));
+      return [e + Math.floor(d * (f - e + 1))];
+    }), b.set("randomseed", (a, b) => (a.kr(c.o(b[0]) || 0), [])), a.globals.set("math", b);
+  }
+  function q(a) {
+    let b = new g();
+    b.set("time", () => [16e8]), b.set("clock", a => [a.steps / 1e6]), b.set("date", (a, b) => [typeof b[0] == "string" ? b[0] : "Mon Jan  1 00:00:00 2020"]), b.set("getenv", () => [void 0]), b.set("exit", () => {
+      throw new f("os.exit called");
+    }), a.globals.set("os", b);
+    let e = new g();
+    e.set("getinfo", (a, b) => {
+      let c = new g();
+      return c.set("currentline", 1), c.set("source", "@deobf"), c.set("short_src", "deobf"), c.set("what", "Lua"), c.set("func", b[0]), c.set("linedefined", 1), [c];
+    }), e.set("sethook", () => []), e.set("gethook", () => [void 0]), e.set("traceback", (a, b) => [typeof b[0] == "string" ? b[0] : "stack traceback:"]), e.set("getlocal", () => [void 0]), e.set("getupvalue", () => [void 0]), e.set("setupvalue", () => [void 0]), e.set("getmetatable", (a, b) => [b[0] instanceof g ? b[0].metatable : void 0]), e.set("setmetatable", (a, b) => (b[0] instanceof g && b[0].$n(b[1]), [b[0]])), a.globals.set("debug", e);
+    let h = new g();
+    h.set("write", (a, b) => (a.output.push(b.map(a => d.stringify(a)).join("")), [])), h.set("read", () => [void 0]), a.globals.set("io", h);
+    let i = new g();
+    i.set("create", (a, b) => [b[0]]), i.set("wrap", (a, b) => [b[0]]), i.set("resume", (a, b) => [!0, ...a.call(b[0], b.slice(1))]), i.set("yield", () => []), i.set("status", () => ["dead"]), a.globals.set("coroutine", i);
+    let j = new g(),
+      k = a => Math.trunc(c.o(a)) | 0;
+    j.set("band", (a, b) => [b.map(k).reduce((a, b) => a & b)]), j.set("bor", (a, b) => [b.map(k).reduce((a, b) => a | b)]), j.set("bxor", (a, b) => [b.map(k).reduce((a, b) => a ^ b)]), j.set("bnot", (a, b) => [~k(b[0])]), j.set("lshift", (a, b) => [k(b[0]) << k(b[1])]), j.set("rshift", (a, b) => [k(b[0]) >>> k(b[1])]), j.set("arshift", (a, b) => [k(b[0]) >> k(b[1])]), j.set("tobit", (a, b) => [k(b[0])]), a.globals.set("bit", j), a.globals.set("bit32", j);
+  }
+  function r(a) {
+    let b = 625341585;
+    a.kr = a => {
+      b = Math.floor(a) >>> 0 || 1;
+    }, a.random = () => (b ^= b << 13, b >>>= 0, b ^= b >>> 17, b ^= b << 5, b >>>= 0, b / 4294967296);
+  }
+  function s(a) {
+    r(a), k(a), e.install(a), m(a), n(a), q(a);
+  }
+  b.exports = {
+    install: s
+  };
+});
+var v = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    d = o(),
+    f = p(),
+    g = n(),
+    {
+      "LuaError": h,
+      "LuaTable": i,
+      "LuaFunction": j,
+      he: k,
+      truthy: l
+    } = d,
+    m = {
+      signal: "break"
+    },
+    q = {
+      signal: "continue"
+    },
+    r = class extends Error {
+      constructor(a) {
+        super(a), this.name = "LuaLimitError";
+      }
+    },
+    s = class {
+      constructor(a) {
+        this.parent = a, this.cells = new Map();
+      }
+      declare(a, b) {
+        let c = {
+          value: b,
+          stamp: g.fresh()
+        };
+        return this.cells.set(a, c), c;
+      }
+      lookup(a) {
+        let b = this;
+        for (; b;) {
+          let c = b.cells.get(a);
+          if (c) return c;
+          b = b.parent;
+        }
+        return null;
+      }
+    },
+    t = class a {
+      constructor(a = {}) {
+        this.x = a.x === void 0 ? 2e7 : a.x, this.ze = 0, this.lenient = a.lenient === !0, this.ge = a.ge || 200, this.steps = 0, this.addresses = new WeakMap(), this["_n"] = 4096, this.je = void 0, this.globals = new i(), this.output = [], u().install(this);
+      }
+      "En"(a) {
+        let b = this.addresses.get(a);
+        return b === void 0 && (this["_n"] += 48, b = this["_n"]["toString"](16), this.addresses.set(a, b)), b;
+      }
+      metamethod(a, b) {
+        let c;
+        if (a instanceof i ? c = a.metatable : typeof a == "string" ? c = this.je : a && a["__metatable"] && (c = a["__metatable"]), !!c) return c.get(b);
+      }
+      tick(a = 1) {
+        if (this.steps += a, this.x && this.steps > this.x) throw new r(`step limit exceeded (${this.x})`);
+      }
+      call(a, b) {
+        if (typeof a == "function") return this.tick(), a(this, b) || [];
+        if (!(a instanceof j)) {
+          let c = this.metamethod(a, "__call");
+          if (c) return this.call(c, [a, ...b]);
+          if (this.lenient && a == null) return [];
+          throw new h(`cannot call ${k(a)}`);
+        }
+        if (this.ze >= this.ge) throw new h("stack overflow");
+        this.ze += 1;
+        try {
+          return this.invoke(a, b);
+        } finally {
+          this.ze -= 1;
+        }
+      }
+      invoke(a, b) {
+        let c = a.node,
+          d = new s(a.closure),
+          e = c.params || [];
+        for (let a = 0; a < e.length; a += 1) d.declare(e[a], b[a]);
+        let f = {
+          varargs: c.w ? b.slice(e.length) : []
+        };
+        d.frame = f;
+        let g = this.z(c.body, d);
+        return g && g.signal === "return" ? g.values : [];
+      }
+      wi(a, b = []) {
+        let d = new j({
+          kind: c["Function"],
+          params: [],
+          body: a.kind === c["Chunk"] ? a.body : a,
+          w: !0
+        }, this["Te"](), "main chunk");
+        return this.call(d, b);
+      }
+      "Te"() {
+        return this.root || (this.root = new s(null), this.root.frame = {
+          varargs: []
+        }), this.root;
+      }
+      z(a, b) {
+        let c = new s(b);
+        return c.frame = b.frame, this.pe(a.statements, c);
+      }
+      pe(a, b) {
+        let d = 0;
+        for (; d < a.length;) {
+          let e = this["Bn"](a[d], b);
+          if (e) {
+            if (e.signal === "goto") {
+              let b = a["findIndex"](a => a.kind === c["Label"] && a.name === e.label);
+              if (b !== -1) {
+                d = b + 1;
+                continue;
+              }
+            }
+            return e;
+          }
+          d += 1;
+        }
+      }
+      "Bn"(a, b) {
+        switch (this.tick(), a.kind) {
+          case c["LocalDeclaration"]:
+            {
+              let c = this["G"](a.expressions, b, a.names.length);
+              for (let d = 0; d < a.names.length; d += 1) b.declare(a.names[d], c[d]);
+              return;
+            }
+          case c["LocalFunction"]:
+            {
+              let c = b.declare(a.name, void 0);
+              c.value = new j(a.body, b, a.name);
+              return;
+            }
+          case c["FunctionDeclaration"]:
+            {
+              let c = new j(a.body, b, "declared");
+              this.assign(a.target, c, b);
+              return;
+            }
+          case c["Assignment"]:
+            {
+              let c = this["G"](a.expressions, b, a.targets.length),
+                d = a.targets.map(a => this.br(a, b));
+              for (let a = d.length - 1; a >= 0; a -= 1) this.store(d[a], c[a]);
+              return;
+            }
+          case c["CallStatement"]:
+            this.ie(a.expression, b);
+            return;
+          case c["Return"]:
+            return {
+              signal: "return",
+              values: this["G"](a.expressions, b, -1)
+            };
+          case c["Break"]:
+            return m;
+          case c["Continue"]:
+            return q;
+          case c["Goto"]:
+            return {
+              signal: "goto",
+              label: a.label
+            };
+          case c["Label"]:
+            return;
+          case c["Do"]:
+            return this.z(a.body, b);
+          case c["If"]:
+            return this.mr(a, b);
+          case c["While"]:
+            return this.wr(a, b);
+          case c["Repeat"]:
+            return this.yr(a, b);
+          case c["NumericFor"]:
+            return this.vr(a, b);
+          case c["GenericFor"]:
+            return this.xr(a, b);
+          default:
+            throw new h(`unsupported statement: ${a.kind}`);
+        }
+      }
+      mr(a, b) {
+        if (l(this.eval(a.condition, b))) return this.z(a.body, b);
+        for (let c of a.s || []) if (l(this.eval(c.condition, b))) return this.z(c.body, b);
+        if (a.e) return this.z(a.e, b);
+      }
+      static ke(a) {
+        return a ? a === m ? "stop" : a === q ? null : a : null;
+      }
+      wr(b, c) {
+        for (;;) {
+          if (this.tick(), !l(this.eval(b.condition, c))) return;
+          let d = a.ke(this.z(b.body, c));
+          if (d === "stop") return;
+          if (d) return d;
+        }
+      }
+      yr(b, c) {
+        for (;;) {
+          this.tick();
+          let d = new s(c);
+          d.frame = c.frame;
+          let e = this.pe(b.body.statements, d),
+            f = a.ke(e);
+          if (f === "stop") return;
+          if (f) return f;
+          if (l(this.eval(b.condition, d))) return;
+        }
+      }
+      vr(b, c) {
+        let e = d.o(this.eval(b.start, c)),
+          f = d.o(this.eval(b.limit, c)),
+          g = b.step ? d.o(this.eval(b.step, c)) : 1;
+        if (e === void 0 || f === void 0 || g === void 0) throw new h("'for' bounds must be numbers");
+        for (let d = e; g > 0 ? d <= f : d >= f; d += g) {
+          this.tick();
+          let e = new s(c);
+          e.frame = c.frame, e.declare(b.variable, d);
+          let f = a.ke(this.pe(b.body.statements, e));
+          if (f === "stop") return;
+          if (f) return f;
+        }
+      }
+      xr(b, c) {
+        let d = this["G"](b.expressions, c, 3),
+          [e, f, g] = d;
+        for (;;) {
+          this.tick();
+          let d = this.call(e, [f, g]);
+          if (d[0] === void 0 || d[0] === null) return;
+          g = d[0];
+          let h = new s(c);
+          h.frame = c.frame;
+          for (let a = 0; a < b.variables.length; a += 1) h.declare(b.variables[a], d[a]);
+          let i = a.ke(this.pe(b.body.statements, h));
+          if (i === "stop") return;
+          if (i) return i;
+        }
+      }
+      br(a, b) {
+        if (a.kind === c["Name"]) {
+          let c = b.lookup(a.name);
+          return c ? {
+            cell: c
+          } : {
+            base: this.globals,
+            key: a.name
+          };
+        }
+        if (a.kind === c["Index"]) return {
+          base: this.eval(a.base, b),
+          key: this.eval(a.index, b)
+        };
+        throw new h("invalid assignment target");
+      }
+      store(a, b) {
+        if (a.cell) {
+          g.touch(a.cell.stamp, a.cell), a.cell.value = b;
+          return;
+        }
+        f["Re"](this, a.base, a.key, b);
+      }
+      assign(a, b, d) {
+        if (a.kind === c["Name"]) {
+          let c = d.lookup(a.name);
+          if (c) {
+            g.touch(c.stamp, c), c.value = b;
+            return;
+          }
+          f["Re"](this, this.globals, a.name, b);
+          return;
+        }
+        if (a.kind === c["Index"]) {
+          let c = this.eval(a.base, d);
+          f["Re"](this, c, this.eval(a.index, d), b);
+          return;
+        }
+        throw new h("invalid assignment target");
+      }
+      "G"(a, b, c) {
+        let d = [];
+        if (a) for (let c = 0; c < a.length; c += 1) if (c === a.length - 1) {
+          let e = this.ie(a[c], b);
+          for (let a of e) d.push(a);
+        } else d.push(this.eval(a[c], b));
+        if (c >= 0) {
+          for (; d.length < c;) d.push(void 0);
+          d.length = c;
+        }
+        return d;
+      }
+      ie(a, b) {
+        switch (a.kind) {
+          case c["Call"]:
+            {
+              let c = this.eval(a.base, b);
+              return this.call(c, this["G"](a.args, b, -1));
+            }
+          case c["MethodCall"]:
+            {
+              let c = this.eval(a.base, b),
+                d = f.index(this, c, a.method);
+              return this.call(d, [c, ...this["G"](a.args, b, -1)]);
+            }
+          case c["Vararg"]:
+            return (b.frame ? b.frame.varargs : []).slice();
+          default:
+            return [this.eval(a, b)];
+        }
+      }
+      eval(a, b) {
+        switch (this.tick(), a.kind) {
+          case c["Nil"]:
+            return;
+          case c["True"]:
+            return !0;
+          case c["False"]:
+            return !1;
+          case c["Number"]:
+            return a.value;
+          case c["String"]:
+            return a.value;
+          case c["Vararg"]:
+            return this.ie(a, b)[0];
+          case c["Name"]:
+            {
+              let c = b.lookup(a.name);
+              return c ? c.value : f.index(this, this.globals, a.name);
+            }
+          case c["Paren"]:
+            return this.eval(a.expression, b);
+          case c["Function"]:
+            return new j(a, b, null);
+          case c["Index"]:
+            return f.index(this, this.eval(a.base, b), this.eval(a.index, b));
+          case c["Call"]:
+          case c["MethodCall"]:
+            return this.ie(a, b)[0];
+          case c["Table"]:
+            return this["Sr"](a, b);
+          case c["Unary"]:
+            return this["Nr"](a, b);
+          case c["Binary"]:
+            return this["Cr"](a, b);
+          default:
+            throw new h(`unsupported expression: ${a.kind}`);
+        }
+      }
+      "Sr"(a, b) {
+        let c = new i(),
+          d = 1,
+          e = a.entries || [];
+        for (let a = 0; a < e.length; a += 1) {
+          let f = e[a];
+          if (f.type === "key") {
+            c.set(this.eval(f.key, b), this.eval(f.value, b));
+            continue;
+          }
+          if (a === e.length - 1) for (let a of this.ie(f.value, b)) c.set(d, a), d += 1;else c.set(d, this.eval(f.value, b)), d += 1;
+        }
+        return c;
+      }
+      "Nr"(a, b) {
+        let c = this.eval(a.argument, b);
+        switch (a.operator) {
+          case "-":
+            return f["Be"](this, c);
+          case "not":
+            return !l(c);
+          case "#":
+            return f.length(this, c);
+          default:
+            throw new h(`unknown unary operator '${a.operator}'`);
+        }
+      }
+      "Cr"(a, b) {
+        let c = a.operator;
+        if (c === "and") {
+          let c = this.eval(a.lhs, b);
+          return l(c) ? this.eval(a.rhs, b) : c;
+        }
+        if (c === "or") {
+          let c = this.eval(a.lhs, b);
+          return l(c) ? c : this.eval(a.rhs, b);
+        }
+        let d = this.eval(a.lhs, b),
+          e = this.eval(a.rhs, b);
+        switch (c) {
+          case "..":
+            return f.concat(this, d, e);
+          case "==":
+            return f.equals(this, d, e);
+          case "~=":
+            return !f.equals(this, d, e);
+          case "<":
+            return f.q(this, d, e);
+          case ">":
+            return f.q(this, e, d);
+          case "<=":
+            return f["P"](this, d, e);
+          case ">=":
+            return f["P"](this, e, d);
+          default:
+            return f.arith(this, c, d, e);
+        }
+      }
+    };
+  b.exports = {
+    "Interpreter": t,
+    "Scope": s,
+    "LuaLimitError": r
+  };
+});
+var w = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    {
+      walk: d
+    } = l();
+  function f(a) {
+    let b = new Set();
+    return d(a, {
+      enter: a => {
+        for (let c of a.bindings || []) c && b.add(c);
+        a.binding && (a.kind === c["LocalFunction"] || a.kind === c["NumericFor"]) && b.add(a.binding);
+      }
+    }), b;
+  }
+  function g(a) {
+    let b = a;
+    for (; b && b.kind === c["Paren"];) b = b.expression;
+    return b && b.kind === c["Function"] ? b : null;
+  }
+  var h = class {
+    constructor(a, b, c) {
+      this["K"] = b, this["U"] = c, this.carriers = new Map(), this.direct = new Map(), this.mentions = new Map(), this.resolved = new Map(), this.oe = new Map(), this.collect(a);
+    }
+    collect(a) {
+      let b = (a, b) => {
+        !a || !b || (this.carriers.has(a) || this.carriers.set(a, new Set()), this.carriers.get(a).add(b));
+      };
+      d(a, {
+        enter: a => {
+          if (a.kind === c["LocalFunction"]) b(a.binding, a.body);else if (a.kind === c["FunctionDeclaration"]) a.target && a.target.kind === c["Name"] && b(a.target.binding, a.body);else if (a.kind === c["LocalDeclaration"] || a.kind === c["Assignment"]) {
+            let d = a.kind === c["LocalDeclaration"] ? a.bindings || [] : null;
+            (a.expressions || [])["forEach"]((e, f) => {
+              let h = g(e);
+              if (!h) return;
+              if (d) {
+                b(d[f], h);
+                return;
+              }
+              let i = (a.targets || [])[f];
+              i && i.kind === c["Name"] && b(i.binding, h);
+            });
+          }
+          a.kind === c["Function"] && this.summarise(a);
+        }
+      });
+    }
+    summarise(a) {
+      let b = f(a),
+        c = a => {
+          let c = new Set();
+          for (let d of a) b.has(d) || c.add(d);
+          return c;
+        };
+      this.direct.set(a, c(this["K"](a.body, !0))), this.mentions.set(a, c(this["U"](a.body)));
+    }
+    close() {
+      if (!this.closed) {
+        this.closed = !0;
+        for (let [a, b] of this.direct) this.resolved.set(a, new Set(b));
+        for (let [a, b] of this.mentions) this.oe.set(a, new Set(b));
+        for (let a = !0; a;) {
+          a = !1;
+          for (let [b, c] of this.mentions) {
+            let d = this.resolved.get(b),
+              e = this.oe.get(b);
+            for (let b of c) for (let c of this.carriers.get(b) || []) {
+              for (let b of this.resolved.get(c) || []) d.has(b) || (d.add(b), a = !0);
+              for (let b of this.oe.get(c) || []) e.has(b) || (e.add(b), a = !0);
+            }
+          }
+        }
+      }
+    }
+    "Fr"(a) {
+      this.close();
+      let b = this.oe.get(a);
+      if (!b) return new Set();
+      let c = this.resolved.get(a) || new Set(),
+        d = new Set();
+      for (let a of b) c.has(a) || d.add(a);
+      return d;
+    }
+    qr(a) {
+      return this.close(), this.oe.get(a) || new Set();
+    }
+    "Rn"(a) {
+      return this.carriers.get(a) || new Set();
+    }
+    "Dn"(a) {
+      return this.close(), this.resolved.get(a) || new Set();
+    }
+    of(a) {
+      let b = new Set(this["K"](a, !1));
+      for (let c of this["U"](a)) for (let a of this.carriers.get(c) || []) for (let c of this["Dn"](a)) b.add(c);
+      return b;
+    }
+  };
+  b.exports = {
+    "Writes": h,
+    "Mr": f
+  };
+});
+var x = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    {
+      framed: d
+    } = l(),
+    f = class {
+      constructor(a) {
+        this.paths = new Map(), this.labelled = new Set(), d(a, (a, b) => {
+          if (a.kind !== c["Block"]) {
+            this.paths.set(a, b);
+            return;
+          }
+          a.statements.some(a => a.kind === c["Label"]) && this.labelled.add(a);
+        });
+      }
+      path(a) {
+        return this.paths.get(a) || null;
+      }
+      precedes(a, b) {
+        let c = this.path(a),
+          d = this.path(b);
+        if (!c || !d) return !1;
+        let e = c,
+          f = d;
+        for (; e.depth > f.depth;) e = e.up;
+        for (; f.depth > e.depth;) f = f.up;
+        if (e === f) return !1;
+        for (; e.up !== f.up;) e = e.up, f = f.up;
+        return !(e !== c || e.block !== f.block || e.at >= f.at || this.labelled.has(e.block) && this.$r(e.block, e.at, f.at));
+      }
+      $r(a, b, d) {
+        let e = a.statements;
+        for (let a = b + 1; a <= d && a < e.length; a += 1) if (e[a].kind === c["Label"]) return !0;
+        return !1;
+      }
+    };
+  b.exports = {
+    "Positions": f
+  };
+});
+var y = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    {
+      walk: d
+    } = l(),
+    f = new Set(["error"]),
+    g = new Set([c["True"], c["Number"], c["String"], c["Table"], c["Function"]]);
+  function h(a) {
+    return a ? a.kind === c["Paren"] ? h(a.expression) : g.has(a.kind) : !1;
+  }
+  function i(a) {
+    let b = a;
+    for (; b && b.kind === c["Paren"];) b = b.expression;
+    return b;
+  }
+  function j(a) {
+    let b = !1;
+    return d(a, {
+      enter(a) {
+        if (b || a.kind === c["Function"]) return !1;
+        if (a.kind === c["While"] || a.kind === c["Repeat"] || a.kind === c["NumericFor"] || a.kind === c["GenericFor"]) {
+          let e = !1;
+          return d(a.body, {
+            enter(a) {
+              if (a.kind === c["Function"]) return !1;
+              (a.kind === c["Return"] || a.kind === c["Goto"]) && (e = !0);
+            }
+          }), e && (b = !0), !1;
+        }
+        (a.kind === c["Break"] || a.kind === c["Return"] || a.kind === c["Goto"]) && (b = !0);
+      }
+    }), b;
+  }
+  function k(a, b) {
+    let d = i(a);
+    if (!d || d.kind !== c["Call"]) return !1;
+    let e = i(d.base);
+    return e ? e.kind === c["Name"] && !e.binding && f.has(e.name) ? !0 : e.kind === c["Function"] ? n(e.body, b + 1) : !1 : !1;
+  }
+  function m(a, b = 0) {
+    if (!a || b > 48) return !1;
+    switch (a.kind) {
+      case c["While"]:
+        return h(a.condition) && !j(a.body);
+      case c["Repeat"]:
+        return n(a.body, b + 1) || a.condition && a.condition.kind === c["False"] && !j(a.body);
+      case c["Do"]:
+        return n(a.body, b + 1);
+      case c["Return"]:
+        return (a.expressions || []).length === 1 && k(a.expressions[0], b);
+      case c["CallStatement"]:
+        return k(a.expression, b);
+      case c["If"]:
+        {
+          if (!a.e || !n(a.body, b + 1)) return !1;
+          for (let c of a.s || []) if (!n(c.body, b + 1)) return !1;
+          return n(a.e, b + 1);
+        }
+      default:
+        return !1;
+    }
+  }
+  function n(a, b = 0) {
+    return !a || b > 48 ? !1 : (a.statements || []).some(a => m(a, b + 1));
+  }
+  function o(a) {
+    let b = new Map(),
+      e = new Set(),
+      f = (a, c, d, f) => {
+        if (!(!a || a.kind === "global" || e.has(a))) {
+          if (b.has(a) || a.writes.length !== (f ? 1 : 0)) {
+            e.add(a), b.delete(a);
+            return;
+          }
+          b.set(a, {
+            list: c,
+            index: d
+          });
+        }
+      };
+    return d(a, {
+      enter(a) {
+        if (a.kind === c["LocalDeclaration"]) {
+          let b = a.bindings || [],
+            c = a.expressions || [];
+          b.length === c.length && b["forEach"]((a, b) => f(a, c, b, !1));
+          return;
+        }
+        if (a.kind === c["LocalFunction"] && a.binding) {
+          f(a.binding, [a.body], 0, !1);
+          return;
+        }
+        if (a.kind === c["Assignment"]) {
+          let b = a.targets || [],
+            d = a.expressions || [];
+          b.length === d.length && b["forEach"]((a, b) => {
+            let e = i(a);
+            e && e.kind === c["Name"] && f(e.binding, d, b, !0);
+          });
+        }
+      }
+    }), b;
+  }
+  function p(a) {
+    let b = new Map();
+    for (let d of a.keys()) {
+      let e = d,
+        f = new Set([d]);
+      for (;;) {
+        let b = i(q(a, e));
+        if (!b || b.kind !== c["Name"] || !b.binding || f.has(b.binding)) break;
+        f.add(b.binding), e = b.binding;
+      }
+      e !== d && b.set(d, e);
+    }
+    return b;
+  }
+  function q(a, b) {
+    let c = b ? a.get(b) : null;
+    return c ? c.list[c.index] : null;
+  }
+  b.exports = {
+    "W": o,
+    "Ge": q,
+    "Pn": p,
+    jn: h,
+    bare: i,
+    "Lr": j,
+    diverges: m,
+    zn: n
+  };
+});
+var z = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    {
+      walk: d,
+      children: f
+    } = l(),
+    {
+      "Interpreter": g
+    } = v(),
+    h = o(),
+    i = p(),
+    k = n(),
+    m = q(),
+    {
+      "Writes": r,
+      "Mr": s
+    } = w(),
+    {
+      "Positions": t
+    } = x(),
+    {
+      c: u
+    } = j(),
+    {
+      "W": z,
+      "Ge": aa,
+      "Pn": ab
+    } = y(),
+    ac = new Set(["string", "table", "math", "bit", "bit32", "utf8", "type", "tostring", "tonumber", "select", "unpack", "ipairs", "pairs", "next", "rawget", "rawset", "rawequal", "rawlen", "setmetatable", "getmetatable", "assert", "pcall", "_VERSION", "_ENV"]);
+  function ad(a) {
+    let b = new h["LuaTable"]();
+    for (let c of ac) {
+      let d = a.globals.get(c);
+      d !== void 0 && b.set(c, d);
+    }
+    let c = new h["LuaTable"]();
+    return c.set("__index", (a, b) => {
+      let c = new h["LuaError"](`unknown global '${String(b[1])}'`);
+      throw c.sandbox = !0, c;
+    }), b.metatable = c, b;
+  }
+  var ae = a => a === void 0 || typeof a == "boolean" || typeof a == "number" || typeof a == "string",
+    af = 2e4;
+  function ag(a, b, e) {
+    let f = new Set(),
+      g = a => {
+        let b = a;
+        for (; b && b.kind === c["Paren"];) b = b.expression;
+        if (!b) return;
+        if (b.kind === c["Name"]) {
+          b.binding && f.add(b.binding);
+          return;
+        }
+        let d = b;
+        for (; d && (d.kind === c["Index"] || d.kind === c["Paren"]);) d = d.base || d.expression;
+        if (!d || d.kind !== c["Name"] || !d.binding) return;
+        f.add(d.binding);
+        let g = e ? e.get(d.binding) : void 0;
+        g && f.add(g);
+      };
+    return d(a, {
+      enter: d => {
+        if (d !== a && d.kind === c["Function"] && !b) return !1;
+        if (d.kind === c["Assignment"]) (d.targets || [])["forEach"](g);else if (d.kind === c["LocalDeclaration"] || d.kind === c["GenericFor"] || d.kind === c["Function"]) for (let a of d.bindings || []) a && f.add(a);else (d.kind === c["LocalFunction"] || d.kind === c["NumericFor"]) && d.binding && f.add(d.binding);
+      }
+    }), f;
+  }
+  function ah(a, b = !0) {
+    let d = new Set(),
+      e = new Set(),
+      g = (a, b) => {
+        !a || d.has(a) || e.has(a) || (b ? e.add(a) : d.add(a));
+      },
+      h = d => {
+        if (!(!d || typeof d != "object")) {
+          switch (d.kind) {
+            case c["Name"]:
+              g(d.binding, !1);
+              return;
+            case c["Assignment"]:
+              (d.expressions || [])["forEach"](h);
+              for (let a of d.targets || []) {
+                let b = a;
+                for (; b && b.kind === c["Paren"];) b = b.expression;
+                b && (b.kind === c["Name"] ? g(b.binding, !0) : h(b));
+              }
+              return;
+            case c["LocalDeclaration"]:
+              (d.expressions || [])["forEach"](h);
+              for (let a of d.bindings || []) g(a, !0);
+              return;
+            case c["NumericFor"]:
+              h(d.start), h(d.limit), h(d.step), g(d.binding, !0), h(d.body);
+              return;
+            case c["GenericFor"]:
+              (d.expressions || [])["forEach"](h);
+              for (let a of d.bindings || []) g(a, !0);
+              h(d.body);
+              return;
+            case c["Function"]:
+              if (d !== a && !b) return;
+              for (let a of d.bindings || []) g(a, !0);
+              h(d.body);
+              return;
+            case c["LocalFunction"]:
+              g(d.binding, !0);
+              break;
+            default:
+              break;
+          }
+          for (let a of f(d)) h(a.node);
+        }
+      };
+    return h(a), d;
+  }
+  var ai = class {
+    constructor(a, b = {}) {
+      this.chunk = a, this.options = b, this.rt = new g({
+        x: b.x || 4e7
+      }), this.scope = this.rt["Te"](), this.values = new Map(), this.declared = new Set(), this.declarations = [], this.failures = [], this.be = new Set(), this.mutated = new Map(), this.skipped = [], this.unfoldable = new Set(), this.cells = new Map(), this.tainted = new Set(), this["Ke"] = new Map(), this.point = 0, this.me = null, this.dirty = null, this.depth = 0, this.live = !1, this.copying = !1, this.impure = new Set(), this.caches = new Set(), this.positions = null, this.holders = null, this.parents = null, this["W"] = z(a), this.copies = ab(this["W"]), this.reading = new Set(), this.summary = new r(a, (a, b) => ag(a, b, this.copies), ah);
+      let c = this.rt.globals.get("table");
+      if (c) for (let a of ["insert", "remove", "sort"]) {
+        let b = c.get(a);
+        b && this.impure.add(b);
+      }
+      for (let a of ["rawset", "setmetatable", "collectgarbage"]) {
+        let b = this.rt.globals.get(a);
+        b && this.impure.add(b);
+      }
+      this.rt.globals.set("_ENV", ad(this.rt));
+    }
+    "Gn"(a) {
+      if (!a || typeof a != "object") return !1;
+      if (a.kind === c["Vararg"]) return !0;
+      if (a.kind === c["Function"]) return !1;
+      for (let b of f(a)) if (this["Gn"](b.node)) return !0;
+      return !1;
+    }
+    "Er"(a) {
+      if (this["Gn"](a)) return !1;
+      let b = s(a),
+        e = !0;
+      return d(a, {
+        enter: a => {
+          if (!e) return !1;
+          if (a.kind !== c["Name"]) return;
+          let d = a.binding;
+          if (!d) return e = !1, !1;
+          if (d.kind === "global") {
+            ac.has(d.name) || (e = !1);
+            return;
+          }
+          if (!this.declared.has(d) && !b.has(d)) return e = !1, !1;
+        }
+      }), e;
+    }
+    "Ar"(a) {
+      if (a.kind === c["LocalDeclaration"] && a.bindings) for (let b = 0; b < a.bindings.length; b += 1) this.note(a.bindings[b], a.names[b]);else a.kind === c["LocalFunction"] && a.binding && this.note(a.binding, a.name);
+    }
+    note(a, b) {
+      if (!a) return;
+      this.declarations.push({
+        binding: a,
+        name: b
+      }), this.declared.add(a);
+      let c = this.scope.lookup(b);
+      c && this.cells.set(a, c);
+    }
+    "Ir"() {
+      let a = new Map();
+      for (let {
+        binding: b,
+        name: c
+      } of this.declarations) {
+        let d = this.scope.lookup(c);
+        if (!d) continue;
+        let e = a.get(c);
+        e && this.unfoldable.add(e), a.set(c, b), this.values.set(b, {
+          value: d.value
+        });
+      }
+    }
+    prepare(a) {
+      let b = this.chunk.body.statements;
+      this["Or"](b), this.live = !!a;
+      for (let d = 0; d < b.length; d += 1) {
+        let e = b[d];
+        if (this.point = d, a && (this.depth = 0, this.dirty = null, this.me = new Set([...ag(e, !0), ...this["Kn"](e)]), a(e, d)), e.kind === c["Return"]) break;
+        if (!this["Er"](e)) {
+          this.skipped.push(e), this["Ue"](e);
+          continue;
+        }
+        try {
+          let a = this.rt.swallows || 0,
+            b = k.witness(() => this.rt["Bn"](e, this.scope));
+          if ((this.rt.swallows || 0) !== a) {
+            this.skipped.push(e), this["Ue"](e);
+            continue;
+          }
+          if (this.be.add(e), b.older.size && this.mutated.set(e, b.older), this["Ar"](e), this["Tr"](e), b.value) break;
+        } catch (a) {
+          this.skipped.push(e), this.be.delete(e), this.failures.push({
+            statement: e,
+            error: a
+          }), this["Ue"](e);
+          continue;
+        }
+      }
+      return this.live = !1, this["Ir"](), this["_r"](), this["Br"](), this;
+    }
+    "Or"(a) {
+      a["forEach"]((a, b) => {
+        for (let c of ag(a, !0)) this["Ke"].set(c, b);
+      });
+    }
+    "Ue"(a) {
+      for (let b of this["Kn"](a)) this.tainted.add(b);
+    }
+    "Kn"(a) {
+      let b = this.summary.of(a);
+      for (let c of ah(a)) {
+        let a = this.cells.get(c),
+          d = a ? a.value : void 0;
+        if (!(!(d instanceof h["LuaFunction"]) || !d.node)) for (let a of this.summary["Dn"](d.node)) b.add(a);
+      }
+      return b;
+    }
+    "Tr"(a) {
+      let b = ag(a, !1);
+      if (!b.size) return;
+      let c = !1;
+      for (let b of ah(a, !1)) if (this.tainted.has(b)) {
+        c = !0;
+        break;
+      }
+      for (let a of b) c ? this.tainted.add(a) : this.tainted.delete(a);
+    }
+    usable(a) {
+      return !a || this.tainted.has(a) || this.me && this.me.has(a) ? !1 : this.depth === 0 ? !0 : (this["Ke"].has(a) ? this["Ke"].get(a) : -1) < this.point;
+    }
+    "_r"() {
+      for (let [a] of this.values) for (let b of a.writes) if (!this.we(b)) {
+        this.unfoldable.add(a);
+        break;
+      }
+      let a = new Set();
+      d(this.chunk, {
+        enter: b => {
+          if (b.kind === c["Assignment"]) for (let d of b.targets) {
+            if (d.kind !== c["Index"]) continue;
+            let e = d.base;
+            for (; e && e.kind === c["Index"];) e = e.base;
+            e && e.kind === c["Name"] && e.binding && !this.we(b) && a.add(e.binding);
+          }
+        }
+      });
+      for (let b of a) this.unfoldable.add(b);
+      for (let [a, b] of this.values) if (!ae(b.value)) for (let b of a.reads) {
+        if (this.we(b)) continue;
+        let d = this["Un"](b);
+        if (!(d && (d.kind === c["Index"] && d.base === b || (d.kind === c["Call"] || d.kind === c["MethodCall"]) && d.base === b))) {
+          this.unfoldable.add(a);
+          break;
+        }
+      }
+    }
+    "Un"(a) {
+      if (!this.parents) {
+        let a = new Map(),
+          b = [this.chunk];
+        for (; b.length;) {
+          let c = b.pop();
+          for (let d of f(c)) a.set(d.node, c), b.push(d.node);
+        }
+        this.parents = a;
+      }
+      return this.parents.get(a);
+    }
+    we(a) {
+      for (let b = a; b; b = this["Un"](b)) if (this.be.has(b)) return !0;
+      return !1;
+    }
+    lookup(a) {
+      if (!(!a || this.unfoldable.has(a) || this.tainted.has(a))) return this.values.get(a);
+    }
+    "Wn"(a, b) {
+      if (!a || a.kind === "global") return {
+        ok: !1
+      };
+      if (this.reading.has(a) || this.unfoldable.has(a)) return {
+        ok: !1
+      };
+      if (this.tainted.has(a)) return {
+        ok: !1
+      };
+      let d = aa(this["W"], a);
+      if (!d) return {
+        ok: !1
+      };
+      if (!(m.j(d) && (a.writes || []).length === 0) && d.kind !== c["Function"] && d.kind !== c["Name"]) return {
+        ok: !1
+      };
+      this.reading.add(a);
+      try {
+        return this.evaluate(d, b + 1);
+      } finally {
+        this.reading.delete(a);
+      }
+    }
+    "Vn"(a, b, c) {
+      if (b.ok || !this.copying) return b;
+      let d = a.binding;
+      if (!d || this.reading.has(d)) return b;
+      let e = this.ye(a);
+      if (!e) return b;
+      this.reading.add(d);
+      try {
+        return this.evaluate(e, c + 1);
+      } finally {
+        this.reading.delete(d);
+      }
+    }
+    evaluate(a, b = 0) {
+      if (!a || b > 64) return {
+        ok: !1
+      };
+      switch (a.kind) {
+        case c["Nil"]:
+          return {
+            ok: !0,
+            value: void 0
+          };
+        case c["True"]:
+          return {
+            ok: !0,
+            value: !0
+          };
+        case c["False"]:
+          return {
+            ok: !0,
+            value: !1
+          };
+        case c["Number"]:
+          return {
+            ok: !0,
+            value: a.value
+          };
+        case c["String"]:
+          return {
+            ok: !0,
+            value: a.value
+          };
+        case c["Paren"]:
+          return this.evaluate(a.expression, b + 1);
+        case c["Function"]:
+          return this.protect(() => this.rt.eval(a, this.scope));
+        case c["Name"]:
+          {
+            if (a.binding && a.binding.kind === "global") return ac.has(a.binding.name) ? {
+              ok: !0,
+              value: this.rt.globals.get(a.binding.name)
+            } : {
+              ok: !1
+            };
+            if (this.live) {
+              let c = this.cells.get(a.binding);
+              return c && this.usable(a.binding) ? {
+                ok: !0,
+                value: c.value
+              } : this["Vn"](a, this["Wn"](a.binding, b), b);
+            }
+            let c = this.lookup(a.binding);
+            return c ? {
+              ok: !0,
+              value: c.value
+            } : this["Vn"](a, this["Wn"](a.binding, b), b);
+          }
+        case c["Table"]:
+          {
+            let c = new h["LuaTable"](),
+              d = a.entries || [],
+              e = 1;
+            for (let a = 0; a < d.length; a += 1) {
+              let f = d[a];
+              if (f.type === "key") {
+                let a = this.evaluate(f.key, b + 1),
+                  d = this.evaluate(f.value, b + 1);
+                if (!a.ok || !d.ok || a.value === void 0) return {
+                  ok: !1
+                };
+                if (!this.protect(() => c.set(a.value, d.value)).ok) return {
+                  ok: !1
+                };
+                continue;
+              }
+              let g = this.evaluate(f.value, b + 1);
+              if (!g.ok) return {
+                ok: !1
+              };
+              let h = a === d.length - 1 && g.values ? g.values : [g.value];
+              for (let a of h) c.set(e, a), e += 1;
+            }
+            return {
+              ok: !0,
+              value: c
+            };
+          }
+        case c["Index"]:
+          {
+            if (this["Hn"](a.base)) return {
+              ok: !1
+            };
+            let c = this.evaluate(a.base, b + 1),
+              d = this.evaluate(a.index, b + 1);
+            return !c.ok || !d.ok ? {
+              ok: !1
+            } : c.value instanceof h["LuaTable"] ? this["Yn"](c.value) ? {
+              ok: !1
+            } : this.protect(() => i.index(this.rt, c.value, d.value)) : {
+              ok: !1
+            };
+          }
+        case c["Binary"]:
+          {
+            if (a.operator === "and" || a.operator === "or") {
+              let c = this.evaluate(a.lhs, b + 1);
+              return c.ok ? (a.operator === "and" ? h.truthy(c.value) : !h.truthy(c.value)) ? this.evaluate(a.rhs, b + 1) : c : {
+                ok: !1
+              };
+            }
+            let c = this.evaluate(a.lhs, b + 1),
+              d = this.evaluate(a.rhs, b + 1);
+            return !c.ok || !d.ok ? {
+              ok: !1
+            } : this.protect(() => this["Rr"](a.operator, c.value, d.value));
+          }
+        case c["Unary"]:
+          {
+            let c = this.evaluate(a.argument, b + 1);
+            return c.ok ? this.protect(() => a.operator === "-" ? i["Be"](this.rt, c.value) : a.operator === "not" ? !h.truthy(c.value) : i.length(this.rt, c.value)) : {
+              ok: !1
+            };
+          }
+        case c["Call"]:
+          {
+            let c = this.evaluate(a.base, b + 1);
+            if (!c.ok || !h["_"](c.value)) return {
+              ok: !1
+            };
+            if (this["We"](c.value)) return {
+              ok: !1
+            };
+            let d = this["Xn"](a.args, b + 1);
+            return d.ok ? this["Ve"](c.value, d.values) : {
+              ok: !1
+            };
+          }
+        case c["MethodCall"]:
+          {
+            if (this["Hn"](a.base)) return {
+              ok: !1
+            };
+            let c = this.evaluate(a.base, b + 1);
+            if (!c.ok || this["Yn"](c.value)) return {
+              ok: !1
+            };
+            let d = this["Xn"](a.args, b + 1);
+            if (!d.ok) return {
+              ok: !1
+            };
+            let e = this.protect(() => i.index(this.rt, c.value, a.method));
+            return !e.ok || !h["_"](e.value) ? {
+              ok: !1
+            } : this["We"](e.value) ? {
+              ok: !1
+            } : this["Ve"](e.value, [c.value, ...d.values]);
+          }
+        default:
+          return {
+            ok: !1
+          };
+      }
+    }
+    "Rr"(a, b, c) {
+      switch (a) {
+        case "..":
+          return i.concat(this.rt, b, c);
+        case "==":
+          return i.equals(this.rt, b, c);
+        case "~=":
+          return !i.equals(this.rt, b, c);
+        case "<":
+          return i.q(this.rt, b, c);
+        case ">":
+          return i.q(this.rt, c, b);
+        case "<=":
+          return i["P"](this.rt, b, c);
+        case ">=":
+          return i["P"](this.rt, c, b);
+        default:
+          return i.arith(this.rt, a, b, c);
+      }
+    }
+    "Xn"(a, b) {
+      let c = a || [],
+        d = [];
+      for (let a = 0; a < c.length; a += 1) {
+        let e = this.evaluate(c[a], b);
+        if (!e.ok) return {
+          ok: !1
+        };
+        a === c.length - 1 && e.values ? d.push(...e.values) : d.push(e.value);
+      }
+      return {
+        ok: !0,
+        values: d
+      };
+    }
+    "Ve"(a, b) {
+      if (this.impure.has(a)) return {
+        ok: !1
+      };
+      let c = k.record(() => this["Dr"](a, b));
+      if (c.value.ok) for (let a of c.writes) a instanceof h["LuaTable"] && this.caches.add(a);
+      return c.value;
+    }
+    "Dr"(a, b) {
+      let c = this.rt.swallows || 0,
+        d = k.attempt(() => this.protect(() => this.rt.call(a, b))),
+        e = d.value;
+      if (!e.ok || (this.rt.swallows || 0) !== c) return k.undo(d), {
+        ok: !1
+      };
+      let f = k.attempt(() => this.protect(() => this.rt.call(a, b))),
+        g = f.value;
+      k.undo(f);
+      let h = g.ok && !f.escaped && e.value.length === g.value.length,
+        i = (a, b) => a === b || Number["isNaN"](a) && Number["isNaN"](b);
+      for (let a = 0; h && a < e.value.length; a += 1) (!ae(e.value[a]) || !i(e.value[a], g.value[a])) && (h = !1);
+      return h ? (k.commit(d), {
+        ok: !0,
+        value: e.value[0],
+        values: e.value
+      }) : (k.undo(d), {
+        ok: !1
+      });
+    }
+    "Yn"(a) {
+      return !!this.dirty && this.dirty.has(a);
+    }
+    "Hn"(a) {
+      if (!this.dirty) return !1;
+      let b = a;
+      for (; b && b.kind === c["Paren"];) b = b.expression;
+      return !!b && b.kind === c["Name"] && this.dirty.has(b.binding);
+    }
+    "We"(a) {
+      if (!(a instanceof h["LuaFunction"]) || !a.node) return !1;
+      for (let b of this.summary["Fr"](a.node)) if (!this.usable(b) || this.dirty && this.dirty.has(b)) return !0;
+      return !1;
+    }
+    protect(a) {
+      let b = this.rt.steps;
+      try {
+        return {
+          ok: !0,
+          value: a()
+        };
+      } catch {
+        return this.rt.steps = b, {
+          ok: !1
+        };
+      }
+    }
+    "Zn"(a) {
+      let b = this.copying;
+      this.copying = !0;
+      try {
+        let b = a;
+        for (let a = 0; a <= 8; a += 1) {
+          let a = this.evaluate(b);
+          if (a.ok) return a;
+          let c = this.ye(b);
+          if (!c) return {
+            ok: !1
+          };
+          b = c;
+        }
+        return {
+          ok: !1
+        };
+      } finally {
+        this.copying = b;
+      }
+    }
+    ye(a) {
+      let b = a;
+      for (; b && b.kind === c["Paren"];) b = b.expression;
+      if (!b || b.kind !== c["Name"]) return null;
+      let d = b.binding;
+      if (!d || !u(d) || (d.writes || []).length > 1) return null;
+      let e = this["Pr"]().get(d);
+      return !e || (this.positions || (this.positions = new t(this.chunk)), !this.positions.precedes(e.statement, b)) ? null : e.value;
+    }
+    "Pr"() {
+      if (this.holders) return this.holders;
+      let a = new Map(),
+        b = (b, c, d) => {
+          !b || !c || (a.has(b) ? a.set(b, null) : a.set(b, {
+            value: c,
+            statement: d
+          }));
+        };
+      return d(this.chunk, {
+        enter: a => {
+          if (a.kind === c["LocalDeclaration"]) {
+            let c = a.expressions || [];
+            c.length === (a.names || []).length && (a.bindings || [])["forEach"]((d, e) => b(d, c[e], a));
+          } else if (a.kind === c["Assignment"]) {
+            let d = a.targets || [],
+              e = a.expressions || [];
+            d.length === e.length && d["forEach"]((d, f) => {
+              d.kind === c["Name"] && b(d.binding, e[f], a);
+            });
+          }
+        }
+      }), this.holders = a, a;
+    }
+    "Br"() {
+      this.depth = 0, this.me = null, this.dirty = null;
+      let a = 0,
+        b = new Set();
+      return d(this.chunk, {
+        enter: d => {
+          if (a >= af) return !1;
+          if (d.kind !== c["Call"]) return;
+          let e = d.args || [];
+          if (!e.length || !e.every(a => m.j(a) || a.kind === c["Name"])) return;
+          let f = this.jr(d.base);
+          if (!f || this["We"](f)) return;
+          a += 1;
+          let g = k.record(() => {
+            let a = [];
+            for (let b of e) {
+              let c = this["Zn"](b);
+              if (!c.ok) return {
+                ok: !1
+              };
+              a.push(c.value);
+            }
+            return this["Ve"](f, a);
+          });
+          for (let a of g.writes) b.add(a);
+          if (g.value.ok) for (let a of g.writes) a instanceof h["LuaTable"] && this.caches.add(a);
+        }
+      }), this.distrust(b), a;
+    }
+    distrust(a) {
+      let b = new Map();
+      for (let [a, c] of this.cells) b.set(c, a);
+      for (let c of a) {
+        let a = b.get(c);
+        a && this.tainted.add(a);
+      }
+      for (let [b, c] of this.values) a.has(c.value) && !this.caches.has(c.value) && this.unfoldable.add(b);
+    }
+    "Jn"(a, b) {
+      let d = a;
+      for (let a = 0; a <= 8 && d; a += 1) {
+        for (; d && d.kind === c["Paren"];) d = d.expression;
+        if (!d) return null;
+        let a = this.evaluate(d);
+        if (a.ok) return b(a.value, null) ? a.value : null;
+        if (d.kind !== c["Name"] || !u(d.binding)) return null;
+        let e = this.values.get(d.binding);
+        if (e && b(e.value, d.binding)) return e.value;
+        d = this.ye(d);
+      }
+      return null;
+    }
+    jr(a) {
+      return this["Jn"](a, (a, b) => a instanceof h["LuaFunction"] && !!a.node && (!b || (b.writes || []).every(a => this.we(a))));
+    }
+    zr(a) {
+      return this["Jn"](a, a => this["Qn"](a));
+    }
+    "Qn"(a, b = 0) {
+      if (!(a instanceof h["LuaTable"]) || b > 8) return !1;
+      if (this.caches.has(a)) return !0;
+      let c = a.metatable;
+      return c ? this["Qn"](c.get("__index"), b + 1) : !1;
+    }
+    "Gr"(a) {
+      if (!this.caches.size || !a || a.kind !== c["Index"]) return null;
+      let b = this["Zn"](a.index);
+      if (!b.ok || b.value === void 0) return null;
+      let d = this.zr(a.base);
+      if (!d) return null;
+      let e = this.protect(() => i.index(this.rt, d, b.value));
+      return !e.ok || !ae(e.value) || e.value === void 0 ? null : m["An"](e.value);
+    }
+    "Kr"(a, b = !1) {
+      if (m.j(a)) return null;
+      let c = this.evaluate(a);
+      return !c.ok || !ae(c.value) || c.value === void 0 || b && c.values && c.values.length !== 1 ? null : m["An"](c.value);
+    }
+  };
+  b.exports = {
+    "Evaluator": ai,
+    "K": ag,
+    "U": ah
+  };
+});
+var aa = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c,
+      kn: d
+    } = e(),
+    {
+      children: f,
+      collect: g,
+      walk: h,
+      transform: i
+    } = l(),
+    {
+      "Evaluator": k,
+      "U": m,
+      "K": n
+    } = z(),
+    {
+      c: p,
+      "D": r
+    } = j(),
+    s = q(),
+    {
+      "Pn": t,
+      "W": u,
+      "Ge": v
+    } = y(),
+    {
+      "Writes": x
+    } = w(),
+    {
+      "LuaTable": aa,
+      "LuaFunction": ab
+    } = o();
+  function ac(a, b, d, e) {
+    let f = new Set(),
+      g = !1,
+      i = a => {
+        if (!a) return;
+        if (!p(a)) {
+          g = !0;
+          return;
+        }
+        f.add(a);
+        let b = e.get(a);
+        b && f.add(b);
+      };
+    h(a, {
+      enter(d) {
+        b.set(d, a), d.kind === c["FunctionDeclaration"] && (g = !0);
+      }
+    });
+    for (let b of n(a, !0, e)) i(b);
+    for (let b of d.of(a)) i(b);
+    for (let b of m(a)) p(b) && i(b);
+    return g ? null : f;
+  }
+  function ad(a, b, c) {
+    for (let d of a.reads || []) if (!b.has(c.get(d))) return !0;
+    return !1;
+  }
+  function ae(a, b, c) {
+    let d = [a.rt.globals];
+    for (let [e, f] of a.values) f && ad(e, b, c) && d.push(f.value);
+    let e = new Set();
+    for (; d.length;) {
+      let a = d.pop();
+      if (!(!(a instanceof aa) || e.has(a))) {
+        e.add(a);
+        for (let [b, c] of a.map) d.push(b), d.push(c);
+        a.metatable && d.push(a.metatable);
+      }
+    }
+    return e;
+  }
+  function af(a, b, c, d, e) {
+    for (let f of a) {
+      if (f instanceof aa) {
+        if (b.has(f)) return !0;
+        continue;
+      }
+      let a = c.get(f);
+      if (!a || ad(a, d, e)) return !0;
+    }
+    return !1;
+  }
+  function ag(a, b, c) {
+    for (let d = 0; d < b.size && a.size; d += 1) {
+      let d = !1;
+      for (let e of a) {
+        let f = !1;
+        for (let d of b.get(e)) if (d && (f = ad(d, a, c)), f) break;
+        f && (a.delete(e), d = !0);
+      }
+      if (!d) break;
+    }
+  }
+  function ah(a, b, c, d) {
+    if (!a.mutated.size) return;
+    let e = new Map();
+    for (let [b, c] of a.cells) e.set(c, b);
+    for (let f = 0; f < c.size && b.size; f += 1) {
+      let f = ae(a, b, d),
+        g = !1;
+      for (let c of b) {
+        let h = a.mutated.get(c);
+        !h || !af(h, f, e, b, d) || (b.delete(c), g = !0);
+      }
+      if (!g) break;
+      ag(b, c, d);
+    }
+  }
+  function ai(a, b) {
+    let c = b.be;
+    if (!c.size) return 0;
+    let d = t(u(a.chunk)),
+      e = new x(a.chunk, (a, b) => n(a, b, d), m),
+      f = new Map(),
+      g = new Map();
+    for (let a of c) {
+      let b = ac(a, f, e, d);
+      b && g.set(a, b);
+    }
+    let h = new Set(g.keys());
+    if (ag(h, g, f), ah(b, h, g, f), !h.size) return 0;
+    let i = a.chunk.body,
+      j = i.statements.length;
+    return i.statements = i.statements.filter(a => !h.has(a)), j - i.statements.length;
+  }
+  function aj(a) {
+    let b = new Set();
+    if (a.kind === c["CallStatement"] && b.add(a.expression), a.kind === c["Assignment"]) for (let c of a.targets) b.add(c);
+    return a.kind === c["FunctionDeclaration"] && b.add(a.target), b;
+  }
+  function ak(a) {
+    let b = new Set(),
+      d = a => a && a.length ? a[a.length - 1] : null,
+      e = a => {
+        a && b.add(a);
+      };
+    if (a.kind === c["Call"] || a.kind === c["MethodCall"]) e(d(a.args));else if (a.kind === c["Return"]) e(d(a.expressions));else if (a.kind === c["LocalDeclaration"] || a.kind === c["Assignment"]) e(d(a.expressions));else if (a.kind === c["GenericFor"]) e(d(a.expressions));else if (a.kind === c["Table"]) {
+      let b = d(a.entries);
+      b && b.type === "item" && e(b.value);
+    }
+    return b;
+  }
+  function al(a) {
+    let b = a;
+    for (;;) {
+      if (!b) return null;
+      if (b.kind === c["Paren"]) {
+        b = b.expression;
+        continue;
+      }
+      if (b.kind === c["Index"]) {
+        b = b.base;
+        continue;
+      }
+      return b.kind === c["Name"] ? b : null;
+    }
+  }
+  function am(a) {
+    return a ? s.j(a) ? !0 : a.kind === c["Paren"] ? am(a.expression) : a.kind !== c["Table"] ? !1 : (a.entries || []).every(a => a.type === "item" ? am(a.value) : a.type === "key" ? s.j(a.key) && am(a.value) : !1) : !1;
+  }
+  function an(a) {
+    if (ap(a)) return !0;
+    let b = al(a);
+    return !!b && !r(b);
+  }
+  function ao(a) {
+    let b = a;
+    for (; b && b.kind === c["Paren"];) b = b.expression;
+    return b;
+  }
+  function ap(a) {
+    let b = ao(a);
+    return !!b && (b.kind === c["Function"] || b.kind === c["Table"]);
+  }
+  function aq(a, b) {
+    if (!a) return;
+    let c = a.evaluate(b);
+    return c && c.ok ? c.value : void 0;
+  }
+  function ar(a, b, d = new Set()) {
+    let e = ao(a);
+    return !e || d.has(e) ? !1 : (d.add(e), e.kind === c["Function"] || e.kind === c["Table"] ? !0 : e.kind === c["Name"] ? r(e) ? !1 : ar(v(b, e.binding), b, d) : e.kind === c["Index"] ? ar(e.base, b, d) : !1);
+  }
+  function as(a, b, c) {
+    return ar(a, c.values) ? !0 : aq(c.evaluator, a) instanceof b;
+  }
+  function at(a, b) {
+    let c = aq(b.evaluator, a.base);
+    if (!(c instanceof aa)) return !1;
+    let d = aq(b.evaluator, a.index);
+    return d == null ? !1 : au(c, d, new Set());
+  }
+  function au(a, b, c) {
+    let d = a;
+    for (; d instanceof aa && !c.has(d);) {
+      if (c.add(d), d.get(b) !== void 0) return !0;
+      let a = d.metatable;
+      d = a instanceof aa ? a.get("__index") : void 0;
+    }
+    return !1;
+  }
+  function av(a, b) {
+    return a.kind === c["Index"] ? a.index && a.index.kind === c["String"] || !an(a.base) || !as(a.base, aa, b) ? !1 : at(a, b) : a.kind === c["Call"] ? !an(a.base) || !as(a.base, ab, b) ? !1 : (a.args || []).every(a => am(a)) : !1;
+  }
+  var aw = new Set([c["While"], c["Repeat"], c["NumericFor"], c["GenericFor"]]);
+  function ax(a, b) {
+    let d = new Set(),
+      e = b => {
+        let e = ao(b);
+        if (!e) return;
+        if (e.kind === c["Name"]) {
+          if (!e.binding) return;
+          let b = a.cells.get(e.binding);
+          b && b.value instanceof aa && (d.add(e.binding), d.add(b.value));
+          return;
+        }
+        let f = aq(a, b);
+        f instanceof aa && d.add(f);
+      };
+    return h(b, {
+      enter: a => {
+        a.kind === c["Call"] ? (a.args || [])["forEach"](e) : a.kind === c["MethodCall"] && (e(a.base), (a.args || [])["forEach"](e));
+      }
+    }), d;
+  }
+  function ay(a, b, e = {}) {
+    let g = e.skip || new Set(),
+      h = {
+        evaluator: a,
+        values: e.values || new Map()
+      },
+      i = e.yi === !0,
+      j = {
+        folded: 0,
+        strings: 0
+      },
+      k = b => {
+        let e = a.dirty;
+        if (aw.has(b.kind)) {
+          let c = ax(a, b);
+          c.size && (a.dirty = e ? new Set([...e, ...c]) : c);
+        }
+        let l = aj(b),
+          m = ak(b);
+        for (let e of f(b)) {
+          let b = e.node;
+          if (!b || g.has(b)) continue;
+          if (d(b) && !l.has(b) && (i || av(b, h))) {
+            let d = a["Kr"](b, m.has(b));
+            if (d) {
+              e.index === null ? e.parent[e.key] = d : e.parent[e.key][e.index] = d, j.folded += 1, d.kind === c["String"] && (j.strings += 1);
+              continue;
+            }
+          }
+          let f = b.kind === c["Function"];
+          f && (a.depth += 1), k(b), f && (a.depth -= 1);
+        }
+        a.dirty = e;
+      };
+    return k(b), j;
+  }
+  function az(a) {
+    let b = new Set();
+    return h(a, {
+      enter(a) {
+        if (a.kind === c["Assignment"]) for (let c of a.targets || []) b.add(c);else a.kind === c["FunctionDeclaration"] && a.target && b.add(a.target);
+      }
+    }), b;
+  }
+  function ba(a, b, d) {
+    let e = {
+        folded: 0,
+        strings: 0
+      },
+      f = az(b);
+    return i(b, b => {
+      if (f.has(b)) return b;
+      let g = a["Gr"](b);
+      return g ? (e.folded += 1, g.kind === c["String"] && (e.strings += 1, d && (e.strings % 25 === 0 || e.strings === 1) && d["V"]("progress", {
+        step: "03-strings",
+        strings: e.strings,
+        folded: e.folded
+      })), g) : b;
+    }), e;
+  }
+  function bb(a) {
+    a.resolve();
+    let b = {
+        folded: 0,
+        strings: 0
+      },
+      c = new k(a.chunk, a.options),
+      d = u(a.chunk);
+    c.prepare(e => {
+      let f = ay(c, e, {
+        values: d
+      });
+      b.folded += f.folded, b.strings += f.strings, b.strings > 0 && (b.strings % 25 === 0 || b.folded % 50 === 0) && a["V"]("progress", {
+        step: "03-strings",
+        strings: b.strings,
+        folded: b.folded
+      });
+    });
+    let e = ba(c, a.chunk, a);
+    b.folded += e.folded, b.strings += e.strings, a.evaluator = c, a["V"]("progress", {
+      step: "03-strings",
+      strings: b.strings,
+      folded: b.folded
+    }), b.folded && (a.note(`resolved ${b.folded} hidden constant(s), ${b.strings} string(s)`, b.folded), a.bump("decrypt.constants", b.folded), a.bump("decrypt.strings", b.strings)), c.skipped.length && a.bump("decrypt.skippedStatements", c.skipped.length), a.resolve();
+    let f = ai(a, c);
+    f && (a.note(`removed the ${f}-statement decoder prelude`, f), a.bump("decrypt.preludeRemoved", f), a.resolve());
+  }
+  b.exports = {
+    name: "03-str",
+    run: bb,
+    "Evaluator": k,
+    "C": s
+  };
+});
+var ab = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    {
+      unparen: d,
+      de: f
+    } = m(),
+    g = {
+      "<": ">",
+      ">": "<",
+      "<=": ">=",
+      ">=": "<="
+    };
+  function h(a, b) {
+    let e = d(a);
+    if (!e || e.kind !== c["Binary"] || !g[e.operator]) return null;
+    let h = e.operator,
+      i = d(e.lhs),
+      j = d(e.rhs);
+    if (f(i) !== b) {
+      if (f(j) !== b) return null;
+      h = g[h];
+      let a = i;
+      i = j, j = a;
+    }
+    return !j || j.kind !== c["Number"] ? null : h === "<" ? {
+      lo: null,
+      hi: j.value
+    } : h === "<=" ? {
+      lo: null,
+      hi: j.value + 1
+    } : h === ">" ? {
+      lo: j.value + 1,
+      hi: null
+    } : {
+      lo: j.value,
+      hi: null
+    };
+  }
+  function i(a) {
+    let b = [],
+      d = a.container.pos,
+      e = (a, f, g) => {
+        let i = a.statements;
+        if (i.length === 1 && i[0].kind === c["If"] && i[0].e) {
+          let a = i[0],
+            b = [{
+              condition: a.condition,
+              body: a.body
+            }].concat(a.s || []),
+            c = b.map(a => h(a.condition, d));
+          if (c.every(Boolean)) {
+            let d = f,
+              h = g;
+            for (let a = 0; a < b.length; a += 1) c[a].hi !== null ? (e(b[a].body, d, Math.min(h, c[a].hi)), d = Math.max(d, c[a].hi)) : (e(b[a].body, Math.max(d, c[a].lo), h), h = Math.min(h, c[a].lo));
+            e(a.e, d, h);
+            return;
+          }
+        }
+        b.push({
+          lo: f,
+          hi: g,
+          statements: i,
+          id: null,
+          index: b.length
+        });
+      };
+    return e(a.container.dispatch.body, -1 / 0, 1 / 0), b;
+  }
+  function j(a, b) {
+    let c = new Map(),
+      d = [];
+    for (let e of b) {
+      let b = a.find(a => e >= a.lo && e < a.hi);
+      if (!b) {
+        d.push({
+          id: e,
+          reason: "outside every interval"
+        });
+        continue;
+      }
+      if (b.id !== null) {
+        d.push({
+          id: e,
+          reason: `interval already taken by ${b.id}`
+        });
+        continue;
+      }
+      b.id = e, c.set(e, b);
+    }
+    let e = a.filter(a => a.id === null);
+    return {
+      "He": c,
+      dead: e,
+      conflicts: d
+    };
+  }
+  b.exports = {
+    "Ur": i,
+    "Wr": j
+  };
+});
+var ac = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c,
+      d: d
+    } = e(),
+    {
+      "CHILDREN": f
+    } = l(),
+    {
+      unparen: g,
+      de: h
+    } = m(),
+    i = "VmRef",
+    j = "VmLive",
+    k = (a, b) => ({
+      kind: i,
+      index: a,
+      slot: b
+    }),
+    n = a => ({
+      kind: j,
+      reg: a
+    });
+  function o(a, b) {
+    let c = f[a.kind],
+      d = {
+        ...a
+      };
+    if (!c) return d;
+    for (let e of Object.keys(c)) {
+      let f = c[e],
+        g = a[e];
+      g != null && (f === "node" ? d[e] = b(g) : f === "list" ? d[e] = g.map(b) : f === "clauses" ? d[e] = g.map(a => ({
+        ...a,
+        condition: b(a.condition),
+        body: b(a.body)
+      })) : f === "entries" && (d[e] = g.map(a => ({
+        ...a,
+        key: a.key ? b(a.key) : a.key,
+        value: b(a.value)
+      }))));
+    }
+    return d;
+  }
+  function p(a) {
+    return a["Ye"] || (a["Ye"] = new Set(a.container.registers), a["Ye"].add(a.container.pos), a["Xe"] = `r${a.container.pos.id}`, a["Vr"] = `r${a.container["Yt"].id}`), a["Ye"];
+  }
+  function q(a, b) {
+    let d = g(b);
+    if (!d) return null;
+    if (d.kind === c["Name"]) {
+      let b = d.binding;
+      return b && p(a).has(b) ? `r${b.id}` : null;
+    }
+    if (d.kind === c["Index"] && a.container.spill) {
+      if (h(d.base) !== a.container.spill) return null;
+      let b = g(d.index);
+      return b && b.kind === c["Number"] ? `s${b.value}` : null;
+    }
+    return null;
+  }
+  function r(a, b) {
+    let c = h(b);
+    if (!c) return !1;
+    let {
+      args: d,
+      upvals: e,
+      qn: f
+    } = a.container;
+    return c === d || c === e || c === f;
+  }
+  function s(a, b) {
+    return b.targets.length === 1 && r(a, b.targets[0]);
+  }
+  function t(a) {
+    if (!a || typeof a != "object") return !1;
+    if (a.kind === c["Call"] || a.kind === c["MethodCall"]) return !0;
+    let b = f[a.kind];
+    if (!b) return !1;
+    for (let c of Object.keys(b)) {
+      let d = b[c],
+        e = a[c];
+      if (e != null) {
+        if (d === "node") {
+          if (t(e)) return !0;
+        } else if (d === "list") {
+          for (let a of e) if (t(a)) return !0;
+        } else if (d === "clauses") {
+          for (let a of e) if (t(a.condition) || t(a.body)) return !0;
+        } else if (d === "entries") {
+          for (let a of e) if (a.key && t(a.key) || t(a.value)) return !0;
+        }
+      }
+    }
+    return !1;
+  }
+  function u(a) {
+    if (!a || typeof a != "object") return !1;
+    if (a.kind === c["Call"] || a.kind === c["MethodCall"] || a.kind === c["Index"]) return !0;
+    let b = f[a.kind];
+    if (!b) return !1;
+    for (let c of Object.keys(b)) {
+      let d = b[c],
+        e = a[c];
+      if (e != null) {
+        if (d === "node") {
+          if (u(e)) return !0;
+        } else if (d === "list") {
+          for (let a of e) if (u(a)) return !0;
+        } else if (d === "clauses") {
+          for (let a of e) if (u(a.condition) || u(a.body)) return !0;
+        } else if (d === "entries") {
+          for (let a of e) if (a.key && u(a.key) || u(a.value)) return !0;
+        }
+      }
+    }
+    return !1;
+  }
+  function v(a, b) {
+    p(a);
+    let e = [],
+      f = new Map(),
+      h = new Set(),
+      i = new Set(),
+      j = [],
+      l = a => {
+        let b = f.get(a);
+        return b ? k(b.index, b.slot) : (i.has(a) || h.add(a), n(a));
+      },
+      m = b => {
+        if (!b || typeof b != "object") return b;
+        let e = q(a, b);
+        if (e) return l(e);
+        if (b.kind === c["Paren"]) {
+          let a = m(b.expression);
+          return d(g(b)) && a && typeof a == "object" && (a.truncated = !0), a;
+        }
+        return o(b, m);
+      };
+    for (let d of b.statements) {
+      if (d.kind === c["CallStatement"]) {
+        e.push({
+          index: e.length,
+          targets: [],
+          exprs: [m(d.expression)],
+          ordered: !0,
+          source: d
+        });
+        continue;
+      }
+      if (d.kind !== c["Assignment"]) {
+        j.push(d);
+        continue;
+      }
+      if (s(a, d)) continue;
+      let b = d.expressions.map(m),
+        h = d.targets.map(b => {
+          let d = q(a, b);
+          if (d) return {
+            reg: d,
+            node: null
+          };
+          let e = g(b);
+          return e.kind === c["Index"] ? {
+            reg: null,
+            node: {
+              ...e,
+              base: m(e.base),
+              index: m(e.index)
+            }
+          } : {
+            reg: null,
+            node: {
+              ...e
+            }
+          };
+        }),
+        k = h.length > 1 && b.length === h.length ? h.map((a, c) => ({
+          targets: [a],
+          exprs: [b[c]],
+          at: c
+        })) : [{
+          targets: h,
+          exprs: b,
+          at: -1
+        }];
+      for (let b of k) {
+        if (b.at >= 0 && r(a, d.targets[b.at]) && !u(b.exprs[0])) continue;
+        let c = e.length;
+        e.push({
+          index: c,
+          targets: b.targets,
+          exprs: b.exprs,
+          ordered: b.exprs.some(u) || b.targets.some(a => a.node !== null),
+          source: d
+        });
+        for (let a = 0; a < b.targets.length; a += 1) {
+          let {
+            reg: d
+          } = b.targets[a];
+          d && (f.set(d, {
+            index: c,
+            slot: a
+          }), i.add(d));
+        }
+      }
+    }
+    return {
+      leaf: b,
+      statements: e,
+      ue: h,
+      written: i,
+      unsupported: j,
+      exit: f.get(a["Xe"]) || null
+    };
+  }
+  function w(a, b) {
+    return a ? a.exprs.length === a.targets.length ? a.exprs[b] || null : a.targets.length === 1 && a.exprs[0] || null : null;
+  }
+  function x(a, b) {
+    return !b || b.kind !== i ? null : w(a.statements[b.index], b.slot);
+  }
+  function y(a, b, c = 0) {
+    let d = b,
+      e = c;
+    for (; d && d.kind === i && e < 256;) {
+      let b = x(a, d);
+      if (!b) return d;
+      d = b, e += 1;
+    }
+    return d;
+  }
+  function z(a, b, d = 0) {
+    if (d > 64) return {
+      kind: "unknown"
+    };
+    let e = y(a, b, d);
+    if (!e) return {
+      kind: "return"
+    };
+    if (e.kind === c["Number"]) return {
+      kind: "goto",
+      target: e.value
+    };
+    if (e.kind === c["Nil"]) return {
+      kind: "return"
+    };
+    if (e.kind === c["Index"]) return {
+      kind: "return"
+    };
+    if (e.kind === c["Binary"] && e.operator === "or") {
+      let b = z(a, e.lhs, d + 1),
+        c = z(a, e.rhs, d + 1);
+      return b.kind !== "guarded" ? {
+        kind: "unknown"
+      } : c.kind === "goto" ? {
+        kind: "branch",
+        condition: b.condition,
+        "B": b.target,
+        h: c.target
+      } : c.kind === "return" ? {
+        kind: "branch",
+        condition: b.condition,
+        "B": b.target,
+        h: null
+      } : {
+        kind: "unknown"
+      };
+    }
+    if (e.kind === c["Binary"] && e.operator === "and") {
+      let b = z(a, e.rhs, d + 1);
+      return b.kind !== "goto" ? {
+        kind: "unknown"
+      } : {
+        kind: "guarded",
+        condition: e.lhs,
+        target: b.target
+      };
+    }
+    return {
+      kind: "unknown"
+    };
+  }
+  function aa(a) {
+    if (!a.exit) return {
+      kind: "unknown",
+      index: null
+    };
+    let b = a.statements[a.exit.index],
+      c = w(b, a.exit.slot);
+    if (!c) return {
+      kind: "unknown",
+      index: null
+    };
+    let d = z(a, c);
+    return d.kind === "guarded" ? {
+      kind: "branch",
+      condition: d.condition,
+      "B": d.target,
+      h: null,
+      index: a.exit.index
+    } : {
+      ...d,
+      index: a.exit.index
+    };
+  }
+  b.exports = {
+    "REF": i,
+    "LIVE": j,
+    live: n,
+    "Hr": o,
+    "Yr": t,
+    "Xr": v,
+    definition: x,
+    peel: y,
+    terminator: aa
+  };
+});
+var ad = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    {
+      walk: d
+    } = l(),
+    {
+      unparen: f,
+      de: g
+    } = m(),
+    {
+      "Ur": h,
+      "Wr": i
+    } = ab(),
+    {
+      "Xr": j,
+      terminator: k
+    } = ac();
+  function n(a) {
+    let b = new Map();
+    return d(a.container.fn, {
+      enter: d => {
+        if (d.kind !== c["Call"]) return;
+        let e = a["T"] ? a["T"](d.base) : a.creators.get(g(d.base));
+        if (!e) return;
+        let h = f(d.args[0]);
+        if (!h || h.kind !== c["Number"]) return;
+        let i = b.get(h.value),
+          j = {
+            "O": h.value,
+            creator: e,
+            arity: e.arity,
+            vararg: e.vararg,
+            er: d.args[1] || null,
+            call: d
+          };
+        i ? i.push(j) : b.set(h.value, [j]);
+      }
+    }), b;
+  }
+  function o(a) {
+    return a.kind === "goto" ? [a.target] : a.kind === "branch" ? a.h === null ? [a["B"]] : [a["B"], a.h] : [];
+  }
+  function p(a) {
+    let b = h(a),
+      c = b.map(b => {
+        let c = j(a, b);
+        return c.terminator = k(c), c;
+      }),
+      d = n(a),
+      e = new Set([a.entry["O"]]);
+    for (let a of d.keys()) e.add(a);
+    for (let a of c) for (let b of o(a.terminator)) e.add(b);
+    let f = i(b, [...e].sort((a, b) => a - b)),
+      g = new Map();
+    for (let a of c) a.leaf.id !== null && (a.id = a.leaf.id, a.successors = [], a.predecessors = [], g.set(a.id, a));
+    let l = [];
+    for (let a of g.values()) for (let b of o(a.terminator)) {
+      let c = g.get(b);
+      if (!c) {
+        l.push({
+          from: a.id,
+          to: b
+        });
+        continue;
+      }
+      a.successors.push(c), c.predecessors.push(a);
+    }
+    return {
+      vm: a,
+      blocks: g,
+      sites: d,
+      dead: f.dead,
+      conflicts: f.conflicts,
+      missing: l,
+      unsupported: c.filter(a => a.unsupported.length),
+      unknown: [...g.values()].filter(a => a.terminator.kind === "unknown")
+    };
+  }
+  function q(a, b, c) {
+    let d = new Set(),
+      e = [],
+      f = a.blocks.get(b);
+    if (!f) return {
+      seen: d,
+      order: e
+    };
+    let g = [f];
+    for (d.add(f.id); g.length;) {
+      let a = g.shift();
+      e.push(a);
+      for (let e of a.successors) d.has(e.id) || c.has(e.id) && e.id !== b || (d.add(e.id), g.push(e));
+    }
+    return {
+      seen: d,
+      order: e
+    };
+  }
+  function r(a, b) {
+    let c = new Set(),
+      d = [],
+      e = [{
+        block: a,
+        index: 0
+      }];
+    for (c.add(a.id); e.length;) {
+      let a = e[e.length - 1];
+      if (a.index < a.block.successors.length) {
+        let d = a.block.successors[a.index];
+        a.index += 1, !c.has(d.id) && b.has(d.id) && (c.add(d.id), e.push({
+          block: d,
+          index: 0
+        }));
+        continue;
+      }
+      d.push(a.block), e.pop();
+    }
+    return d.reverse();
+  }
+  function s(a, b) {
+    if (a.size !== b.size) return !1;
+    for (let c of a) if (!b.has(c)) return !1;
+    return !0;
+  }
+  function t(a, b) {
+    for (let c of a.blocks) c.use = new Set([...c.ue].filter(a => a !== b)), c.def = new Set([...c.written].filter(a => a !== b)), c["Ze"] = new Set(c.use), c.ve = new Set();
+    let c = [...a.blocks].reverse();
+    for (let b = 0; b < 1e4; b += 1) {
+      let b = !1;
+      for (let d of c) {
+        let c = new Set();
+        for (let b of d.successors) if (a.members.has(b.id)) for (let a of b["Ze"]) c.add(a);
+        let e = new Set(d.use);
+        for (let a of c) d.def.has(a) || e.add(a);
+        (!s(c, d.ve) || !s(e, d["Ze"])) && (b = !0), d.ve = c, d["Ze"] = e;
+      }
+      if (!b) break;
+    }
+  }
+  function u(a) {
+    let b = p(a),
+      c = new Set([a.entry["O"], ...b.sites.keys()]),
+      d = [];
+    d.push({
+      id: a.entry["O"],
+      kind: "main",
+      arity: a.entry.arity,
+      vararg: a.entry.vararg,
+      site: null
+    });
+    for (let [c, e] of b.sites) {
+      if (c === a.entry["O"]) continue;
+      let b = e[0];
+      d.push({
+        id: c,
+        kind: "closure",
+        arity: b.arity,
+        vararg: b.vararg,
+        site: b,
+        sites: e
+      });
+    }
+    let e = [],
+      f = new Map(),
+      g = [];
+    for (let h of d) {
+      let d = b.blocks.get(h.id);
+      if (!d) {
+        b.missing.push({
+          from: null,
+          to: h.id
+        });
+        continue;
+      }
+      let {
+          seen: i
+        } = q(b, h.id, c),
+        j = {
+          ...h,
+          entry: d,
+          members: i,
+          blocks: r(d, i)
+        };
+      for (let a of i) {
+        let b = f.get(a);
+        if (b !== void 0 && b !== h.id) {
+          g.push({
+            block: a,
+            functions: [b, h.id]
+          });
+          continue;
+        }
+        f.set(a, h.id);
+      }
+      t(j, a["Xe"]), e.push(j);
+    }
+    let h = [...b.blocks.keys()].filter(a => !f.has(a));
+    return {
+      ...b,
+      functions: e,
+      owner: f,
+      shared: g,
+      orphans: h
+    };
+  }
+  b.exports = {
+    "Zr": r,
+    "Jr": u
+  };
+});
+var ae = a((a, b) => {
+  "use strict";
+
+  var c = class {
+      constructor() {
+        this.parent = new Map();
+      }
+      find(a) {
+        let b = a;
+        for (; this.parent.has(b) && this.parent.get(b) !== b;) b = this.parent.get(b);
+        let c = a;
+        for (; this.parent.has(c) && this.parent.get(c) !== c;) {
+          let a = this.parent.get(c);
+          this.parent.set(c, b), c = a;
+        }
+        return this.parent.has(a) || this.parent.set(a, b), b;
+      }
+      union(a, b) {
+        let c = this.find(a),
+          d = this.find(b);
+        c !== d && this.parent.set(d, c);
+      }
+    },
+    d = (a, b) => `E${a.id}|${b}`,
+    e = (a, b, c) => `D${a.id}|${b}.${c}`;
+  function f(a) {
+    let b = new Map(),
+      c = new Map();
+    for (let d of a.blocks) b.set(d, new Set(d.ue)), c.set(d, new Set());
+    let d = [...a.blocks].reverse();
+    for (let e = 0; e < 1e4; e += 1) {
+      let e = !1;
+      for (let f of d) {
+        let d = c.get(f),
+          g = b.get(f);
+        for (let c of f.successors) if (a.members.has(c.id)) for (let a of b.get(c) || []) d.has(a) || (d.add(a), e = !0);
+        for (let a of d) f.written.has(a) || g.has(a) || (g.add(a), e = !0);
+      }
+      if (!e) break;
+    }
+    return {
+      ue: b,
+      "Qr": c
+    };
+  }
+  function g(a, b) {
+    let c = a.statements;
+    for (let d = c.length - 1; d >= 0; d -= 1) {
+      let f = c[d].targets;
+      for (let c = f.length - 1; c >= 0; c -= 1) if (f[c].reg === b) return e(a, d, c);
+    }
+    return d(a, b);
+  }
+  function h(a) {
+    let b = new c(),
+      {
+        ue: e
+      } = f(a);
+    for (let c of a.blocks) for (let f of e.get(c) || []) {
+      let e = d(c, f);
+      b.find(e);
+      for (let d of c.predecessors) a.members.has(d.id) && b.union(e, g(d, f));
+    }
+    return b;
+  }
+  b.exports = {
+    es: h,
+    et: d,
+    ns: e,
+    liveness: f
+  };
+});
+var af = a((a, b) => {
+  "use strict";
+
+  function c(a, b) {
+    let c = new Set([a]),
+      d = [],
+      e = [{
+        node: a,
+        successors: b(a),
+        index: 0
+      }];
+    for (; e.length;) {
+      let a = e[e.length - 1];
+      if (a.index < a.successors.length) {
+        let d = a.successors[a.index];
+        if (a.index += 1, c.has(d)) continue;
+        c.add(d), e.push({
+          node: d,
+          successors: b(d),
+          index: 0
+        });
+        continue;
+      }
+      d.push(a.node), e.pop();
+    }
+    return d.reverse();
+  }
+  function d(a, b, d) {
+    let e = c(a, b),
+      f = new Map();
+    e["forEach"]((a, b) => f.set(a, b));
+    let g = new Map([[a, a]]),
+      h = (a, b) => {
+        let c = a,
+          d = b;
+        for (; c !== d;) {
+          for (; f.get(c) > f.get(d);) c = g.get(c);
+          for (; f.get(d) > f.get(c);) d = g.get(d);
+        }
+        return c;
+      };
+    for (let b = 0; b < 1e4; b += 1) {
+      let b = !1;
+      for (let c of e) {
+        if (c === a) continue;
+        let e = null;
+        for (let a of d(c)) !f.has(a) || !g.has(a) || (e = e === null ? a : h(a, e));
+        e && g.get(c) !== e && (g.set(c, e), b = !0);
+      }
+      if (!b) break;
+    }
+    return {
+      idom: g,
+      order: e,
+      index: f
+    };
+  }
+  function e(a, b, c) {
+    let d = c;
+    for (let c = 0; c < 1e5; c += 1) {
+      if (d === b) return !0;
+      let c = a.get(d);
+      if (!c || c === d) return !1;
+      d = c;
+    }
+    return !1;
+  }
+  b.exports = {
+    "Zr": c,
+    dominators: d,
+    dominates: e
+  };
+});
+var ag = a((a, b) => {
+  "use strict";
+
+  var {
+      dominators: c,
+      dominates: d
+    } = af(),
+    e = {
+      id: "EXIT"
+    };
+  function f(a, b) {
+    let c = a.terminator;
+    return c.kind === "return" || c.kind === "unknown" || c.kind === "branch" && c.h === null ? !0 : a.successors.filter(a => b.has(a.id)).length === 0;
+  }
+  function g(a) {
+    let b = new Map([[e, []]]),
+      c = new Map([[e, []]]);
+    for (let d of a.blocks) b.set(d, []), c.has(d) || c.set(d, []);
+    let d = (a, d) => {
+      b.get(a).push(d), c.get(d).push(a);
+    };
+    for (let b of a.blocks) {
+      for (let c of b.successors) a.members.has(c.id) && d(b, c);
+      f(b, a.members) && d(b, e);
+    }
+    return {
+      succ: b,
+      pred: c
+    };
+  }
+  function h(a, b, c) {
+    let f = new Map();
+    for (let g of a.blocks) for (let a of c.get(g)) {
+      if (a === e || !d(b, a, g)) continue;
+      let c = f.get(a);
+      c || (c = {
+        header: a,
+        latches: [],
+        members: new Set([a]),
+        follow: null,
+        exits: []
+      }, f.set(a, c)), c.latches.push(g);
+    }
+    for (let b of f.values()) {
+      let d = [...b.latches];
+      for (let a of b.latches) b.members.add(a);
+      for (; d.length;) {
+        let c = d.pop();
+        if (c !== b.header) for (let e of c.predecessors) a.members.has(e.id) && (b.members.has(e) || (b.members.add(e), d.push(e)));
+      }
+      let f = new Set();
+      for (let a of b.members) for (let d of c.get(a)) d === e || b.members.has(d) || (f.add(d), b.exits.push({
+        from: a,
+        to: d
+      }));
+      f.size === 1 ? [b.follow] = [...f] : b.candidates = [...f];
+    }
+    return f;
+  }
+  function i(a) {
+    let {
+        succ: b,
+        pred: f
+      } = g(a),
+      i = c(a.entry, a => b.get(a) || [], a => f.get(a) || []),
+      j = c(e, a => f.get(a) || [], a => b.get(a) || []),
+      k = h(a, i.idom, b),
+      l = i.index,
+      m = [],
+      n = new Set(),
+      o = new Set();
+    for (let a of k.values()) {
+      if (a.follow || !a.candidates || !a.candidates.length) continue;
+      let c = [...a.candidates].sort((a, b) => (l.get(a) || 0) - (l.get(b) || 0)),
+        e = c.find(b => d(j.idom, b, a.header)) || c.find(c => (b.get(a.header) || []).includes(c));
+      a.follow = e || c[0], e || m.push({
+        kind: "multiple-loop-exits",
+        header: a.header.id,
+        exits: c.map(a => a.id)
+      });
+    }
+    let p = new Map(a.blocks.map(a => [a.id, a])),
+      q = b => {
+        let c = p.get(b);
+        return c && a.members.has(b) ? c : null;
+      },
+      r = (a, b) => b === a.follow || b === e ? !1 : a.members.has(b) ? !0 : d(i.idom, a.header, b) ? !a.follow || !d(i.idom, a.follow, b) : !1,
+      s = (a, b) => {
+        let c = b.loops.length - 1;
+        for (let d = c; d >= 0; d -= 1) {
+          let e = b.loops[d];
+          if (a === e.header) return d === c ? {
+            kind: "continue",
+            loop: e
+          } : null;
+          if (a === e.follow) return d === c ? {
+            kind: "break",
+            loop: e
+          } : null;
+        }
+        return null;
+      },
+      t = (a, b) => {
+        let c = s(a, b);
+        return c || (n.add(a.id), {
+          kind: "goto",
+          target: a.id
+        });
+      },
+      u = (a, b, c, d) => {
+        let f = [],
+          g = a;
+        for (let a = 0; g && a < 1e5 && g !== b; a += 1) {
+          if (!(d && a === 0)) {
+            let a = s(g, c);
+            if (a) {
+              f.push(a);
+              break;
+            }
+          }
+          if (o.has(g)) {
+            f.push(t(g, c));
+            break;
+          }
+          let h = k.get(g);
+          if (h && !c.loops.includes(h)) {
+            f.push(x(h, c)), g = h.follow;
+            continue;
+          }
+          o.add(g), f.push({
+            kind: "block",
+            block: g
+          });
+          let i = g.terminator;
+          if (i.kind === "return" || i.kind === "unknown") {
+            f.push({
+              kind: i.kind === "return" ? "return" : "raw",
+              block: g
+            });
+            break;
+          }
+          if (i.kind === "goto") {
+            let a = q(i.target);
+            if (!a) {
+              m.push({
+                kind: "missing-target",
+                from: g.id,
+                to: i.target
+              });
+              break;
+            }
+            if (a === b) break;
+            let d = k.get(a),
+              e = t(a, c);
+            if (e.kind === "goto" && !o.has(a) && (!d || !c.loops.includes(d))) {
+              n.delete(a.id), g = a;
+              continue;
+            }
+            f.push(e);
+            break;
+          }
+          if (i.kind === "branch") {
+            let a = j.idom.get(g),
+              d = a && a !== e && a !== g ? a : null,
+              h = c.loops[c.loops.length - 1];
+            if (d && h && !r(h, d) && (d = null), f.push(w(g, i, d, c)), !d || d === b || o.has(d)) break;
+            g = d;
+            continue;
+          }
+          break;
+        }
+        return {
+          kind: "seq",
+          items: f
+        };
+      },
+      v = a => !a || !a.items || a.items.length === 0,
+      w = (a, b, c, d) => {
+        let e = q(b["B"]),
+          f = b.h === null ? null : q(b.h),
+          g = e ? u(e, c, d) : {
+            kind: "seq",
+            items: []
+          },
+          h = f ? u(f, c, d) : {
+            kind: "seq",
+            items: [{
+              kind: "return",
+              block: a
+            }]
+          };
+        return v(g) && !v(h) ? {
+          kind: "if",
+          block: a,
+          condition: b.condition,
+          negate: !0,
+          then: h,
+          else: null
+        } : {
+          kind: "if",
+          block: a,
+          condition: b.condition,
+          negate: !1,
+          then: g,
+          else: v(h) ? null : h
+        };
+      },
+      x = (a, b) => {
+        let c = {
+            ...b,
+            loops: [...b.loops, a]
+          },
+          d = a.header,
+          e = d.terminator;
+        if (e.kind === "branch") {
+          let b = q(e["B"]),
+            f = e.h === null ? null : q(e.h),
+            g = b && a.members.has(b),
+            h = f && a.members.has(f),
+            i = b => b === a.follow || b === null && a.follow === null;
+          if (g && !h && i(f)) return o.add(d), {
+            kind: "while",
+            loop: a,
+            header: d,
+            condition: e.condition,
+            negate: !1,
+            body: u(b, d, c, !0),
+            nt: f === null
+          };
+          if (h && !g && i(b)) return o.add(d), {
+            kind: "while",
+            loop: a,
+            header: d,
+            condition: e.condition,
+            negate: !0,
+            body: u(f, d, c, !0),
+            nt: !1
+          };
+        }
+        if (a.latches.length === 1 && a.latches[0] !== d) {
+          let b = a.latches[0],
+            e = b.terminator;
+          if (e.kind === "branch") {
+            let f = q(e["B"]),
+              g = e.h === null ? null : q(e.h),
+              h = g === d && f === a.follow,
+              i = f === d && g === a.follow;
+            if (h || i) {
+              o.add(b);
+              let f = u(d, b, c, !0);
+              return {
+                kind: "repeat",
+                loop: a,
+                latch: b,
+                condition: e.condition,
+                negate: i,
+                body: f
+              };
+            }
+          }
+        }
+        return m.push({
+          kind: "unstructured-loop",
+          header: d.id
+        }), {
+          kind: "loop",
+          loop: a,
+          header: d,
+          body: u(d, null, c, !0)
+        };
+      },
+      y = u(a.entry, null, {
+        loops: []
+      }),
+      z = new Map(a.blocks.map((a, b) => [a, b])),
+      aa = [];
+    for (let a = 0; a < 1e4; a += 1) {
+      let a = null,
+        b = 1 / 0;
+      for (let c of n) {
+        let d = p.get(c);
+        if (!d || o.has(d)) continue;
+        let e = z.has(d) ? z.get(d) : 1 / 0;
+        e < b && (b = e, a = d);
+      }
+      if (!a) break;
+      aa.push({
+        kind: "labelled",
+        id: a.id,
+        region: u(a, null, {
+          loops: []
+        })
+      });
+    }
+    aa.length && y.items.push(...aa);
+    let ab = a.blocks.filter(a => !o.has(a));
+    for (let a of ab) m.push({
+      kind: "unplaced-block",
+      block: a.id
+    });
+    return {
+      fn: a,
+      region: y,
+      labels: n,
+      loops: k,
+      warnings: m,
+      unplaced: ab,
+      dom: i,
+      vi: j
+    };
+  }
+  b.exports = {
+    ts: i
+  };
+});
+var ah = a((a, b) => {
+  "use strict";
+
+  var c = e(),
+    {
+      "Kind": d
+    } = c,
+    {
+      y: f
+    } = g(),
+    {
+      walk: h,
+      transform: i
+    } = l(),
+    {
+      es: j,
+      et: k,
+      ns: n,
+      liveness: o
+    } = ae(),
+    {
+      de: p,
+      unparen: q
+    } = m(),
+    {
+      "REF": r,
+      "LIVE": s,
+      "Hr": t,
+      definition: u,
+      peel: v,
+      "Yr": w
+    } = ac(),
+    {
+      ts: x
+    } = ag(),
+    y = (a, b) => !!b && p(a) === b,
+    z = a => a.container["Qt"] || (b => y(b, a.container.upvals)),
+    aa = a => a.upvalues && a.upvalues["Xt"] || (b => !!a.upvalues && y(b, a.upvalues.alloc)),
+    ab = a => a.upvalues && a.upvalues["Zt"] || (b => !!a.upvalues && y(b, a.upvalues.table)),
+    ad = a => a.upvalues && a.upvalues["Mn"] || (b => !!a.upvalues && y(b, a.upvalues.refs));
+  function af(a) {
+    return i(a, a => {
+      if (a.kind !== d["Call"] || (a.args || []).length !== 1 || !a.base || a.base.kind !== d["Name"] || a.base.name !== "unpack") return a;
+      let b = ar(a.args[0]);
+      return b && b.length === 1 ? b[0] : a;
+    });
+  }
+  function ah(a) {
+    for (; a.length && a[a.length - 1].kind === d["Continue"];) a.pop();
+    let b = a[a.length - 1];
+    if (!b || b.kind !== d["If"]) return a;
+    ah(b.body.statements);
+    for (let a of b.s || []) ah(a.body.statements);
+    return b.e && (ah(b.e.statements), b.e.statements.length || (b.e = null)), a;
+  }
+  function ai(a) {
+    return typeof a == "string" && (a["startsWith"]("alloc:") || a["startsWith"]("param:"));
+  }
+  function aj(a, b, c) {
+    if (!a || a.kind !== d["Index"] || !b(c(a.base))) return null;
+    let e = q(c(a.index));
+    return e && e.kind === d["Number"] ? e.value : null;
+  }
+  function ak(a, b) {
+    let c = null,
+      d = a => {
+        !a || typeof a != "object" || b(a, c) !== !1 && (a.kind === r || a.kind === s || t(a, a => (d(a), a)));
+      };
+    for (let b of a.blocks) {
+      c = b;
+      for (let a of b.statements) {
+        for (let b of a.exprs) d(b);
+        for (let b of a.targets) b.node && d(b.node);
+      }
+    }
+  }
+  function al(a, b) {
+    let c = 0,
+      e = !1,
+      f = a.container.args;
+    return ak(b, (a, b) => {
+      if (a.kind === d["Index"] && y(a.base, f)) {
+        let e = q(v(b, a.index));
+        if (e && e.kind === d["Number"] && Number["isInteger"](e.value) && e.value > 0) return c = Math.max(c, e.value), !1;
+      }
+      a.kind === d["Name"] && p(a) === f && (e = !0);
+    }), {
+      arity: c,
+      rs: e
+    };
+  }
+  function am(a, b) {
+    if (!(!a || typeof a != "object")) {
+      if (a.kind === r) {
+        b.push(a);
+        return;
+      }
+      a.kind !== s && t(a, a => (am(a, b), a));
+    }
+  }
+  function an(a, b) {
+    if (!(!a || typeof a != "object")) {
+      if (a.kind === s) {
+        b.add(a.reg);
+        return;
+      }
+      a.kind !== r && t(a, a => (an(a, b), a));
+    }
+  }
+  var ao = Symbol("top");
+  function ap(a) {
+    if (!a || typeof a != "object") return a;
+    let b = t(a, ap);
+    return delete b.binding, delete b.bindings, b;
+  }
+  function aq(a) {
+    return !!a && a.kind === d["Call"] && a.base && a.base.kind === d["Name"] && a.base.name === "unpack" && (a.args || []).length === 1;
+  }
+  function ar(a) {
+    if (!a) return null;
+    if (a.kind === d["Paren"]) {
+      let b = q(a);
+      return c.d(b) ? null : ar(b);
+    }
+    let b = a;
+    if (b.kind === d["Table"]) {
+      let a = b.entries || [];
+      if (!a.every(a => a.type === "item")) return null;
+      let c = a.map(a => a.value);
+      if (c.length === 1 && aq(c[0])) {
+        let a = ar(c[0]);
+        if (a) return a;
+      }
+      return c;
+    }
+    return aq(b) ? ar(b.args[0]) : null;
+  }
+  var as = (a, b) => b ? a && a.kind === d["Unary"] && a.operator === "not" ? a.argument : c.unary("not", a) : a;
+  function at(a, b) {
+    let c = z(a),
+      e = aa(a),
+      f = (a, b, f, g) => {
+        if (!b) return ao;
+        if (b.kind === r) return g.get(`${b.index}.${b.slot}`) || ao;
+        if (b.kind === s) return f.get(b.reg) || ao;
+        let h = b => v(a, b),
+          i = aj(b, c, h);
+        return i !== null ? `param:${i}` : b.kind === d["Call"] && e(h(b.base)) ? `alloc:${a.id}:${b.ss}` : ao;
+      };
+    for (let a of b.blocks) a.statements["forEach"]((b, c) => {
+      for (let f of b.exprs) f && f.kind === d["Call"] && e(v(a, f.base)) && (f.ss = c);
+    });
+    let g = new Map(),
+      h = new Map();
+    for (let a of b.blocks) g.set(a, new Map()), h.set(a, new Map());
+    let {
+        ue: i,
+        "Qr": j
+      } = o(b),
+      k = new Set(),
+      l = (a, b) => {
+        let c = new Map();
+        for (let d of b) {
+          let b = a.get(d);
+          b !== void 0 && c.set(d, b);
+        }
+        return c;
+      },
+      m = a => {
+        let b = new Map(g.get(a)),
+          c = new Map();
+        return a.statements["forEach"]((d, e) => {
+          let g = d.targets.length === 1 && d.exprs.length === 1;
+          d.targets["forEach"]((h, i) => {
+            let j = g ? f(a, d.exprs[0], b, c) : ao;
+            c.set(`${e}.${i}`, j), h.reg && b.set(h.reg, j);
+          });
+        }), a["Je"] = c, l(b, j.get(a) || k);
+      },
+      n = (a, b) => {
+        let c = i.get(a) || k,
+          d = new Map();
+        for (let e of a.predecessors) {
+          if (!b.members.has(e.id)) continue;
+          let a = h.get(e);
+          if (!(!a || !a.size)) for (let b of c) {
+            let c = a.get(b);
+            c !== void 0 && (d.has(b) ? d.get(b) !== c && d.set(b, ao) : d.set(b, c));
+          }
+        }
+        return d;
+      };
+    for (let a = 0; a < 1e3; a += 1) {
+      let a = !1;
+      for (let c of b.blocks) {
+        let d = c === b.entry ? new Map() : n(c, b),
+          e = g.get(c),
+          f = e.size !== d.size;
+        if (!f) {
+          for (let [a, b] of d) if (e.get(a) !== b) {
+            f = !0;
+            break;
+          }
+        }
+        f && (g.set(c, d), a = !0);
+        let i = m(c),
+          j = h.get(c),
+          k = j.size !== i.size;
+        if (!k) {
+          for (let [a, b] of i) if (j.get(a) !== b) {
+            k = !0;
+            break;
+          }
+        }
+        k && (h.set(c, i), a = !0);
+      }
+      if (!a) break;
+    }
+    for (let a of b.blocks) a.os = g.get(a);
+    return {
+      xi: g,
+      "Si": h,
+      us: f
+    };
+  }
+  var au = class {
+    constructor(a, b, c = {}) {
+      this.vm = a, this.cfg = b, this.options = c, this.warnings = [], this.counter = c.counter || 0, this["He"] = new Map(b.functions.map(a => [a.id, a])), this.ls = new Set(a.wrapper && a.wrapper.bindings ? a.wrapper.bindings : []), this.as = new Set(Object.keys(a.roles).map(b => a.roles[b])), this.cs = new Map(Object.keys(a.roles).map(b => [a.roles[b], b])), this.tt = ab(a), this.fs = ad(a), this.ds = a.upvalues && a.upvalues["Jt"] || (() => !1), this.active = new Set();
+    }
+    fresh(a) {
+      return this.counter += 1, `${a}${this.counter}`;
+    }
+    warn(a, b) {
+      this.warnings.push({
+        kind: a,
+        ...b
+      });
+    }
+    "T"(a) {
+      if (!a) return null;
+      if (this.vm["T"]) return this.vm["T"](a);
+      let b = p(a);
+      return b && this.vm.creators.get(b) || null;
+    }
+    hs(a, b) {
+      if (!b || b.kind !== d["Call"]) return !1;
+      let c = v(a, b.base),
+        e = p(c);
+      return !(!e || !this.ls.has(e) && !this.ds(c) || this.as.has(e) || this["T"](c) || e === this.vm.nr);
+    }
+    gs(a, b, c) {
+      return a["Je"] ? a["Je"].get(`${b}.${c}`) : ao;
+    }
+    ps(a, b, c) {
+      for (let c of b.targets) if (c.node && this.fs(v(a, c.node.base))) return !0;
+      return b.exprs.length === 1 && this.hs(a, b.exprs[0]) ? b.targets.every(a => a.reg !== null) : !!(b.targets.length && !b.ordered && b.targets.every((b, d) => b.reg && ai(this.gs(a, c, d))));
+    }
+    "Qe"(a, b) {
+      let c = a.en.get(b);
+      return c || (c = this.fresh("v"), a.en.set(b, c)), a.used.add(c), c;
+    }
+    nn(a, b) {
+      if (b === ao || b === void 0 || b === null) return null;
+      let c = a.cells.get(b);
+      if (c) return a.used.add(c), c;
+      if (typeof b != "string" || !b["startsWith"]("alloc:")) return null;
+      let d = this.fresh("u");
+      return a.cells.set(b, d), a.st.set(d, b), a.used.add(d), d;
+    }
+    it(a) {
+      let b = a.params.map(a => ({
+        type: "item",
+        value: c.name(a)
+      }));
+      return b.push({
+        type: "item",
+        value: c.vararg()
+      }), c.table(b);
+    }
+    ks(a) {
+      if (a === "varargs") {
+        let a = this.options.varargs;
+        return a ? ap(a) : c.table([{
+          type: "item",
+          value: c.vararg()
+        }]);
+      }
+      return a === "env" ? c.name("_ENV") : c.name(a);
+    }
+    bs(a, b, e) {
+      let g = this.vm,
+        h = g.container;
+      if (a.kind === d["Index"]) {
+        let i = v(b.block, a.base);
+        if (this.tt(i)) {
+          let d = this.nn(b, b.xe(a.index));
+          if (d) return c.name(d);
+        }
+        let j = y(i, g.roles.env),
+          k = y(i, h.args);
+        if (j || k) {
+          let g = q(e(a.index));
+          return j ? g && g.kind === d["String"] && f(g.value) ? c.name(g.value) : c.index(c.name("_ENV"), g) : g && g.kind === d["Number"] && Number["isInteger"](g.value) && g.value >= 1 && g.value <= b.params.length ? c.name(b.params[g.value - 1]) : c.index(this.it(b), g);
+        }
+      }
+      if (a.kind === d["Call"] && this["T"](v(b.block, a.base))) {
+        let c = this.ms(a, b);
+        if (c) return c;
+      }
+      if (a.kind === d["Name"]) {
+        let c = p(a);
+        if (c && c === h.args) return this.it(b);
+        let d = c ? this.cs.get(c) : null;
+        if (d) return this.ks(d);
+      }
+      return t(a, e);
+    }
+    ms(a, b) {
+      let c = a.args || [],
+        e = q(v(b.block, c[0]));
+      if (!e || e.kind !== d["Number"]) return null;
+      let f = this["He"].get(e.value);
+      return f ? this.ot(f, this.ws(c[1], b), b.depth + 1) : (this.warn("missing-closure", {
+        id: e.value,
+        block: b.block.id
+      }), null);
+    }
+    ws(a, b) {
+      let c = a;
+      for (let a = 0; a < 64 && c && c.kind === r; a += 1) c = u(b.block, c);
+      let e = c ? q(c) : null;
+      return !e || e.kind !== d["Table"] ? (a && this.warn("opaque-upvalues", {
+        block: b.block.id
+      }), []) : (e.entries || []).map((a, c) => {
+        if (a.type !== "item") return null;
+        let d = b.xe(a.value),
+          e = this.nn(b, d);
+        return e || this.warn("opaque-upvalue", {
+          block: b.block.id,
+          slot: c + 1,
+          token: String(d)
+        }), e;
+      });
+    }
+    "H"(a, b) {
+      let c = b.emitters.get(a);
+      if (c) return c;
+      let d = {
+        block: a,
+        statements: [],
+        condition: null,
+        returns: null
+      };
+      return b.emitters.set(a, d), this.ys(d, a, b), d;
+    }
+    ys(a, b, d) {
+      let e = this.vm,
+        f = b.statements,
+        g = b.terminator,
+        h = (a, b) => `${a}.${b}`,
+        i = a => d.webs.find(k(b, a)),
+        j = (a, c) => d.webs.find(n(b, a, c));
+      d.block = b;
+      let l = new Map();
+      f["forEach"]((a, b) => a.targets["forEach"](a => {
+        a.reg && (l.has(a.reg) || l.set(a.reg, []), l.get(a.reg).push(b));
+      }));
+      let m = a => {
+          let b = l.get(a);
+          return b ? b[b.length - 1] : -1;
+        },
+        o = new Map(),
+        p = a => {
+          let b = o.get(a);
+          if (b) return b;
+          b = [];
+          for (let c of f[a].exprs) am(c, b);
+          for (let c of f[a].targets) c.node && am(c.node, b);
+          return o.set(a, b), b;
+        },
+        q = a => {
+          let b = new Set();
+          for (let c of f[a].exprs) an(c, b);
+          for (let c of f[a].targets) c.node && an(c.node, b);
+          return b;
+        },
+        t = [];
+      g.kind === "branch" && am(g.condition, t);
+      let v = new Set(t.map(a => a.index)),
+        x = new Set(),
+        y = g.index === null || g.index === void 0 ? [] : [g.index];
+      for (; y.length;) {
+        let a = y.pop();
+        if (!x.has(a)) {
+          x.add(a);
+          for (let b of p(a)) {
+            if (v.has(b.index)) continue;
+            let a = f[b.index].targets[b.slot];
+            a && a.reg === e["Xe"] && y.push(b.index);
+          }
+        }
+      }
+      f["forEach"]((a, c) => {
+        this.ps(b, a, c) && x.add(c);
+      });
+      let z = null;
+      if (g.kind === "return" || g.kind === "unknown" || g.kind === "branch" && g.h === null) {
+        let a = (l.get(e["Vr"]) || []).filter(a => !x.has(a)),
+          b = a.length ? a[a.length - 1] : null;
+        if (b !== null) {
+          let a = t.some(a => a.index === b);
+          for (let c = b + 1; !a && c < f.length; c += 1) a = p(c).some(a => a.index === b);
+          a || (z = b, x.add(b));
+        }
+      }
+      let aa = z === null ? [] : p(z),
+        ab = [];
+      for (let a = 0; a < f.length; a += 1) x.has(a) || ab.push(a);
+      let ac = a => {
+          let c = new Set(),
+            d = new Map(),
+            e = new Map();
+          for (let g = 0; g <= f.length + 1; g += 1) {
+            d.clear(), e.clear();
+            let g = (a, b) => {
+              for (let c of a) {
+                let a = h(c.index, c.slot);
+                d.set(a, (d.get(a) || 0) + 1), e.set(a, b);
+              }
+            };
+            for (let a of ab) c.has(a) || g(p(a), a);
+            g(aa, f.length), g(t, f.length);
+            let i = !1;
+            for (let e of ab) c.has(e) || this.vs(b, f[e], e, d, a, m) || (c.add(e), i = !0);
+            if (!i) break;
+          }
+          let g = new Set();
+          for (let e of ab) {
+            if (c.has(e)) continue;
+            let i = f[e].targets.length > 1;
+            f[e].targets["forEach"]((c, f) => {
+              if (!c.reg) return;
+              let j = h(e, f),
+                k = b.ve.has(c.reg) && m(c.reg) === e;
+              (i || k || a.has(j) || (d.get(j) || 0) !== 1) && g.add(j);
+            });
+          }
+          return {
+            drop: c,
+            counts: d,
+            host: e,
+            materialized: g
+          };
+        },
+        ad = a => {
+          let {
+              drop: b,
+              host: c,
+              materialized: d
+            } = a,
+            e = a => {
+              let e = a;
+              for (let a = 0; a < 512; a += 1) {
+                let a = c.get(e);
+                if (a === void 0 || a >= f.length || b.has(a)) return f.length;
+                let g = f[a].targets[0];
+                if (f[a].targets.length !== 1 || !g || !g.reg) return a;
+                let i = h(a, 0);
+                if (d.has(i)) return a;
+                e = i;
+              }
+              return f.length;
+            },
+            g = new Set();
+          for (let a of ab) {
+            if (b.has(a) || f[a].targets.length !== 1) continue;
+            let c = h(a, 0);
+            if (d.has(c) || !f[a].targets[0].reg) continue;
+            let i = e(c);
+            for (let d of q(a)) for (let e of l.get(d) || []) e > a && e < i && !b.has(e) && !x.has(e) && g.add(c);
+          }
+          return g;
+        },
+        ae = a => {
+          let {
+              drop: e,
+              counts: k,
+              materialized: l
+            } = a,
+            m = this.warnings.length,
+            n = [],
+            o = [],
+            p = null,
+            q = new Map(),
+            t = a => {
+              if (q.has(a)) return q.get(a);
+              let b = f[a],
+                c = "read";
+              return b.targets.some(a => a.node !== null) ? c = "store" : b.exprs.some(w) && (c = "call"), q.set(a, c), c;
+            },
+            v = -1,
+            y = -1,
+            aa = -1,
+            ac = a => {
+              let b = t(a),
+                c = aa;
+              b === "store" ? c = v : b === "call" && (c = y), a < c && (p === null && (p = {
+                small: a,
+                large: c
+              }), o.push({
+                small: a,
+                large: c
+              })), a > v && (v = a), b !== "read" && a > y && (y = a), b === "store" && a > aa && (aa = a);
+            },
+            ad = a => {
+              if (!a || typeof a != "object") return a;
+              if (a.kind === s) return c.name(this["Qe"](d, i(a.reg)));
+              if (a.kind === r) {
+                let g = h(a.index, a.slot);
+                if (l.has(g)) return c.name(this["Qe"](d, j(a.index, a.slot)));
+                if (x.has(a.index) || e.has(a.index)) return this.warn("dangling-value", {
+                  block: b.id,
+                  at: a.index
+                }), c.nil();
+                let i = ad(u(b, a));
+                return f[a.index].ordered && ac(a.index), c.d(i) ? c.paren(i) : i;
+              }
+              let g = this.bs(a, d, ad);
+              return a.truncated && c.d(g) ? c.paren(g) : g;
+            },
+            ae = ab.filter(a => {
+              if (e.has(a)) return !1;
+              let b = f[a];
+              return b.targets.some(a => !a.reg) || b.targets.some((b, c) => l.has(h(a, c))) ? !0 : b.targets.every((b, c) => (k.get(h(a, c)) || 0) === 0);
+            });
+          for (let a of ae) n.push(...this.xs(a, f[a], d, {
+            render: ad,
+            note: ac,
+            block: b
+          }));
+          let af = g.kind === "branch" ? ad(g.condition) : null,
+            ag = z === null ? null : ad(f[z].exprs[0]);
+          return {
+            out: n,
+            condition: af,
+            returns: ag,
+            violation: p,
+            violations: o,
+            warnings: this.warnings.splice(m)
+          };
+        },
+        af = new Set(),
+        ag = null,
+        ah = ab.length + 16;
+      for (let a = 0; a < ah; a += 1) {
+        let a = ac(af),
+          b = ad(a),
+          c = !1;
+        for (let a of b) af.has(a) || (af.add(a), c = !0);
+        if (c) continue;
+        if (ag = ae(a), !ag.violation) break;
+        let d = b => !a.drop.has(b) && !a.materialized.has(h(b, 0)),
+          e = a => {
+            for (let b = 0; b < f[a].targets.length; b += 1) af.add(h(a, b));
+          },
+          g = !1;
+        for (let {
+          small: a,
+          large: b
+        } of ag.violations) d(a) ? (e(a), g = !0) : d(b) && (e(b), g = !0);
+        if (!g) break;
+      }
+      if (ag || (ag = ae(ac(af))), ag.violation) {
+        let {
+          small: a,
+          large: c
+        } = ag.violation;
+        this.warn("evaluation-order", {
+          block: b.id,
+          small: a,
+          large: c
+        });
+      }
+      this.warnings.push(...ag.warnings), a.statements = ag.out, a.condition = () => ag.condition || c.nil(), a.returns = () => {
+        let a = ag.returns;
+        if (!a) return c["I"]([]);
+        let b = ar(a);
+        return b ? c["I"](b) : c["I"]([c.call(c.name("unpack"), [a])]);
+      };
+    }
+    xs(a, b, d, e) {
+      let f = this.vm,
+        {
+          render: g,
+          note: h,
+          block: i
+        } = e,
+        j = b.targets.length === 1 ? b.targets[0] : null;
+      if (j && j.node && this.tt(v(i, j.node.base))) {
+        let e = this.nn(d, d.xe(j.node.index));
+        if (e) {
+          let d = g(b.exprs[0]);
+          return b.ordered && h(a), [c.assignment([c.name(e)], [d])];
+        }
+      }
+      let k = b.targets.map((b, e) => b.reg ? c.name(this["Qe"](d, d.webs.find(n(i, a, e)))) : g(b.node)),
+        l = b.exprs.map(g);
+      return k.length === 1 && l.length === 1 && (l[0] = c.unparen(l[0])), b.ordered && h(a), k.length ? [c.assignment(k, l)] : l.length ? [c["X"](l[0])] : [];
+    }
+    vs(a, b, c, d, e, f) {
+      return b.ordered ? !0 : b.targets.some((b, g) => !b.reg || e.has(`${c}.${g}`) || a.ve.has(b.reg) && f(b.reg) === c ? !0 : (d.get(`${c}.${g}`) || 0) > 0);
+    }
+    "Se"(a, b) {
+      if (!a) return [];
+      let c = a.id;
+      return !b.structured.labels.has(c) || b.labelled.has(c) ? [] : (b.labelled.add(c), [{
+        kind: d["Label"],
+        name: `L${c}`
+      }]);
+    }
+    "L"(a, b) {
+      let e = [];
+      if (!a || !a.items) return e;
+      for (let f of a.items) if (f.kind === "block") e.push(...this["Se"](f.block, b)), e.push(...this["H"](f.block, b).statements);else if (f.kind === "return") e.push(this["H"](f.block, b).returns());else if (f.kind === "raw") this.warn("unknown-exit", {
+        block: f.block.id
+      }), e.push(c["I"]([]));else if (f.kind === "if") {
+        let a = this["H"](f.block, b);
+        e.push(c["Z"](as(a.condition(), f.negate), c.block(this["L"](f.then, b)), [], f.else ? c.block(this["L"](f.else, b)) : null));
+      } else if (f.kind === "while") e.push(...this["Se"](f.loop && f.loop.header, b)), e.push(...this["Ss"](f, b));else if (f.kind === "repeat") {
+        e.push(...this["Se"](f.loop && f.loop.header, b));
+        let a = this["H"](f.latch, b),
+          d = [...this["L"](f.body, b), ...a.statements];
+        e.push(c.bn(c.block(ah(d)), as(a.condition(), f.negate)));
+      } else f.kind === "loop" ? (e.push(...this["Se"](f.loop && f.loop.header, b)), e.push(c.ae(c.boolean(!0), c.block(ah(this["L"](f.body, b)))))) : f.kind === "break" ? e.push(c["Ee"]()) : f.kind === "continue" ? e.push({
+        kind: d["Continue"]
+      }) : f.kind === "goto" ? e.push({
+        kind: d["Goto"],
+        label: `L${f.target}`
+      }) : f.kind === "labelled" ? (b.labelled.add(f.id), e.push({
+        kind: d["Label"],
+        name: `L${f.id}`
+      }), e.push(...this["L"](f.region, b))) : f.kind === "seq" ? e.push(...this["L"](f, b)) : this.warn("unhandled-region", {
+        kind: f.kind
+      });
+      return e;
+    }
+    "Ss"(a, b) {
+      let d = this["H"](a.header, b),
+        e = as(d.condition(), a.negate),
+        f = this["L"](a.body, b),
+        g = [];
+      return d.statements.length === 0 ? g.push(c.ae(e, c.block(ah(f)))) : g.push(c.ae(c.boolean(!0), c.block(ah([...d.statements, c["Z"](as(e, !0), c.block([c["Ee"]()]), [], null), ...f])))), a.nt && g.push(d.returns()), g;
+    }
+    ot(a, b, e) {
+      if (e > 200 || this.active.has(a)) return this.warn("recursive-closure", {
+        id: a.id
+      }), c.func([], c.block([]), !1);
+      this.active.add(a);
+      let f = al(this.vm, a),
+        g = at(this.vm, a),
+        i = x(a);
+      for (let b of i.warnings) this.warn(b.kind, {
+        ...b,
+        fn: a.id
+      });
+      let k = [];
+      for (let a = 1; a <= f.arity; a += 1) k.push(this.fresh("a"));
+      let l = new Set();
+      for (let a of i.loops.values()) for (let b of a.members) l.add(b.id);
+      let m = {
+        fn: a,
+        depth: e,
+        params: k,
+        structured: i,
+        "Ns": l,
+        labelled: new Set(),
+        webs: j(a),
+        en: new Map(),
+        cells: new Map(),
+        st: new Map(),
+        used: new Set(),
+        emitters: new Map(),
+        block: a.entry,
+        "Cs": g.us,
+        xe: null
+      };
+      m.xe = a => m["Cs"](m.block, a, m.block.os, m.block["Je"]), b["forEach"]((a, b) => {
+        a && m.cells.set(`param:${b + 1}`, a);
+      });
+      for (let b of a.blocks) this["H"](b, m);
+      let n = this["Fs"](m, a),
+        o = this["L"](i.region, m),
+        p = new Set();
+      h(c.block(o), {
+        enter(a) {
+          a.kind === d["Name"] && p.add(a.name);
+        }
+      });
+      let q = [...m.en.values()].filter(a => p.has(a)),
+        r = n.filter(a => p.has(a));
+      return (q.length || r.length) && o.unshift(c["R"]([...q, ...r], [])), this.active.delete(a), c.func(k, c.block(o), !!a.vararg || f.rs);
+    }
+    "Fs"(a, b) {
+      let d = [],
+        e = new Map(b.blocks.map(a => [String(a.id), a]));
+      for (let [b, f] of a.st) {
+        if (!a.used.has(b)) continue;
+        let g = e.get(f.split(":")[1]),
+          h = g ? a.emitters.get(g) : null;
+        g && h && a["Ns"].has(g.id) ? h.statements.unshift(c["R"]([b], [])) : d.push(b);
+      }
+      return d;
+    }
+    lift() {
+      let a = this["He"].get(this.vm.entry["O"]);
+      if (!a) return this.warn("missing-entry", {
+        id: this.vm.entry["O"]
+      }), {
+        body: c.block([]),
+        params: [],
+        w: !1,
+        warnings: this.warnings,
+        counter: 0
+      };
+      let b = this.ot(a, [], 0);
+      return {
+        body: af(b.body),
+        params: b.params,
+        w: b.w,
+        warnings: this.warnings,
+        counter: this.counter
+      };
+    }
+  };
+  function av(a, b, c = {}) {
+    return new au(a, b, c).lift();
+  }
+  b.exports = {
+    ut: ar,
+    tn: av
+  };
+});
+var ai = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    {
+      "D": d
+    } = j(),
+    {
+      transform: f,
+      walk: g
+    } = l(),
+    {
+      diverges: h,
+      zn: i,
+      bare: k
+    } = y(),
+    m = q();
+  function n(a) {
+    if (!a) return !0;
+    let b = k(a);
+    if (!b) return !0;
+    switch (b.kind) {
+      case c["Name"]:
+      case c["Nil"]:
+      case c["True"]:
+      case c["False"]:
+      case c["Number"]:
+      case c["String"]:
+      case c["Vararg"]:
+        return !0;
+      case c["Unary"]:
+        return n(b.argument);
+      case c["Binary"]:
+        return n(b.lhs) && n(b.rhs);
+      default:
+        return !1;
+    }
+  }
+  function o(a) {
+    return {
+      kind: c["Do"],
+      body: a,
+      qs: !0
+    };
+  }
+  function p(a, b) {
+    let c = [{
+        condition: a.condition,
+        body: a.body
+      }, ...(a.s || []).map(a => ({
+        ...a
+      }))],
+      d = a.e;
+    if (!d || !c.every(a => n(a.condition))) return null;
+    let e = c.map(a => i(a.body)),
+      f = i(d);
+    if (e.filter(a => !a).length + (f ? 0 : 1) !== 1) return null;
+    if (b.guards += 1, !f) return o(d);
+    let g = e["indexOf"](!1);
+    return o(c[g].body);
+  }
+  function r(a) {
+    if (a.kind !== c["CallStatement"]) return !1;
+    let b = k(a.expression);
+    if (!b || b.kind !== c["MethodCall"] || b.method !== "gsub") return !1;
+    let e = k(b.base);
+    if (!e || e.kind !== c["String"]) return !1;
+    let f = b.args || [];
+    if (f.length !== 2) return !1;
+    let g = k(f[0]);
+    if (!g || g.kind !== c["String"]) return !1;
+    let h = k(f[1]);
+    if (!h || h.kind !== c["Function"]) return !1;
+    let i = h.body && h.body.statements || [];
+    if (i.length !== 1 || i[0].kind !== c["Assignment"]) return !1;
+    let j = i[0].targets || [];
+    return j.length === 1 && d(j[0]);
+  }
+  function s(a) {
+    if (a.kind !== c["If"] || (a.s || []).length) return !1;
+    let b = a.body && a.body.statements || [];
+    if (b.length !== 1 || b[0].kind !== c["Return"] || (b[0].expressions || []).length) return !1;
+    let e = k(a.condition);
+    if (!e || e.kind !== c["Binary"] || e.operator !== "~=") return !1;
+    let f = [k(e.lhs), k(e.rhs)],
+      g = f.find(a => d(a)),
+      h = f.find(a => a && a.kind === c["String"]);
+    return !!g && !!h;
+  }
+  function t(a, b) {
+    let d = [{
+        condition: a.condition,
+        body: a.body
+      }, ...(a.s || []).map(a => ({
+        ...a
+      }))],
+      e = [],
+      f = null;
+    for (let a of d) {
+      let b = m.truthiness(a.condition);
+      if (b !== !1) {
+        if (b === !0) {
+          f = a;
+          break;
+        }
+        e.push(a);
+      }
+    }
+    let g = f ? f.body : a.e;
+    return !(d.length - e.length - (f ? 1 : 0)) && !f ? null : (b.constants += 1, e.length ? {
+      kind: c["If"],
+      condition: e[0].condition,
+      body: e[0].body,
+      s: e.slice(1),
+      e: g
+    } : o(g || {
+      kind: c["Block"],
+      statements: []
+    }));
+  }
+  function u(a) {
+    let b = 0;
+    return g(a, {
+      enter(a) {
+        if (a.kind !== c["Block"]) return;
+        let d = [];
+        for (let e of a.statements) e.kind === c["Do"] && e.qs ? (b += 1, d.push(...(e.body && e.body.statements || []))) : d.push(e);
+        a.statements = d;
+      }
+    }), b;
+  }
+  function v(a, b, d) {
+    if (a.kind !== c["If"] || a.s && a.s.length > 0 || a.e && a.e.statements && a.e.statements.length > 0 && !i(a.e)) return !1;
+    let e = k(a.condition);
+    if (!e || e.kind !== c["Name"]) return !1;
+    let f = e.name,
+      h = e.binding,
+      j = b.slice(0, d),
+      l = !1,
+      n = !1;
+    for (let a of j) g(a, {
+      enter(a) {
+        if (a.kind === c["String"] && typeof a.value == "string" && /tamper/i.test(a.value) && (l = !0), a.kind === c["Call"] && a.base && a.base.kind === c["Name"] && a.base.name === "error" && a.args && a.args.length && a.args[0].kind === c["String"] && /tamper/i.test(a.args[0].value) && (l = !0), a.kind === c["Assignment"]) for (let b = 0; b < (a.targets || []).length; b += 1) {
+          let d = k(a.targets[b]);
+          if (d && d.kind === c["Name"] && (d.name === f || h && d.binding === h)) {
+            let d = (a.expressions || [])[b];
+            d && (d.kind === c["True"] || m.truthiness(d) === !0) && (n = !0);
+          }
+        }
+      }
+    });
+    return l && n;
+  }
+  function w(a, b) {
+    let d = [];
+    for (let e = 0; e < a.statements.length; e += 1) {
+      let f = a.statements[e];
+      if (v(f, a.statements, e)) {
+        b.guards += 1;
+        let a = f.body && f.body.statements || [];
+        d.push(...a);
+        continue;
+      }
+      if (f.kind === c["Repeat"] && !(f.body.statements || []).length && n(f.condition)) {
+        b.loops += 1;
+        continue;
+      }
+      if (f.kind === c["While"] && m.truthiness(f.condition) === !1) {
+        b.loops += 1;
+        continue;
+      }
+      if (r(f)) {
+        b.watermarks += 1;
+        continue;
+      }
+      if (s(f)) {
+        b.watermarks += 1, f.e && d.push(o(f.e));
+        continue;
+      }
+      d.push(f);
+    }
+    a.statements = d;
+  }
+  function x(a, b) {
+    g(a, {
+      enter(a) {
+        if (a.kind === c["Block"]) for (let d = 0; d < a.statements.length; d += 1) {
+          let e = a.statements[d];
+          if ((e.kind === c["Return"] || e.kind === c["Break"] || h(e)) && d + 1 < a.statements.length) {
+            b.unreachable += a.statements.length - d - 1, a.statements.length = d + 1;
+            break;
+          }
+        }
+      }
+    });
+  }
+  function z(a) {
+    let b = {
+      guards: 0,
+      constants: 0,
+      loops: 0,
+      watermarks: 0,
+      unreachable: 0
+    };
+    for (let d = 0; d < 16; d += 1) {
+      let d = {
+        ...b
+      };
+      if (a.resolve(), f(a.chunk, a => {
+        if (a.kind !== c["If"]) return a;
+        let d = t(a, b);
+        if (d) return d;
+        let e = p(a, b);
+        return e || a;
+      }), u(a.chunk), g(a.chunk, {
+        enter(a) {
+          a.kind === c["Block"] && w(a, b);
+        }
+      }), x(a.chunk, b), !Object.keys(b).some(a => b[a] !== d[a])) break;
+    }
+    let d = b.guards + b.constants + b.loops + b.watermarks;
+    d && a.note(`resolved ${b.guards} integrity guard(s), ${b.constants} constant branch(es), dropped ${b.loops} dead loop(s) and ${b.watermarks} watermark(s)`, d);
+    for (let c of Object.keys(b)) b[c] && a.bump(`guards.${c}`, b[c]);
+  }
+  b.exports = {
+    name: "05-if",
+    run: z
+  };
+});
+var aj = a((a, b) => {
+  "use strict";
+
+  var c = e(),
+    {
+      "Kind": d
+    } = c,
+    {
+      walk: f,
+      transform: h,
+      collect: i
+    } = l(),
+    {
+      jn: j,
+      bare: k
+    } = y(),
+    {
+      y: m
+    } = g();
+  function n(a, b) {
+    let c = k(a),
+      e = k(b);
+    return !c || !e || c.kind !== e.kind ? !1 : c.kind === d["Name"] ? c.binding ? c.binding === e.binding : c.name === e.name : c.kind === d["Number"] || c.kind === d["String"] ? c.value === e.value : c.kind === d["Nil"] || c.kind === d["True"] || c.kind === d["False"];
+  }
+  function o(a) {
+    let b = k(a);
+    return b && b.kind === d["Name"] ? b : null;
+  }
+  function p(a) {
+    if (!a || a.kind !== d["Assignment"]) return null;
+    let b = a.targets || [],
+      c = a.expressions || [];
+    if (b.length !== 1 || c.length !== 1) return null;
+    let e = o(b[0]),
+      f = k(c[0]);
+    return !e || !f || f.kind !== d["Binary"] || f.operator !== "+" || !n(f.lhs, e) ? null : {
+      counter: e,
+      step: f.rhs
+    };
+  }
+  function q(a, b) {
+    let e = k(a);
+    if (!e || e.kind !== d["Binary"] || e.operator !== "and") return null;
+    let f = [k(e.lhs), k(e.rhs)],
+      g = f.find(a => a && a.kind === d["Binary"] && (a.operator === ">=" || a.operator === "<=")),
+      h = f.find(a => a !== g);
+    if (!g || !h) return null;
+    let i = !1,
+      j = h;
+    if (j.kind === d["Unary"] && j.operator === "not" && (i = !0, j = k(j.argument)), !j) return null;
+    let l = g.operator,
+      m = g.lhs,
+      o = g.rhs;
+    if (b && !n(m, b)) {
+      if (!n(o, b)) return null;
+      m = g.rhs, o = g.lhs, l = l === ">=" ? "<=" : ">=";
+    }
+    let p = l === ">=";
+    if (j.kind === d["True"] || j.kind === d["False"]) {
+      let a = j.kind === d["True"] ? !i : i;
+      return {
+        descending: p,
+        "S": c.boolean(p ? a : !a),
+        counter: m,
+        limit: o
+      };
+    }
+    return j.kind !== d["Name"] || p === i ? null : {
+      descending: p,
+      "S": j,
+      counter: m,
+      limit: o
+    };
+  }
+  function r(a, b) {
+    let c = k(a);
+    if (!c || c.kind !== d["Binary"] || c.operator !== "or") return null;
+    let e = q(c.lhs, b),
+      f = q(c.rhs, b);
+    return !e || !f || e.descending === f.descending || !n(e["S"], f["S"]) || !n(e.counter, f.counter) || !n(e.limit, f.limit) ? null : {
+      counter: e.counter,
+      limit: e.limit,
+      "S": e["S"]
+    };
+  }
+  function s(a, b) {
+    if (!a || a.kind !== d["If"] || (a.s || []).length || a.e) return null;
+    let c = a.body && a.body.statements || [];
+    if (c.length !== 1 || c[0].kind !== d["Break"]) return null;
+    let e = k(a.condition);
+    return !e || e.kind !== d["Unary"] || e.operator !== "not" ? null : r(e.argument, b);
+  }
+  function t(a) {
+    let b = new Set(),
+      c = a => {
+        let c = k(a);
+        c && c.kind === d["Name"] && c.binding && b.add(c.binding);
+      };
+    return f(a, {
+      enter(a) {
+        if (a.kind === d["Assignment"]) (a.targets || [])["forEach"](c);else if (a.kind === d["LocalDeclaration"]) for (let c of a.bindings || []) b.add(c);else if (a.kind === d["NumericFor"]) b.add(a.binding);else if (a.kind === d["GenericFor"]) for (let c of a.bindings || []) b.add(c);
+      }
+    }), b;
+  }
+  function u(a, b) {
+    let c = !1;
+    return f(a, {
+      enter(a) {
+        a.kind === d["Name"] && a.binding === b && (c = !0);
+      }
+    }), c;
+  }
+  function v(a, b, e, f) {
+    let g = (a, b) => {
+      let e = k(a);
+      if (!e) return null;
+      if (e.kind === d["Binary"] && e.operator === "-" && n(e.rhs, f)) return {
+        start: e.lhs,
+        index: b
+      };
+      let g = k(f);
+      return e.kind === d["Number"] && g && g.kind === d["Number"] ? {
+        start: c.number(e.value + g.value),
+        index: b
+      } : null;
+    };
+    for (let c = b - 1; c >= 0; c -= 1) {
+      let b = a[c];
+      if (b.kind === d["LocalDeclaration"]) {
+        let a = b.bindings || [],
+          d = b.expressions || [],
+          f = a["indexOf"](e.binding);
+        if (f < 0) continue;
+        return d.length !== a.length ? null : g(d[f], c);
+      }
+      if (b.kind !== d["Assignment"]) {
+        if (t(b).has(e.binding)) return null;
+        continue;
+      }
+      let f = b.targets || [],
+        h = b.expressions || [];
+      if (f.some(a => n(a, e))) return f.length !== 1 || h.length !== 1 ? null : g(h[0], c);
+    }
+    return null;
+  }
+  function w(a, b) {
+    let e = a.statements[b];
+    if (!e || e.kind !== d["While"] || !j(e.condition)) return !1;
+    let f = e.body && e.body.statements || [];
+    if (f.length < 2) return !1;
+    let g = p(f[0]);
+    if (!g) return !1;
+    let h = s(f[1], g.counter);
+    if (!h || !n(h.counter, g.counter) || !g.counter.binding) return !1;
+    let i = c.block(f.slice(2)),
+      l = t(i);
+    for (let a of [g.counter, g.step, h.limit, h["S"]]) {
+      let b = o(a);
+      if (b && b.binding && l.has(b.binding)) return !1;
+    }
+    if (h["S"].binding && u(i, h["S"].binding)) return !1;
+    let m = k(h["S"]),
+      q = k(g.step);
+    if (m && (m.kind === d["True"] || m.kind === d["False"]) && q && q.kind === d["Number"] && q.value < 0 != (m.kind === d["True"])) return !1;
+    let r = v(a.statements, b, g.counter, g.step);
+    if (!r) return !1;
+    let w = g.counter,
+      x = i.statements;
+    for (let a = 0; a < x.length; a += 1) {
+      let b = ac(x[a]);
+      if (!b || !n(b.value, g.counter)) continue;
+      if (b.target.binding === g.counter.binding) break;
+      let d = c.block(x.slice(0, a)),
+        e = c.block(x.slice(a + 1));
+      if (u(d, g.counter.binding) || u(e, g.counter.binding) || u(d, b.target.binding) || t(d).has(b.target.binding)) break;
+      w = b.target, i.statements = x.slice(0, a).concat(x.slice(a + 1));
+      break;
+    }
+    for (let c of new Set([g.counter.binding, w.binding])) for (let d = b + 1; d < a.statements.length; d += 1) {
+      let b = a.statements[d];
+      if (u(b, c)) return !1;
+      if (t(b).has(c)) break;
+    }
+    return a.statements[b] = c.mn(w.name, r.start, h.limit, g.step, i), !0;
+  }
+  function x(a, b, c) {
+    for (let d = b - 1; d >= 0; d -= 1) if (t(a[d]).has(c)) return d;
+    return -1;
+  }
+  function z(a, b) {
+    return !a || (a.expressions || []).length !== 1 ? null : a.kind === d["LocalDeclaration"] ? (a.names || []).length !== 1 || (a.bindings || [])[0] !== b.binding ? null : {
+      holder: a,
+      value: a.expressions[0],
+      declared: !0
+    } : a.kind !== d["Assignment"] || (a.targets || []).length !== 1 || !n(a.targets[0], b) ? null : {
+      holder: a,
+      value: a.expressions[0],
+      declared: !1
+    };
+  }
+  function aa(a, b) {
+    let e = a.statements,
+      f = e[b];
+    if (!f || f.kind !== d["If"] || (f.s || []).length || f.e) return !1;
+    let g = f.body && f.body.statements || [];
+    if (g.length !== 1) return !1;
+    let h = g[0];
+    if (!h || h.kind !== d["Assignment"] || (h.targets || []).length !== 1 || (h.expressions || []).length !== 1) return !1;
+    let i = o(h.targets[0]);
+    if (!i || !i.binding) return !1;
+    let j = k(h.expressions[0]);
+    if (!j || j.kind === d["Vararg"] || u(j, i.binding)) return !1;
+    let l = k(f.condition),
+      m = "and";
+    l && l.kind === d["Unary"] && l.operator === "not" && (l = k(l.argument), m = "or");
+    let p = o(l);
+    if (!p || !p.binding || p.binding === i.binding) return !1;
+    let q = x(e, b, i.binding);
+    if (q < 0) return !1;
+    let r = z(e[q], i);
+    if (!r || !n(r.value, p)) return !1;
+    for (let a = q + 1; a < b; a += 1) if (t(e[a]).has(p.binding)) return !1;
+    let s = c.binary(m, c.name(p.name), j);
+    return r.declared ? q !== b - 1 ? !1 : (r.holder.expressions = [s], e[b] = c["N"](c.block([])), !0) : (e[b] = c.assignment([c.name(i.name)], [s]), !0);
+  }
+  function ab(a) {
+    if (a.kind !== d["Call"]) return null;
+    let b = a.args || [];
+    if (!b.length) return null;
+    let e = k(a.base);
+    if (!e || e.kind !== d["Index"]) return null;
+    let f = k(e.index);
+    return !f || f.kind !== d["String"] || !m(f.value) || !n(e.base, b[0]) ? null : c["Le"](e.base, f.value, b.slice(1));
+  }
+  function ac(a) {
+    if (!a || a.kind !== d["Assignment"]) return null;
+    let b = a.targets || [],
+      c = a.expressions || [];
+    if (b.length !== 1 || c.length !== 1) return null;
+    let e = o(b[0]);
+    return !e || !e.binding ? null : {
+      target: e,
+      value: c[0]
+    };
+  }
+  function ad(a) {
+    let b = k(a);
+    return !b || b.kind !== d["Number"] || !Number["isInteger"](b.value) || b.value < 1 ? null : b.value;
+  }
+  function ae(a) {
+    let b = o(a);
+    if (b) return b.binding ? b : null;
+    let d = k(a);
+    return c["Y"](d) ? d : null;
+  }
+  function af(a) {
+    let b = new Map(),
+      c = new Map(),
+      e = new Set(),
+      g = (a, b, c) => {
+        if (!b) return;
+        let d = a.get(b);
+        d ? d.push(c) : a.set(b, [c]);
+      };
+    f(a, {
+      enter(a) {
+        if (a.kind === d["Assignment"]) for (let b of a.targets || []) {
+          let f = k(b);
+          f && f.kind === d["Name"] && (e.add(f), g(c, f.binding, a));
+        } else if (a.kind === d["LocalDeclaration"]) {
+          if ((a.expressions || []).length) for (let b of a.bindings || []) g(c, b, a);
+        } else if (a.kind === d["NumericFor"]) g(c, a.binding, a);else if (a.kind === d["GenericFor"]) for (let b of a.bindings || []) g(c, b, a);else a.kind === d["Name"] && g(b, a.binding, a);
+      }
+    });
+    for (let [a, c] of b) b.set(a, c.filter(a => !e.has(a)));
+    return {
+      reads: b,
+      writes: c
+    };
+  }
+  function ag(a, b) {
+    let c = 0,
+      e = new Set();
+    return f(a, {
+      enter(a) {
+        if (a.kind === d["Assignment"]) for (let b of a.targets || []) {
+          let a = k(b);
+          a && a.kind === d["Name"] && e.add(a);
+        }
+        a.kind === d["Name"] && a.binding === b && !e.has(a) && (c += 1);
+      }
+    }), c;
+  }
+  function ah(a, b) {
+    let c = 0;
+    return f(a, {
+      enter(a) {
+        if (a.kind === d["Assignment"]) for (let e of a.targets || []) {
+          let a = k(e);
+          a && a.kind === d["Name"] && a.binding === b && (c += 1);
+        } else if (a.kind === d["LocalDeclaration"] && (a.expressions || []).length) for (let d of a.bindings || []) d === b && (c += 1);else if (a.kind === d["NumericFor"]) a.binding === b && (c += 1);else if (a.kind === d["GenericFor"]) for (let d of a.bindings || []) d === b && (c += 1);
+      }
+    }), c;
+  }
+  function ai(a, b, e) {
+    let f = a.statements,
+      g = ac(f[b]);
+    if (!g) return !1;
+    let h = k(g.value);
+    if (!h || h.kind !== d["Table"]) return !1;
+    let i = h.entries || [];
+    if (i.length !== 1 || i[0].type === "key") return !1;
+    let j = i[0].value;
+    if (!j || j.kind !== d["Call"] && j.kind !== d["MethodCall"]) return !1;
+    let l = g.target.binding;
+    if ((e.writes.get(l) || []).length !== 1) return !1;
+    let m = [];
+    for (let a = b + 1; a < f.length; a += 1) {
+      let b = ac(f[a]);
+      if (!b) continue;
+      let c = k(b.value);
+      if (!c || c.kind !== d["Index"]) continue;
+      let e = o(c.base);
+      if (!e || e.binding !== l) continue;
+      let g = ad(c.index);
+      if (g === null) return !1;
+      m.push({
+        at: a,
+        key: g,
+        target: b.target,
+        binding: b.target.binding
+      });
+    }
+    if (!m.length || ag(a, l) !== m.length || (e.reads.get(l) || []).length !== m.length) return !1;
+    let n = new Set(m.map(a => a.key));
+    if (n.size !== m.length) return !1;
+    for (let a = 1; a <= m.length; a += 1) if (!n.has(a)) return !1;
+    let p = new Set(m.map(a => a.binding));
+    if (p.size !== m.length || p.has(l)) return !1;
+    let q = new Set(m.map(a => a.at));
+    for (let a = b + 1; a < m[m.length - 1].at; a += 1) {
+      if (q.has(a)) continue;
+      let b = t(f[a]);
+      if (b.has(l)) return !1;
+      for (let c of p) if (b.has(c) || u(f[a], c)) return !1;
+    }
+    let r = m.slice().sort((a, b) => a.key - b.key);
+    f[b] = c.assignment(r.map(a => a.target), [j]);
+    for (let a of m) f[a.at] = c["N"](c.block([]));
+    return !0;
+  }
+  function aj(a) {
+    if (!a || a.kind !== d["Assignment"]) return null;
+    let b = a.targets || [],
+      c = a.expressions || [];
+    if (!b.length || b.length > 2 || c.length !== 1) return null;
+    let e = c[0];
+    if (!e || e.kind !== d["Call"]) return null;
+    let f = e.args || [];
+    if (f.length !== 2) return null;
+    let g = o(b[0]);
+    if (!g || !g.binding || !n(f[1], g)) return null;
+    let h = b.length === 2 ? o(b[1]) : null;
+    if (b.length === 2 && (!h || !h.binding)) return null;
+    let i = ae(e.base),
+      j = ae(f[0]);
+    return !i || !j ? null : {
+      ctrl: g,
+      second: h,
+      iterator: i,
+      state: j
+    };
+  }
+  function ak(a, b) {
+    if (!a || a.kind !== d["If"] || (a.s || []).length || a.e) return !1;
+    let c = a.body && a.body.statements || [];
+    if (c.length !== 1 || c[0].kind !== d["Break"]) return !1;
+    let e = k(a.condition);
+    if (!e) return !1;
+    if (e.kind === d["Unary"] && e.operator === "not") return n(e.argument, b);
+    if (e.kind === d["Binary"] && e.operator === "==") {
+      let a = k(e.rhs);
+      return !!a && a.kind === d["Nil"] && n(e.lhs, b);
+    }
+    return !1;
+  }
+  function al(a, b, e, f, g) {
+    if (e.length !== 3 || e.some(a => !a) || new Set(e).size !== 3) return null;
+    let h = x(a, b, e[2]);
+    if (h < 0) return null;
+    let i = a[h];
+    if (!i || i.kind !== d["Assignment"]) return null;
+    let j = i.targets || [],
+      k = i.expressions || [];
+    if (j.length !== 3 || k.length !== 1) return null;
+    let l = k[0];
+    if (!l || l.kind !== d["Call"] && l.kind !== d["MethodCall"]) return null;
+    let m = j.map(o);
+    if (m.some(a => !a || !a.binding)) return null;
+    for (let a = 0; a < 3; a += 1) if (m[a].binding !== e[a]) return null;
+    for (let a of e) {
+      let b = (g.reads.get(a) || []).length;
+      if (!b || b !== ag(f, a) || (g.writes.get(a) || []).length - ah(f, a) !== 1) return null;
+    }
+    return a[h] = c["N"](c.block([])), l;
+  }
+  function am(a, b, e) {
+    let f = a.statements,
+      g = f[b];
+    if (!g || g.kind !== d["While"] || !j(g.condition)) return !1;
+    let h = g.body && g.body.statements || [];
+    if (h.length < 2) return !1;
+    let i = aj(h[0]);
+    if (!i || !ak(h[1], i.ctrl)) return !1;
+    let k = 2,
+      l = i.ctrl,
+      m = ac(h[2]);
+    m && n(m.value, i.ctrl) && m.target.binding !== i.ctrl.binding && (l = m.target, k = 3);
+    let o = c.block(h.slice(k)),
+      p = t(o);
+    for (let a of [i.iterator, i.state]) if (a.binding && p.has(a.binding)) return !1;
+    if (p.has(i.ctrl.binding) || l !== i.ctrl && u(o, i.ctrl.binding) || i.second && i.second.binding === i.ctrl.binding) return !1;
+    let q = [i.ctrl.binding, l.binding];
+    i.second && q.push(i.second.binding);
+    for (let a of q) for (let c = b + 1; c < f.length; c += 1) {
+      if (u(f[c], a)) return !1;
+      if (t(f[c]).has(a)) break;
+    }
+    let r = [l.name];
+    i.second && r.push(i.second.name);
+    let s = [i.iterator.binding, i.state.binding, i.ctrl.binding],
+      v = al(f, b, s, g, e),
+      w = v ? [v] : [i.iterator, i.state, c.name(i.ctrl.name)];
+    return f[b] = c.wn(r, w, o), !0;
+  }
+  function an(a, b, e) {
+    let f = a.statements,
+      g = ac(f[b]);
+    if (!g) return !1;
+    let i = k(g.value);
+    if (!i || i.kind !== d["Table"]) return !1;
+    let j = i.entries || [];
+    if (j.length !== 1 || j[0].type === "key") return !1;
+    let l = j[0].value;
+    if (!l || l.kind !== d["Call"] && l.kind !== d["MethodCall"]) return !1;
+    let m = g.target.binding;
+    if ((e.writes.get(m) || []).length !== 1 || (e.reads.get(m) || []).length !== 1) return !1;
+    let n = -1,
+      o = null;
+    for (let a = b + 1; a < f.length; a += 1) {
+      let b = as(f[a], m);
+      if (b) {
+        n = a, o = b;
+        break;
+      }
+    }
+    if (!o || ag(f[n], m) !== 1) return !1;
+    let p = aq(l);
+    for (let a = b + 1; a < n; a += 1) {
+      if (!ar(f[a])) return !1;
+      for (let b of t(f[a])) if (p.has(b)) return !1;
+    }
+    let q = !1;
+    return f[n] = h(f[n], a => q || a !== o ? a : (q = !0, l)), q ? (f[b] = c["N"](c.block([])), !0) : !1;
+  }
+  function ao(a, b) {
+    let c = k(a);
+    if (!c) return !1;
+    if (c.kind === d["Name"]) return c.name !== b ? !1 : !c.binding || c.binding.kind === "global";
+    if (c.kind !== d["Index"]) return !1;
+    let e = k(c.index);
+    if (!e || e.kind !== d["String"] || e.value !== b) return !1;
+    let f = k(c.base);
+    return !f || f.kind !== d["Name"] || f.binding && f.binding.kind !== "global" ? !1 : f.name === "_ENV" || f.name === "_G";
+  }
+  function ap(a) {
+    if (ao(a, "unpack")) return !0;
+    let b = k(a);
+    if (!b || b.kind !== d["Index"]) return !1;
+    let c = k(b.index);
+    return !c || c.kind !== d["String"] || c.value !== "unpack" ? !1 : ao(b.base, "table");
+  }
+  function aq(a) {
+    let b = new Set();
+    return f(a, {
+      enter(a) {
+        a.kind === d["Name"] && a.binding && b.add(a.binding);
+      }
+    }), b;
+  }
+  function ar(a) {
+    if (!a) return !1;
+    if (a.kind === d["Do"]) return !(a.body && a.body.statements || []).length;
+    if (a.kind !== d["Assignment"]) return !1;
+    for (let b of a.targets || []) {
+      let a = k(b);
+      if (!a || a.kind !== d["Name"] || !a.binding) return !1;
+    }
+    for (let b of a.expressions || []) {
+      let a = k(b);
+      if (!a) return !1;
+      if (!(a.kind === d["Function"] || c["Y"](a)) && !(a.kind === d["Name"] && a.binding)) return !1;
+    }
+    return !0;
+  }
+  function as(a, b) {
+    let c = null,
+      e = !1;
+    return f(a, {
+      enter(a) {
+        if (a.kind !== d["Call"] || !ap(a.base)) return;
+        let f = a.args || [];
+        if (f.length !== 1) return;
+        let g = o(f[0]);
+        !g || g.binding !== b || (c && (e = !0), c = a);
+      }
+    }), e ? null : c;
+  }
+  function at(a, b, c) {
+    let e = a.statements[b];
+    if (!e || e.kind !== d["GenericFor"]) return !1;
+    let f = e.expressions || [];
+    if (f.length !== 3) return !1;
+    let g = f.map(o);
+    if (g.some(a => !a || !a.binding)) return !1;
+    let h = g.map(a => a.binding),
+      i = al(a.statements, b, h, e, c);
+    return i ? (e.expressions = [i], !0) : !1;
+  }
+  function au(a) {
+    if (!a) return null;
+    if (a.kind === d["NumericFor"]) return ["start", "limit", "step"].map(b => ({
+      read: () => a[b],
+      write: c => {
+        a[b] = c;
+      },
+      last: !1
+    }));
+    if (a.kind === d["GenericFor"]) {
+      let b = (a.expressions || []).length;
+      return (a.expressions || []).map((c, d) => ({
+        read: () => a.expressions[d],
+        write: b => {
+          a.expressions[d] = b;
+        },
+        last: d === b - 1
+      }));
+    }
+    return null;
+  }
+  function av(a, b) {
+    for (let c = b - 1; c >= 0; c -= 1) {
+      let b = a[c];
+      if (b.kind !== d["Do"] || (b.body && b.body.statements || []).length) return c;
+    }
+    return -1;
+  }
+  function aw(a, b, d) {
+    let e = a.statements,
+      f = e[b],
+      g = au(f);
+    if (!g) return !1;
+    let h = !1;
+    for (let a = 0; a < g.length; a += 1) {
+      let a = av(e, b);
+      if (a < 0) break;
+      let i = ac(e[a]);
+      if (!i) break;
+      let j = i.target.binding;
+      if ((d.reads.get(j) || []).length !== 1 || ag(f, j) !== 1 || (d.writes.get(j) || []).length !== 1 || ah(f, j) !== 0) break;
+      let l = g.find(a => {
+        let b = o(a.read());
+        return !!b && b.binding === j;
+      });
+      if (!l || l.last && c.d(k(i.value))) break;
+      l.write(i.value), e[a] = c["N"](c.block([])), h = !0;
+    }
+    return h;
+  }
+  function ax(a) {
+    if (Array["isArray"](a)) return a.map(ax);
+    if (!a || typeof a != "object") return a;
+    let b = {};
+    for (let c of Object.keys(a)) c === "binding" || c === "bindings" || c === "declaration" ? b[c] = a[c] : b[c] = ax(a[c]);
+    return b;
+  }
+  function ay(a) {
+    if (!a) return null;
+    let b = k(a);
+    if (!b || b.kind !== d["Table"]) return null;
+    let c = b.entries || [];
+    if (!c.length) return null;
+    let e = [];
+    for (let a of c) {
+      if (a.type !== "item") return null;
+      e.push(a.value);
+    }
+    return e;
+  }
+  function az(a) {
+    if (!a || a.kind !== d["Call"] || !ap(a.base)) return null;
+    let b = a.args || [];
+    return b.length === 1 ? b[0] : null;
+  }
+  function ba(a) {
+    if (!a || a.kind !== d["Call"] || !ao(a.base, "select")) return null;
+    let b = a.args || [];
+    if (b.length !== 2) return null;
+    let c = k(b[0]);
+    return !c || c.kind !== d["Number"] || !Number["isInteger"](c.value) || c.value < 1 ? null : {
+      skip: c.value - 1,
+      values: b[1]
+    };
+  }
+  function bb(a) {
+    let b = k(a);
+    return b ? b.kind === d["Name"] || c["Y"](b) : !1;
+  }
+  function bc(a) {
+    if (!a || !a.length || !c.d(a[a.length - 1])) return !1;
+    for (let b = 0; b < a.length - 1; b += 1) if (!bb(a[b])) return !1;
+    return !0;
+  }
+  function bd(a) {
+    let b = az(a);
+    if (b) {
+      let a = ay(b);
+      return !a || a.length !== 1 || !bc(a) ? null : a[0];
+    }
+    let d = ba(a);
+    if (!d) return null;
+    if (!d.skip) return c.d(d.values) ? d.values : null;
+    let e = ay(az(d.values));
+    return !e || !bc(e) || e.length !== d.skip + 1 ? null : e[e.length - 1];
+  }
+  function be(a) {
+    if (!a || a.length !== 1) return !1;
+    let b = k(a[0]);
+    return !!b && b.kind === d["Vararg"];
+  }
+  function bf(a, b) {
+    let c = new Map(),
+      e = [a];
+    return f(a, {
+      enter(a) {
+        b.has(a) && c.set(a, e[e.length - 1]), a.kind === d["Function"] && e.push(a);
+      },
+      leave(a) {
+        a.kind === d["Function"] && e.pop();
+      }
+    }), c;
+  }
+  function bg(a, b, e, f) {
+    let g = ac(b[e]);
+    if (!g) return !1;
+    let j = g.target.binding;
+    if (!j) return !1;
+    let l = k(g.value),
+      m = ay(l);
+    if (!be(m)) return !1;
+    let n = f.writes.get(j) || [];
+    if (n.length !== 1 || n[0] !== b[e]) return !1;
+    let o = f.reads.get(j) || [];
+    if (!o.length) return !1;
+    let p = i(a, a => {
+      let b = k(az(a));
+      return !!b && b.kind === d["Name"] && b.binding === j;
+    });
+    if (p.length !== o.length) return !1;
+    let q = bf(a, new Set([b[e]].concat(p))),
+      r = q.get(b[e]);
+    if (!r) return !1;
+    for (let a of p) if (q.get(a) !== r) return !1;
+    return h(a, a => p["indexOf"](a) < 0 ? a : c.call(a.base, [ax(l)])), b[e] = c["N"](c.block([])), !0;
+  }
+  function bh(a, b) {
+    let c = 0;
+    f(a.chunk, {
+      enter(a) {
+        if (a.kind === d["Block"]) {
+          for (let b = 0; b < a.statements.length; b += 1) aa(a, b) && (c += 1);
+          for (let b = 0; b < a.statements.length; b += 1) w(a, b) && (c += 1);
+        }
+      }
+    });
+    let e = af(a.chunk);
+    f(a.chunk, {
+      enter(a) {
+        if (a.kind === d["Block"]) {
+          for (let b = 0; b < a.statements.length; b += 1) an(a, b, e) && (c += 1);
+          for (let b = 0; b < a.statements.length; b += 1) ai(a, b, e) && (c += 1);
+        }
+      }
+    });
+    let g = af(a.chunk);
+    f(a.chunk, {
+      enter(a) {
+        if (a.kind === d["Block"]) {
+          for (let b = 0; b < a.statements.length; b += 1) am(a, b, g) && (c += 1);
+          for (let b = 0; b < a.statements.length; b += 1) aw(a, b, g) && (c += 1);
+          for (let b = 0; b < a.statements.length; b += 1) at(a, b, g) && (c += 1);
+        }
+      }
+    });
+    let i = af(a.chunk),
+      j = [];
+    f(a.chunk, {
+      enter(a) {
+        if (a.kind === d["Block"]) for (let b = 0; b < a.statements.length; b += 1) j.push([a.statements, b]);
+      }
+    });
+    for (let [b, d] of j) bg(a.chunk, b, d, i) && (c += 1);
+    return h(a.chunk, a => {
+      let b = bd(a);
+      if (b) return c += 1, b;
+      let d = ab(a);
+      return d ? (c += 1, d) : a;
+    }), b && (b.idioms += c), c;
+  }
+  b.exports = {
+    run: bh,
+    usage: af,
+    movable: ar
+  };
+});
+var ak = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c,
+      unparen: d
+    } = e(),
+    {
+      walk: f,
+      children: g,
+      collect: h
+    } = l(),
+    {
+      "D": i,
+      c: k
+    } = j(),
+    {
+      "Positions": m
+    } = x(),
+    n = new Set(["pcall", "xpcall", "select", "type", "tostring", "tonumber", "unpack", "rawequal", "rawget", "rawset", "rawlen", "setmetatable", "getmetatable", "newproxy", "next", "ipairs", "pairs", "loadstring", "load", "gcinfo", "collectgarbage", "getfenv"]),
+    o = new Set(["math", "string", "table", "debug", "os", "coroutine", "bit", "bit32", "utf8", "jit"]),
+    p = 96,
+    q = null,
+    r = new Set(["coroutine.yield", "coroutine.resume", "coroutine.wrap", "coroutine.close", "os.exit", "os.remove", "os.rename", "os.execute", "os.setlocale", "os.tmpname", "debug.setupvalue", "debug.setlocal", "debug.upvaluejoin", "debug.setmetatable", "debug.setfenv", "debug.debug"]);
+  function s(a, b) {
+    return !b || b.kind !== c["String"] ? !1 : r.has(`${a.name}.${b.value}`);
+  }
+  var t = new Set(["error", "assert", "print", "pcall_", "os_exit"]);
+  function u(a) {
+    let b = new Map(),
+      d = (a, c, d, e) => {
+        if (!a) return;
+        let f = b.get(a);
+        f || (f = {
+          count: 0,
+          bare: 0,
+          valued: []
+        }, b.set(a, f)), f.count += 1, c ? f.valued.push({
+          expr: c,
+          at: d
+        }) : e && (f.bare += 1);
+      },
+      e = new Map(),
+      g = (a, b) => {
+        for (let d of h(a, a => a.kind === c["Name"])) {
+          if (!d.binding) continue;
+          let a = e.get(d.binding);
+          a || e.set(d.binding, a = []), a.push(b || null);
+        }
+      },
+      i = new Map(),
+      j = (a, b) => {
+        a && i.set(a, b.filter(Boolean));
+      },
+      k = (a, b, c, e) => {
+        let f = b || [];
+        for (let b = 0; b < f.length; b += 1) {
+          let g = c.length === f.length;
+          d(f[b], g ? c[b] : null, a, e);
+        }
+      };
+    f(a, {
+      enter(a) {
+        if (a.kind === c["LocalDeclaration"]) {
+          let b = a.expressions || [];
+          k(a, a.bindings, b, !b.length);
+        } else if (a.kind === c["LocalFunction"]) d(a.binding, a.body, a, !1);else if (a.kind === c["Assignment"]) {
+          let b = a.targets || [],
+            e = a.expressions || [];
+          for (let f = 0; f < b.length; f += 1) {
+            let h = b[f];
+            if (!h) continue;
+            let i = b.length === e.length;
+            if (h.kind !== c["Name"]) {
+              g(h, i ? e[f] : null);
+              continue;
+            }
+            d(h.binding, i ? e[f] : null, a, !1);
+          }
+        } else if (a.kind === c["NumericFor"]) d(a.binding, null, a, !1), j(a.binding, [a.start, a.limit, a.step]);else if (a.kind === c["GenericFor"]) {
+          k(a, a.bindings, [], !1);
+          for (let b of a.bindings || []) j(b, a.expressions || []);
+        } else a.kind === c["Function"] && k(a, a.bindings, [], !1);
+      }
+    });
+    let l = new Map(),
+      n = new Map(),
+      o = null;
+    for (let [c, d] of b) {
+      if (!d.valued.length || d.bare + d.valued.length !== d.count) continue;
+      n.set(c, d.valued.map(a => a.expr));
+      let b = c.reads || [];
+      d.bare && b.length && (o || (o = new m(a)), !d.valued.some(a => b.every(b => o.precedes(a.at, b)))) || l.set(c, d.valued.map(a => a.expr));
+    }
+    for (let [a, c] of b) (c.count !== 1 || c.valued.length) && i.delete(a);
+    return {
+      values: l,
+      derived: i,
+      callees: n,
+      filled: e
+    };
+  }
+  function v(a, b, d = new Set(), e = 0) {
+    if (!a || typeof a != "object" || e > p) return !1;
+    switch (a.kind) {
+      case c["Nil"]:
+      case c["True"]:
+      case c["False"]:
+      case c["Number"]:
+      case c["String"]:
+        return !0;
+      case c["Function"]:
+        {
+          let c = () => new Set(a.bindings || []);
+          if (q) {
+            let d = b.loose.get(a);
+            if (d) {
+              for (let a of d.cells) q.add(a);
+              return d.ok;
+            }
+            let f = new Set(),
+              g = q;
+            b.loose.set(a, {
+              ok: !1,
+              cells: f
+            }), q = f;
+            let h = ao(a.body, b, new Set(), e + 1, c());
+            q = g, b.loose.set(a, {
+              ok: h,
+              cells: f
+            });
+            for (let a of f) q.add(a);
+            return h;
+          }
+          let d = b.functions.get(a);
+          if (d !== void 0) return d;
+          b.functions.set(a, !1);
+          let f = ao(a.body, b, new Set(), e + 1, c());
+          return b.functions.set(a, f), f;
+        }
+      case c["Vararg"]:
+        return !1;
+      case c["Name"]:
+        {
+          if (t.has(a.name)) return !1;
+          if (i(a)) return n.has(a.name) || o.has(a.name);
+          let c = a.binding;
+          if (!c || !k(c)) return !1;
+          if (d.has(c)) return !0;
+          d.add(c);
+          let f = b["Ms"](c);
+          if (!f || !f.every(a => v(a, b, new Set(d), e + 1))) return !1;
+          let g = b.$s(c);
+          return !g || g.every(a => !!a && v(a, b, new Set(d), e + 1));
+        }
+      case c["Paren"]:
+        return v(a.expression, b, d, e + 1);
+      case c["Unary"]:
+        return v(a.argument, b, d, e + 1);
+      case c["Binary"]:
+        return v(a.lhs, b, d, e + 1) && v(a.rhs, b, new Set(d), e + 1);
+      case c["Index"]:
+        return i(a.base) && s(a.base, a.index) ? !1 : v(a.base, b, d, e + 1) && v(a.index, b, new Set(d), e + 1);
+      case c["Table"]:
+        return (a.entries || []).every(a => (!a.key || v(a.key, b, new Set(d), e + 1)) && v(a.value, b, new Set(d), e + 1));
+      case c["Call"]:
+      case c["MethodCall"]:
+        return (a.kind === c["Call"] ? z(a.base, b, new Set(), e + 1) : v(a.base, b, new Set(d), e + 1)) && (a.args || []).every(a => v(a, b, new Set(d), e + 1));
+      default:
+        return !1;
+    }
+  }
+  var w = class {
+    constructor(a) {
+      let b = u(a);
+      this.values = b.values, this.derived = b.derived, this.callees = b.callees, this.filled = b.filled, this.functions = new Map(), this.loose = new Map();
+    }
+    lt(a) {
+      return a && this.values.get(a) || null;
+    }
+    ct(a) {
+      return a && this.callees.get(a) || null;
+    }
+    $s(a) {
+      return a && this.filled.get(a) || null;
+    }
+    "Ms"(a) {
+      return a && (this.values.get(a) || this.derived.get(a)) || null;
+    }
+    "Ni"(a) {
+      return v(a, this, new Set(), 0);
+    }
+  };
+  function y(a, b, d = new Set(), e = 0) {
+    if (!a || e > p) return !1;
+    switch (a.kind) {
+      case c["Nil"]:
+      case c["True"]:
+      case c["False"]:
+      case c["Number"]:
+      case c["String"]:
+        return !0;
+      case c["Table"]:
+        return !0;
+      case c["Name"]:
+        {
+          if (i(a)) return o.has(a.name);
+          let c = a.binding;
+          if (!c || d.has(c)) return !1;
+          d.add(c);
+          let f = b.ct(c);
+          return !!f && f.length > 0 && f.every(a => y(a, b, new Set(d), e + 1));
+        }
+      case c["Paren"]:
+        return y(a.expression, b, d, e + 1);
+      default:
+        return !1;
+    }
+  }
+  function z(a, b, d = new Set(), e = 0) {
+    if (!a || e > p) return !1;
+    if (a.kind === c["Paren"]) return z(a.expression, b, d, e + 1);
+    if (a.kind === c["Name"]) {
+      if (t.has(a.name)) return !1;
+      if (i(a)) return n.has(a.name);
+      let c = a.binding;
+      if (!c) return n.has(a.name);
+      if (d.has(c)) return !1;
+      d.add(c);
+      let f = (b.ct(c) || []).filter(a => !y(a, b, new Set(), e + 1));
+      return f.length > 0 && f.every(a => z(a, b, new Set(d), e + 1));
+    }
+    if (a.kind === c["Index"]) {
+      let d = a.base,
+        f = a.index;
+      return i(d) ? !o.has(d.name) || s(d, f) ? !1 : !f || f.kind === c["String"] : v(d, b, new Set(), e + 1) && (!f || v(f, b, new Set(), e + 1));
+    }
+    if (a.kind === c["Function"]) return v(a, b, new Set(), e + 1);
+    if (a.kind === c["Binary"] && (a.operator === "or" || a.operator === "and")) {
+      let c = [a.lhs, a.rhs].filter(a => !y(a, b, new Set(), e + 1));
+      return c.length > 0 && c.every(a => z(a, b, d, e + 1));
+    }
+    return v(a, b, new Set(), e + 1);
+  }
+  function aa(a, b) {
+    let c = new Set(),
+      d = q;
+    q = c;
+    try {
+      return ac(a, b) ? c : null;
+    } finally {
+      q = d;
+    }
+  }
+  function ab(a, b) {
+    let c = new Set(),
+      d = q;
+    q = c;
+    try {
+      return am(a, b, !1) ? c : null;
+    } finally {
+      q = d;
+    }
+  }
+  function ac(a, b, d = new Set(), e = 0) {
+    if (!a || typeof a != "object") return !0;
+    if (e > p) return !1;
+    switch (a.kind) {
+      case c["Nil"]:
+      case c["True"]:
+      case c["False"]:
+      case c["Number"]:
+      case c["String"]:
+      case c["Vararg"]:
+      case c["Name"]:
+        return !0;
+      case c["Function"]:
+        return !0;
+      case c["Paren"]:
+        return ac(a.expression, b, d, e + 1);
+      case c["Unary"]:
+        return ac(a.argument, b, d, e + 1);
+      case c["Binary"]:
+        return ac(a.lhs, b, d, e + 1) && ac(a.rhs, b, d, e + 1);
+      case c["Index"]:
+        return ac(a.base, b, d, e + 1) && ac(a.index, b, d, e + 1);
+      case c["Table"]:
+        return (a.entries || []).every(a => (!a.key || ac(a.key, b, d, e + 1)) && ac(a.value, b, d, e + 1));
+      case c["Call"]:
+        return z(a.base, b, new Set(d), e + 1) && (a.args || []).every(a => ac(a, b, d, e + 1));
+      case c["MethodCall"]:
+        return v(a.base, b, new Set(), e + 1) && (a.args || []).every(a => v(a, b, new Set(), e + 1));
+      default:
+        return !1;
+    }
+  }
+  function ad(a, b) {
+    let d = [],
+      e = a => {
+        let e = a;
+        for (; e && k(e);) {
+          if (d.includes(e)) return;
+          d.push(e);
+          let a = b ? b.lt(e) : null,
+            f = a && a.length === 1 ? a[0] : null;
+          for (; f && f.kind === c["Paren"];) f = f.expression;
+          e = f && f.kind === c["Name"] ? f.binding : null;
+        }
+      },
+      f = a => {
+        if (!(!a || !a.kind || a.kind === c["Function"])) {
+          if (a.kind === c["Name"]) {
+            e(a.binding);
+            return;
+          }
+          for (let b of g(a)) f(b.node);
+        }
+      };
+    return f(a), d;
+  }
+  function ae(a, b) {
+    let d = !1;
+    return f(a, {
+      enter(a) {
+        if (d || a.kind === c["Function"]) return !1;
+        if (a.kind !== c["Call"] && a.kind !== c["MethodCall"]) return;
+        let e = [];
+        (a.kind === c["MethodCall"] || a.base && a.base.kind !== c["Name"]) && e.push(...ad(a.base, b));
+        for (let c of a.args || []) e.push(...ad(c, b));
+        e.some(a => (a.reads || []).length) && (d = !0);
+      }
+    }), d;
+  }
+  function af(a, b) {
+    return ac(a, b) && !ae(a, b);
+  }
+  var ag = new Set(["load", "loadstring", "loadfile", "dofile", "require"]);
+  function ah(a, b) {
+    let d = new Set(),
+      e = new Set();
+    f(a, {
+      enter(a) {
+        if (d.add(a), a.kind !== c["Call"] || !b || !z(a.base, b)) return;
+        let f = h(a.base, a => a.kind === c["Name"]);
+        if (!f.some(a => ag.has(a.name))) for (let a of f) e.add(a);
+      }
+    });
+    let g = !0;
+    return f(a, {
+      enter(a) {
+        if (a.kind !== c["Name"] || e.has(a)) return;
+        let b = a.binding;
+        (!b || !k(b) || !b.declaration || !d.has(b.declaration)) && (g = !1);
+      }
+    }), g;
+  }
+  function ai(a, b, e = 0) {
+    let f = d(a);
+    if (!f || e > p) return !1;
+    switch (f.kind) {
+      case c["Nil"]:
+      case c["True"]:
+      case c["False"]:
+      case c["Number"]:
+      case c["String"]:
+        return !0;
+      case c["Function"]:
+        return ah(f, b);
+      case c["Table"]:
+        return (f.entries || []).every(a => ai(a.value, b, e + 1) && (a.type !== "key" || ai(a.key, b, e + 1)));
+      default:
+        return !1;
+    }
+  }
+  function aj(a, b) {
+    return !a || a.kind !== c["Call"] ? !1 : (a.args || []).every(a => ai(a, b));
+  }
+  function ak(a, b, e = 0) {
+    let f = d(a);
+    if (!f || e > p) return !1;
+    if (f.kind === c["Table"] || ai(f, b, e)) return !0;
+    if (f.kind !== c["Call"]) return !1;
+    let g = d(f.base);
+    if (!g || g.kind !== c["Name"] || !i(g) || g.name !== "setmetatable") return !1;
+    let h = f.args || [];
+    if (h.length !== 2 || !ak(h[0], b, e + 1)) return !1;
+    let j = d(h[1]);
+    return !j || j.kind !== c["Table"] ? !1 : (j.entries || []).every(a => a.type === "key" && a.key && a.key.kind === c["String"] && a.key.value !== "__newindex");
+  }
+  function al(a, b, e, f, g) {
+    if (!a || !k(a) || f.has(a) || g > p || (f.add(a), !e(a))) return !1;
+    let h = b ? b.lt(a) : null;
+    return !h || !h.length ? !1 : h.every(a => {
+      let h = d(a);
+      return h && h.kind === c["Name"] && h.binding ? al(h.binding, b, e, f, g + 1) : ak(a, b, g + 1);
+    });
+  }
+  function am(a, b, e, f = 0) {
+    if (!a || f > p) return !1;
+    let g = a => !!e && !!e.has && e.has(a),
+      h = a => !a.captured || g(a) ? !0 : q ? (q.add(a), !0) : !1;
+    if (a.kind === c["Name"]) {
+      let b = a.binding;
+      return !b || !k(b) ? !1 : h(b);
+    }
+    if (a.kind === c["Index"]) {
+      let e = d(a.base);
+      return !e || e.kind !== c["Name"] ? !1 : al(e.binding, b, h, new Set(), f + 1);
+    }
+    return !1;
+  }
+  function an(a, b) {
+    if (a.kind === c["LocalDeclaration"]) for (let c of a.bindings || []) b.add(c);else if (a.kind === c["LocalFunction"]) b.add(a.binding);else if (a.kind === c["NumericFor"]) b.add(a.binding);else if (a.kind === c["GenericFor"]) for (let c of a.bindings || []) b.add(c);
+  }
+  function ao(a, b, c = new Set(), d = 0, e = !1) {
+    if (!a || d > p) return !1;
+    let f = e instanceof Set ? new Set(e) : e;
+    return (a.statements || []).every(a => {
+      let e = ap(a, b, c, d + 1, f);
+      return f instanceof Set && an(a, f), e;
+    });
+  }
+  function ap(a, b, d = new Set(), e = 0, f = !1) {
+    if (!a || e > p) return !1;
+    let g = a => ao(a, b, d, e + 1, f),
+      h = a => ac(a, b, d, e + 1);
+    switch (a.kind) {
+      case c["LocalDeclaration"]:
+        return (a.expressions || []).every(h);
+      case c["Assignment"]:
+        return (a.targets || []).every(a => am(a, b, f)) && (a.expressions || []).every(h);
+      case c["LocalFunction"]:
+      case c["Label"]:
+        return !0;
+      case c["Return"]:
+        return f && (a.expressions || []).every(h);
+      case c["Break"]:
+      case c["Continue"]:
+        return f;
+      case c["CallStatement"]:
+        return h(a.expression);
+      case c["Do"]:
+        return g(a.body);
+      case c["While"]:
+      case c["Repeat"]:
+        return h(a.condition) && g(a.body);
+      case c["NumericFor"]:
+        return h(a.start) && h(a.limit) && h(a.step) && g(a.body);
+      case c["GenericFor"]:
+        return (a.expressions || []).every(h) && g(a.body);
+      case c["If"]:
+        return h(a.condition) && g(a.body) && (a.s || []).every(a => h(a.condition) && g(a.body)) && (!a.e || g(a.e));
+      default:
+        return !1;
+    }
+  }
+  b.exports = {
+    "TABLES": o,
+    "LOADERS": ag,
+    "Facts": w,
+    "Ls": ac,
+    "E": af,
+    sealed: ah,
+    "Es": aj,
+    "As": ad,
+    ft: aa,
+    "Is": ab
+  };
+});
+var al = a((a, b) => {
+  "use strict";
+
+  var c = e(),
+    {
+      "Kind": d
+    } = c,
+    {
+      walk: f
+    } = l(),
+    {
+      "Lr": g
+    } = y(),
+    {
+      "U": h,
+      "K": i
+    } = z(),
+    k = ak(),
+    {
+      c: m
+    } = j();
+  function n(a, b) {
+    let c = h(a),
+      d = new Set(c);
+    for (let a of c) for (let c of b["Rn"](a)) for (let a of b.qr(c)) d.add(a);
+    return d;
+  }
+  function o(a, b) {
+    let c = !1;
+    return f(a, {
+      enter(a) {
+        if (c) return !1;
+        if (a.kind === d["MethodCall"]) return c = !0, !1;
+        if (a.kind !== d["Call"]) return;
+        let e = a.base;
+        for (; e && e.kind === d["Paren"];) e = e.expression;
+        if (!e || e.kind !== d["Name"]) return c = !0, !1;
+        let f = e.binding;
+        if (!f) return c = !0, !1;
+        if (b["Rn"](f).size) return;
+        let g = (f.writes || []).length > 0;
+        (m(f) || g) && (c = !0);
+      }
+    }), c;
+  }
+  function p(a) {
+    let b = new Set();
+    if (a.kind !== d["Assignment"]) return b;
+    for (let c of a.targets || []) {
+      let a = c;
+      for (; a && a.kind === d["Paren"];) a = a.expression;
+      a && a.kind === d["Name"] && a.binding && b.add(a.binding);
+    }
+    return b;
+  }
+  function q(a, b) {
+    let c = [],
+      d = [],
+      e = [];
+    for (let f of a.statements) c.push(n(f, b)), d.push(p(f)), e.push(g(f) || o(f, b));
+    return {
+      reads: c,
+      kills: d,
+      walls: e
+    };
+  }
+  function r(a, b, c) {
+    if (!m(a)) return !1;
+    for (let d = b + 1; d < c.reads.length; d += 1) {
+      if (c.reads[d].has(a) || c.walls[d]) return !1;
+      if (c.kills[d].has(a)) return !0;
+    }
+    return !1;
+  }
+  function s(a) {
+    let b = a;
+    for (; b && b.kind === d["Paren"];) b = b.expression;
+    return !b || b.kind !== d["Name"] ? null : b.binding || null;
+  }
+  function t(a, b, e) {
+    let f = a.targets || [],
+      g = a.expressions || [],
+      h = f.length === g.length;
+    if (b.every(a => a)) return g.every(a => k["E"](a, e)) ? {
+      statements: [],
+      removed: f.length
+    } : g.length === 1 && (g[0].kind === d["Call"] || g[0].kind === d["MethodCall"]) ? {
+      statements: [c["X"](g[0])],
+      removed: f.length
+    } : null;
+    if (!h) return null;
+    let i = [],
+      j = 0;
+    for (let a = 0; a < f.length; a += 1) b[a] && k["E"](g[a], e) ? j += 1 : i.push(a);
+    return j ? (a.targets = i.map(a => f[a]), a.expressions = i.map(a => g[a]), {
+      statements: [a],
+      removed: j
+    }) : null;
+  }
+  function u(a) {
+    return a.statements.some(a => a.kind === d["Label"]);
+  }
+  function v(a, b, c) {
+    let e = 0;
+    return f(a, {
+      enter(a) {
+        if (a.kind !== d["Block"] || u(a)) return;
+        let f = q(a, b),
+          g = [];
+        for (let b = 0; b < a.statements.length; b += 1) {
+          let h = a.statements[b];
+          if (h.kind !== d["Assignment"]) {
+            g.push(h);
+            continue;
+          }
+          let i = (h.targets || []).map(a => {
+            let c = s(a);
+            return !!c && r(c, b, f);
+          });
+          if (!i.some(a => a)) {
+            g.push(h);
+            continue;
+          }
+          let j = t(h, i, c);
+          if (!j) {
+            g.push(h);
+            continue;
+          }
+          e += j.removed, g.push(...j.statements);
+        }
+        a.statements = g;
+      }
+    }), e;
+  }
+  function w(a) {
+    return !a || a.kind !== d["LocalDeclaration"] ? [] : (a.expressions || []).length ? [] : (a.bindings || []).filter(Boolean);
+  }
+  function x(a, b, c) {
+    let d = a.statements || [];
+    for (let a = 0; a < c; a += 1) if (w(d[a]).includes(b)) {
+      for (let e = a + 1; e < c; e += 1) if (i(d[e], !0).has(b)) return !1;
+      return !0;
+    }
+    return !1;
+  }
+  function aa(a) {
+    let b = 0;
+    return f(a, {
+      enter(a) {
+        if (a.kind !== d["Block"] || u(a)) return;
+        let c = [];
+        a.statements["forEach"]((e, f) => {
+          let g = e.kind === d["Assignment"] ? e.targets || [] : [],
+            h = e.expressions || [];
+          if (!g.length || g.length !== h.length) {
+            c.push(e);
+            return;
+          }
+          let i = new Set(),
+            j = [];
+          for (let c = 0; c < g.length; c += 1) {
+            let e = s(g[c]),
+              k = e && m(e) && !i.has(e) && h[c].kind === d["Nil"] && x(a, e, f);
+            e && i.add(e), k ? b += 1 : j.push(c);
+          }
+          if (j.length === g.length) {
+            c.push(e);
+            return;
+          }
+          j.length && (e.targets = j.map(a => g[a]), e.expressions = j.map(a => h[a]), c.push(e));
+        }), a.statements = c;
+      }
+    }), b;
+  }
+  function ab(a) {
+    return !a || a.kind !== d["Name"] || !a.binding || !m(a.binding) ? !1 : !(a.binding.reads || []).length;
+  }
+  function ac(a) {
+    let b = 0;
+    return f(a, {
+      enter(a) {
+        a.kind === d["Block"] && (a.statements = a.statements.map(a => {
+          if (a.kind !== d["Assignment"]) return a;
+          let e = a.targets || [],
+            f = a.expressions || [];
+          if (!e.length || f.length !== 1 || !e.every(ab)) return a;
+          let g = c.unparen(f[0]);
+          return g.kind !== d["Call"] && g.kind !== d["MethodCall"] ? a : (b += 1, c["X"](g));
+        }));
+      }
+    }), b;
+  }
+  b.exports = {
+    "Os": v,
+    "Ts": aa,
+    discharge: ac
+  };
+});
+var am = a((a, b) => {
+  "use strict";
+
+  var c = e(),
+    {
+      "Kind": d
+    } = c,
+    {
+      tr: f
+    } = m(),
+    {
+      detect: g
+    } = m(),
+    {
+      "Jr": h
+    } = ad(),
+    {
+      tn: i,
+      ut: j
+    } = ah(),
+    k = r(),
+    n = aa(),
+    o = ai(),
+    p = aj(),
+    {
+      discharge: q
+    } = al(),
+    {
+      walk: s
+    } = l();
+  function t(a) {
+    let b = a.wrapper && a.wrapper.bindings || [],
+      c = a.roles.varargs ? b["indexOf"](a.roles.varargs) : -1;
+    return c < 0 ? null : a.fe.args[c] || null;
+  }
+  var u = new Set([d["Name"], d["Number"], d["String"], d["Nil"], d["True"], d["False"]]);
+  function v(a) {
+    if (a.kind === d["Assignment"]) {
+      if (a.targets.length !== 1 || a.expressions.length !== 1) return null;
+      let b = a.targets[0],
+        e = c.unparen(a.expressions[0]);
+      return b.kind !== d["Name"] || e.kind !== d["Name"] ? null : {
+        target: b.binding,
+        source: e.binding,
+        write: b
+      };
+    }
+    if (a.kind === d["LocalDeclaration"]) {
+      if (a.names.length !== 1 || a.expressions.length !== 1) return null;
+      let b = c.unparen(a.expressions[0]);
+      return b.kind !== d["Name"] ? null : {
+        target: (a.bindings || [])[0],
+        source: b.binding,
+        write: null
+      };
+    }
+    return null;
+  }
+  function w(a) {
+    let b = new Map(),
+      d = a.wrapper;
+    if (!d || !d.body) return b;
+    let e = a.fe.args || [],
+      f = e.length ? c.unparen(e[e.length - 1]) : null,
+      g = f ? c.d(f) : !1;
+    (d.bindings || [])["forEach"]((a, d) => {
+      if (!a || d >= e.length || g && d === e.length - 1) return;
+      let f = c.unparen(e[d]);
+      u.has(f.kind) && b.set(a, f);
+    });
+    for (let a = 0; a < 8; a += 1) {
+      let a = 0;
+      for (let c of d.body.statements) {
+        let d = v(c);
+        if (!d || !d.target || b.has(d.target)) continue;
+        let e = b.get(d.source);
+        if (!e) continue;
+        let f = d.target.writes || [];
+        (d.write ? f.length === 1 && f[0] === d.write : !f.length) && (b.set(d.target, e), a += 1);
+      }
+      if (!a) break;
+    }
+    return b;
+  }
+  function x(a, b) {
+    for (let b of Object.keys(a)) delete a[b];
+    Object.assign(a, b.kind === d["Name"] ? c.name(b.name) : {
+      ...b
+    });
+  }
+  function y(a) {
+    let b = null;
+    for (let c of a.wrapper && a.wrapper.bindings || []) {
+      if (!c) continue;
+      let a = c.l;
+      b = b === null ? a : Math.max(b, a);
+    }
+    return b;
+  }
+  function z(a, b, c) {
+    let e = w(b),
+      f = y(b),
+      g = new Map();
+    s(c.body, {
+      enter(a) {
+        if (a.kind !== d["Name"] || !a.binding || a.binding.kind === "global") return;
+        let b = g.get(a.binding);
+        b ? b.push(a) : g.set(a.binding, [a]);
+      }
+    });
+    let h = 0;
+    for (let [b, c] of g) {
+      let d = e.get(b);
+      if (d) {
+        for (let a of c) x(a, d);
+        h += c.length;
+        continue;
+      }
+      f === null || b.l < f || (a.warn(`lift: carried-local ${b.name}`), a.bump("lift.carried-local"));
+    }
+    return h;
+  }
+  function ab(a, b) {
+    let c = a;
+    for (let a = 0; a < 16; a += 1) {
+      let a = b.get(c);
+      if (!a) return null;
+      if (a.kind === d["Return"]) return a.expressions.length === 1 && a.expressions[0] === c ? a : null;
+      if (a.kind === d["Paren"]) {
+        c = a;
+        continue;
+      }
+      if (a.kind === d["Table"]) {
+        let b = a.entries || [];
+        if (b.length !== 1 || b[0].type !== "item" || b[0].value !== c) return null;
+        c = a;
+        continue;
+      }
+      if (a.kind === d["Call"] && a.base && a.base.kind === d["Name"] && (a.args || []).length === 1 && a.args[0] === c) {
+        c = a;
+        continue;
+      }
+      return null;
+    }
+    return null;
+  }
+  function ac(a, b, c) {
+    let d = a.get(b);
+    if (!d || !Array["isArray"](d.statements)) return !1;
+    let e = d.statements["indexOf"](b);
+    return e < 0 ? !1 : (d.statements.splice(e, 1, ...c), !0);
+  }
+  function ae(a, b, d) {
+    let e = f(a),
+      g = ab(b.fe, e);
+    if (g && ac(e, g, d.body.statements)) return "inline";
+    let h = b.fe;
+    return h.base = c.paren(c.func([], d.body, !0)), h.args = [c.vararg()], "closure";
+  }
+  function af(a, b, c) {
+    let d = h(b),
+      e = i(b, d, {
+        counter: c,
+        varargs: t(b)
+      });
+    for (let b of e.warnings) a.warn(`lift: ${b.kind} ${JSON.stringify(b)}`), a.bump(`lift.${b.kind}`);
+    let f = z(a, b, e);
+    f && a.bump("devirtualize.reseated", f);
+    let g = ae(a.chunk, b, e);
+    return a.bump(`devirtualize.${g}`), a.bump("devirtualize.blocks", d.blocks.size), a.bump("devirtualize.functions", d.functions.length), e.counter;
+  }
+  function ag(a) {
+    let b = 0,
+      c = 0;
+    for (let d = 0; d < 32; d += 1) {
+      a.resolve();
+      let d = g(a.chunk);
+      for (let b of d.rejected) a.bump(`devirtualize.rejected.${b.reason}`);
+      if (!d.instances.length) break;
+      for (let e of d.instances) b = af(a, e, b), c += 1, a["V"]("progress", {
+        step: "04-devirt",
+        layers: c,
+        blocks: a.stats["devirtualize.blocks"] || 0,
+        functions: a.stats["devirtualize.functions"] || 0
+      });
+      a.resolve(), k.run(a), o.run(a), a.resolve(), n.run(a), a.resolve(), p.run(a);
+    }
+    if (c) {
+      a.resolve();
+      let b = q(a.chunk);
+      b && (a.bump("devirtualize.discharged", b), a.resolve()), a.note(`devirtualized ${c} VM layer(s)`, c), a.bump("devirtualize.layers", c);
+    }
+  }
+  b.exports = {
+    name: "04-lift",
+    run: ag,
+    ut: j
+  };
+});
+var an = a((a, b) => {
+  "use strict";
+
+  var c = e(),
+    {
+      "Kind": d
+    } = c,
+    {
+      transform: f,
+      walk: g
+    } = l(),
+    {
+      bare: h,
+      "W": i,
+      "Ge": k
+    } = y(),
+    {
+      "D": m
+    } = j(),
+    {
+      "Interpreter": p,
+      "Scope": q
+    } = v(),
+    {
+      "LuaTable": r
+    } = o(),
+    s = n(),
+    t = {
+      "__add": "+",
+      "__sub": "-",
+      "__mul": "*",
+      "__div": "/",
+      "__pow": "^",
+      "__concat": ".."
+    };
+  function u(a) {
+    if (!a || a.type !== "key") return null;
+    let b = h(a.key);
+    return b && b.kind === d["String"] ? b.value : null;
+  }
+  function w(a, b, c) {
+    let e = h(a),
+      f = new Set();
+    for (let a = 0; e && a < 8; a += 1) {
+      if (e.kind === d["Function"]) return e;
+      let a = c ? al(e, c, "getKey") || am(e, c) : null;
+      if (a) {
+        e = h(ap(a));
+        continue;
+      }
+      if (e.kind !== d["Name"] || !e.binding || f.has(e.binding)) return null;
+      f.add(e.binding), e = h(ad(b, e.binding));
+    }
+    return null;
+  }
+  var x = "\0proxy-held",
+    z = "\0proxy-given";
+  function aa(a, b, c) {
+    let d = w(a, c);
+    if (!d || (d.params || []).length !== 2) return null;
+    let e = new p({
+        x: 2e4,
+        ge: 16,
+        lenient: !0
+      }),
+      f = new r();
+    f.set(b, x);
+    let g;
+    try {
+      let a = e.eval(d, new q(null));
+      g = e.call(a, [f, z]);
+    } catch {
+      return null;
+    }
+    let h = f.get(b),
+      i = g.length ? g[0] : void 0;
+    return h === z && i === void 0 && g.length <= 1 ? "set" : h === x && i === x && g.length === 1 ? "get" : null;
+  }
+  function ab(a, b, c) {
+    let e = h(a);
+    if (!e || e.kind !== d["Call"]) return null;
+    let f = h(e.base),
+      g = e.args || [];
+    if (g.length !== 2) return null;
+    let i = f && f.kind === d["Name"] && f.binding && b.has(f.binding),
+      j = m(f) && f.name === "setmetatable";
+    if (!i && !j) return null;
+    let k = h(g[0]),
+      l = h(g[1]);
+    if (!k || k.kind !== d["Table"] || !l || l.kind !== d["Table"]) return null;
+    let n = k.entries || [],
+      o = l.entries || [];
+    if (n.length !== 1 || o.length !== 2) return null;
+    let p = u(n[0]);
+    if (!p) return null;
+    let q = {};
+    for (let a of o) {
+      let b = u(a);
+      if (!b || b !== "__index" && !t[b]) return null;
+      let d = aa(a.value, p, c);
+      if (!d || q[d]) return null;
+      q[d] = b;
+    }
+    return !q.set || !q.get ? null : {
+      field: p,
+      "Ci": q.set,
+      "Fi": q.get,
+      init: n[0].value,
+      at: n[0]
+    };
+  }
+  var ac = i,
+    ad = k;
+  function ae(a) {
+    let b = new Set();
+    for (let c of a.keys()) {
+      let d = h(ad(a, c));
+      d && m(d) && d.name === "setmetatable" && b.add(c);
+    }
+    let c = !0;
+    for (; c;) {
+      c = !1;
+      for (let e of a.keys()) {
+        if (b.has(e)) continue;
+        let f = h(ad(a, e));
+        !f || f.kind !== d["Name"] || !f.binding || b.has(f.binding) && (b.add(e), c = !0);
+      }
+    }
+    return b;
+  }
+  function af(a) {
+    if (!a || (a.params || []).length) return !1;
+    let b = new p({
+      x: 2e4,
+      ge: 16
+    });
+    try {
+      let c = b.eval(a, new q(null)),
+        d = s.record(() => b.call(c, []));
+      return d.value.length === 0 && d.writes.size === 0;
+    } catch {
+      return !1;
+    }
+  }
+  function ag(a, b) {
+    let c = new Set(),
+      d = new Map();
+    for (let e of a.keys()) {
+      let f = w(ad(a, e), a, b);
+      f && (d.has(f) || d.set(f, af(f)), d.get(f) && c.add(e));
+    }
+    return c;
+  }
+  function ah(a, b, c) {
+    let d = new Map();
+    for (let e of a.keys()) {
+      let f = a.get(e),
+        g = ab(f.list[f.index], b, a);
+      g && (d.set(e, Object.assign({
+        name: e.name
+      }, g)), f.list[f.index] = g.init, c.locals += 1);
+    }
+    return d;
+  }
+  function ai(a, b) {
+    let c = !0;
+    for (; c;) {
+      c = !1;
+      for (let e of a.keys()) {
+        if (b.has(e)) continue;
+        let f = h(ad(a, e));
+        if (!f || f.kind !== d["Name"] || !f.binding) continue;
+        let g = b.get(f.binding);
+        g && (b.set(e, g), c = !0);
+      }
+    }
+  }
+  function aj(a, b, c, e) {
+    let f = new Map();
+    return g(a, {
+      enter(a) {
+        if (a.kind !== d["Call"]) return;
+        let g = ab(a, b, c);
+        g && (f.set(a, g), e.locals += 1);
+      }
+    }), f;
+  }
+  function ak(a, b) {
+    let c = h(a);
+    if (!c) return null;
+    let e = b.inline.get(c);
+    if (e) return {
+      proxy: e,
+      via: null
+    };
+    let f = c.kind === d["Name"] ? c.binding : null;
+    if (!f) return null;
+    let g = b.proxies.get(f);
+    return g ? {
+      proxy: g,
+      via: f
+    } : null;
+  }
+  function al(a, b, c) {
+    if (!a) return null;
+    if (a.kind === d["Index"]) {
+      let d = ak(a.base, b);
+      return !d || d.proxy[c] !== "__index" ? null : {
+        proxy: d.proxy,
+        via: d.via,
+        value: a.index
+      };
+    }
+    if (a.kind === d["Binary"]) {
+      let d = ak(a.lhs, b);
+      if (d && t[d.proxy[c]] === a.operator) return {
+        proxy: d.proxy,
+        via: d.via,
+        value: a.rhs
+      };
+    }
+    return null;
+  }
+  function am(a, b) {
+    if (!a || a.kind !== d["Index"]) return null;
+    let c = ak(a.base, b);
+    if (!c) return null;
+    let e = h(a.index);
+    return !e || e.kind !== d["String"] || e.value !== c.proxy.field ? null : c;
+  }
+  function an(a, b) {
+    let c = new Set();
+    return g(a, {
+      enter(a) {
+        let e = al(a, b, "setKey");
+        if (e && c.add(e.proxy), a.kind === d["Assignment"]) for (let e of a.targets || []) {
+          let a = h(e);
+          if (!a || a.kind !== d["Index"]) continue;
+          let f = ak(a.base, b);
+          f && c.add(f.proxy);
+        }
+      }
+    }), c;
+  }
+  function ao(a, b) {
+    return a.via && !b.written.has(a.proxy) ? a.via.name : a.proxy.name;
+  }
+  function ap(a) {
+    return a.proxy.at ? a.proxy.at.value : a.proxy.init;
+  }
+  function aq(a, b) {
+    let d = ao(a, b);
+    return d ? c.name(d) : ap(a);
+  }
+  function ar(a, b, e, f) {
+    if (a.kind !== d["CallStatement"]) return null;
+    let g = h(a.expression);
+    if (!g || g.kind !== d["Call"]) return null;
+    let i = h(g.base),
+      j = al(i, b, "getKey"),
+      k = j ? j.proxy.binding : i.kind === d["Name"] ? i.binding : null;
+    if (!(j && !j.proxy.name ? af(h(j.proxy.init)) : !!k && e.has(k))) return null;
+    let l = g.args || [];
+    if (!l.length) return null;
+    let m = al(h(l[0]), b, "setKey");
+    if (!m) return null;
+    let n = ao(m, b);
+    return n ? (f.assignments += 1, c.assignment([c.name(n)], [m.value, ...l.slice(1)])) : null;
+  }
+  function as(a, b, e) {
+    a.kind === d["Assignment"] && (a.targets = (a.targets || []).map(a => {
+      let f = h(a);
+      if (!f || f.kind !== d["Index"]) return a;
+      let g = ak(f.base, b);
+      if (!g) return a;
+      let i = ao(g, b);
+      if (!i) return a;
+      let j = h(f.index);
+      return !j || j.kind !== d["String"] || j.value !== g.proxy.field ? a : (e.targets += 1, c.name(i));
+    }));
+  }
+  function at(a) {
+    let b = {
+      locals: 0,
+      reads: 0,
+      assignments: 0,
+      targets: 0
+    };
+    a.resolve();
+    let c = ac(a.chunk),
+      e = ae(c);
+    if (!e.size) return;
+    let h = ah(c, e, b);
+    for (let [a, b] of h) b.binding = b.binding || a;
+    ai(c, h);
+    let i = aj(a.chunk, e, c, b);
+    if (!h.size && !i.size) return;
+    let j = {
+      proxies: h,
+      inline: i,
+      written: new Set()
+    };
+    j.written = an(a.chunk, j);
+    let k = ag(c, j);
+    g(a.chunk, {
+      enter(a) {
+        a.kind === d["Block"] && (a.statements = a.statements.map(a => {
+          let c = ar(a, j, k, b);
+          return c || (as(a, j, b), a);
+        }));
+      }
+    }), f(a.chunk, a => {
+      let c = al(a, j, "getKey");
+      if (c) return b.reads += 1, aq(c, j);
+      let d = am(a, j);
+      return d ? (b.reads += 1, aq(d, j)) : a;
+    }), a.resolve();
+    let l = b.locals + b.reads + b.assignments + b.targets;
+    l && a.note(`unproxied ${b.locals} local(s): ${b.reads} read(s), ${b.assignments} assignment(s)`, l);
+    for (let c of Object.keys(b)) b[c] && a.bump(`unproxy.${c}`, b[c]);
+  }
+  b.exports = {
+    name: "06-proxy",
+    run: at
+  };
+});
+var ao = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    {
+      children: d
+    } = l(),
+    f = ak(),
+    {
+      "As": g
+    } = f,
+    {
+      c: h
+    } = j();
+  function i(a) {
+    let b = [],
+      d = (a, c) => {
+        a && b.push({
+          block: a,
+          role: c
+        });
+      };
+    switch (a.kind) {
+      case c["Do"]:
+        d(a.body, "plain");
+        break;
+      case c["While"]:
+      case c["NumericFor"]:
+      case c["GenericFor"]:
+        d(a.body, "loop");
+        break;
+      case c["Repeat"]:
+        d(a.body, "loop");
+        break;
+      case c["If"]:
+        d(a.body, "plain");
+        for (let b of a.s || []) d(b.body, "plain");
+        d(a.e, "plain");
+        break;
+      case c["LocalFunction"]:
+      case c["FunctionDeclaration"]:
+        d(a.body && a.body.body, "function");
+        break;
+      default:
+        break;
+    }
+    return b;
+  }
+  var k = class {
+    constructor(a, b = null) {
+      this.facts = b, this.holder = new Map(), this.owner = new Map(), this.role = new Map(), this.rn = new Map(), this.declarer = new Map(), this.mutations = new Map(), this.reads = new Set(), this.blocks = [];
+      let d = a.kind === c["Chunk"] ? a.body : a;
+      this.enter(d, "chunk"), this["_s"]();
+    }
+    "_s"() {
+      let a = new Set();
+      for (let b of this.rn.keys()) if (!(b.kind !== c["Name"] || !b.binding || a.has(b.binding))) {
+        a.add(b.binding);
+        for (let a of b.binding.reads || []) this.reads.add(a);
+      }
+    }
+    enter(a, b) {
+      if (!(!a || !a.statements)) {
+        this.blocks.push(a), this.role.set(a, b);
+        for (let b of a.statements) this.holder.set(b, a), this.declare(b), this.charge(b), this.claim(b, b);
+      }
+    }
+    charge(a) {
+      let b = b => {
+          this.mutations.has(b) || this.mutations.set(b, []), this.mutations.get(b).push(a);
+        },
+        d = a => {
+          for (let c of g(a, this.facts)) b(c);
+        };
+      for (let b of a.targets || []) b && b.kind !== c["Name"] && d(b);
+      for (let e of this.own(a)) {
+        if (e.kind !== c["Call"] && e.kind !== c["MethodCall"]) continue;
+        (e.kind === c["MethodCall"] || e.base && e.base.kind !== c["Name"]) && d(e.base);
+        for (let a of e.args || []) d(a);
+        if (!this.facts) continue;
+        let a = f.ft(e, this.facts);
+        if (a) for (let c of a) b(c);
+      }
+    }
+    declare(a) {
+      let b = b => {
+        b && this.declarer.set(b, a);
+      };
+      a.kind === c["LocalDeclaration"] ? (a.bindings || [])["forEach"](b) : a.kind === c["LocalFunction"] || a.kind === c["NumericFor"] ? b(a.binding) : a.kind === c["GenericFor"] && (a.bindings || [])["forEach"](b);
+    }
+    claim(a, b) {
+      this.rn.set(a, b);
+      for (let e of d(a)) {
+        let a = e.node;
+        if (!(!a || !a.kind)) if (a.kind === c["Block"]) {
+          this.owner.set(a, b);
+          let d = e.parent && e.parent.kind === c["Function"] ? "function" : (i(b).find(b => b.block === a) || {}).role || "plain";
+          this.enter(a, d);
+        } else {
+          if (a.kind === c["Function"]) for (let c of a.bindings || []) this.declarer.set(c, b);
+          this.claim(a, b);
+        }
+      }
+    }
+    *own(a) {
+      let b = [a];
+      for (; b.length;) {
+        let a = b.pop();
+        yield a;
+        for (let e of d(a)) e.node && e.node.kind && e.node.kind !== c["Block"] && b.push(e.node);
+      }
+    }
+  };
+  function m(a) {
+    switch (a.kind) {
+      case c["LocalDeclaration"]:
+      case c["Return"]:
+      case c["GenericFor"]:
+        return a.expressions || [];
+      case c["Assignment"]:
+        return a.expressions || [];
+      case c["CallStatement"]:
+        return [a.expression];
+      case c["While"]:
+      case c["Repeat"]:
+        return [a.condition];
+      case c["NumericFor"]:
+        return [a.start, a.limit, a.step];
+      case c["If"]:
+        return [a.condition, ...(a.s || []).map(a => a.condition)];
+      default:
+        return [];
+    }
+  }
+  function n(a, b) {
+    let c = b;
+    for (let b = 0; b < 1e3; b += 1) {
+      let b = a.holder.get(c);
+      if (!b) return !1;
+      let d = b.statements || [];
+      if (d[d.length - 1] !== c) return !1;
+      let e = a.role.get(b);
+      if (e === "function") return !0;
+      if (e !== "plain") return !1;
+      let f = a.owner.get(b);
+      if (!f || f === c) return !1;
+      c = f;
+    }
+    return !1;
+  }
+  function o(a, b) {
+    let d = [],
+      e = a => {
+        let b = a && a.statements || [],
+          f = b[b.length - 1];
+        if (f) {
+          if (f.kind === c["Return"]) {
+            d.push(f);
+            return;
+          }
+          if (!(f.kind !== c["If"] && f.kind !== c["Do"])) for (let a of i(f)) e(a.block);
+        }
+      };
+    return e(b), d;
+  }
+  function p(a, b) {
+    let d = [];
+    for (let e of a.blocks) e.statements["forEach"](e => {
+      switch (e.kind) {
+        case c["Goto"]:
+        case c["Label"]:
+        case c["FunctionDeclaration"]:
+          d.push(e);
+          return;
+        case c["Return"]:
+          if (!n(a, e)) {
+            d.push(e);
+            return;
+          }
+          break;
+        case c["Break"]:
+        case c["Continue"]:
+          return;
+        default:
+          break;
+      }
+      if (e.kind === c["Assignment"] && (e.targets || []).some(a => !f["Is"](a, b))) {
+        d.push(e);
+        return;
+      }
+      for (let a of m(e)) if (a && !f.ft(a, b)) {
+        d.push(e);
+        return;
+      }
+      for (let a of e.targets || []) a && a.kind === c["Index"] && !f["Ls"](a, b) && d.push(e);
+    });
+    return d;
+  }
+  function q(a, b) {
+    let d = new Set();
+    for (let e of a.own(b)) e.kind !== c["Name"] || !e.binding || h(e.binding) && a.reads.has(e) && d.add(e.binding);
+    return d;
+  }
+  function r(a, b) {
+    let d = new k(a, b),
+      e = new Set(),
+      f = new Set(),
+      g = [],
+      j = a => {
+        !a || e.has(a) || (e.add(a), g.push(a));
+      },
+      l = a => {
+        if (!(!a || f.has(a) || !h(a))) {
+          f.add(a);
+          for (let b of a.writes || []) j(d.rn.get(b));
+          for (let b of d.mutations.get(a) || []) j(b);
+          j(d.declarer.get(a));
+        }
+      },
+      m = a => {
+        for (let b of a.statements) if ((b.kind === c["Break"] || b.kind === c["Continue"]) && j(b), b.kind === c["If"] || b.kind === c["Do"]) for (let a of i(b)) m(a.block);
+      };
+    for (let a of p(d, b)) j(a);
+    for (; g.length;) {
+      let a = g.pop();
+      for (let b of q(d, a)) l(b);
+      let b = d.holder.get(a);
+      for (; b;) {
+        let a = d.owner.get(b);
+        if (!a) break;
+        j(a), b = d.holder.get(a);
+      }
+      for (let b of i(a)) b.role === "loop" && m(b.block);
+      for (let b of d.own(a)) {
+        if (b.kind !== c["Function"]) continue;
+        let a = b.body;
+        if (!(!a || !a.statements.length)) for (let b of o(d, a)) j(b);
+      }
+    }
+    let n = 0;
+    for (let a of d.blocks) {
+      let b = a.statements.length;
+      a.statements = a.statements.filter(a => e.has(a)), n += b - a.statements.length;
+    }
+    return n;
+  }
+  b.exports = {
+    dt: r,
+    seeds: p
+  };
+});
+var ap = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    d = e(),
+    {
+      walk: f,
+      transform: h
+    } = l(),
+    i = ak(),
+    {
+      y: k
+    } = g(),
+    {
+      "D": m,
+      c: n
+    } = j(),
+    o = aj(),
+    {
+      "Writes": p
+    } = w(),
+    {
+      "K": s,
+      "U": t
+    } = z(),
+    {
+      "Os": u,
+      "Ts": v
+    } = al(),
+    {
+      dt: y
+    } = ao(),
+    {
+      "Positions": aa
+    } = x(),
+    ab = r(),
+    ac = ai(),
+    ad = q();
+  function ae(a, b, d) {
+    let e = 0;
+    return h(a, a => {
+      if (a.kind !== c["Binary"] || a.operator !== "and" && a.operator !== "or") return a;
+      let f = ad.truthiness(a.lhs);
+      if (f === null) return a;
+      let g = a.operator === "and" ? !f : f,
+        h = g ? a.rhs : a.lhs;
+      return i["E"](h, b) ? (d.decided += 1, e += 1, g ? a.lhs : a.rhs) : a;
+    }), e;
+  }
+  function af(a) {
+    let b = new Set();
+    return f(a, {
+      enter(a) {
+        b.add(a);
+      }
+    }), b;
+  }
+  function ag(a, b) {
+    let c = a.reads || [];
+    if (!c.length) return !0;
+    let d = af(b);
+    return c.every(a => d.has(a));
+  }
+  function ah(a, b) {
+    return n(a) ? (a.reads || []).length ? b ? ag(a, b) : !1 : !0 : !1;
+  }
+  function am(a, b, e) {
+    let g = 0;
+    return f(a, {
+      enter(a) {
+        if (a.kind !== c["Block"]) return;
+        let e = [];
+        for (let f of a.statements) {
+          if (f.kind === c["LocalFunction"]) {
+            if (ah(f.binding, f)) {
+              g += 1;
+              continue;
+            }
+          } else if (f.kind === c["LocalDeclaration"]) {
+            let a = f.bindings || [],
+              c = f.names || [],
+              d = f.expressions || [],
+              e = d.length === c.length,
+              h = [];
+            for (let f = 0; f < c.length; f += 1) !((a[f] && a[f].writes || []).length > 0) && ah(a[f], e ? d[f] : null) && (!e || i["E"](d[f], b)) ? g += 1 : h.push(f);
+            if (!h.length && (!d.length || d.every(a => i["E"](a, b)))) continue;
+            h.length !== c.length && e ? (f.names = h.map(a => c[a]), f.bindings = h.map(b => a[b]), f.expressions = h.map(a => d[a])) : h.length !== c.length && !d.length && (f.names = h.map(a => c[a]), f.bindings = h.map(b => a[b]));
+          } else if (f.kind === c["Assignment"]) {
+            let a = f.targets || [],
+              h = f.expressions || [];
+            if (a.length === 1 && h.length === 1 && a[0].kind === c["Name"] && h[0].kind === c["Name"] && a[0].binding && a[0].binding === h[0].binding) {
+              g += 1;
+              continue;
+            }
+            let j = a => a.kind === c["Name"] && ah(a.binding, null);
+            if (a.every(j) && h.every(a => i["E"](a, b))) {
+              g += a.length;
+              continue;
+            }
+            let k = h.length === 1 ? d.unparen(h[0]) : null;
+            if (a.every(j) && k && (k.kind === c["Call"] || k.kind === c["MethodCall"])) {
+              g += a.length, e.push(d["X"](k));
+              continue;
+            }
+            if (a.length === h.length && a.some(j) && a.some(a => !j(a))) {
+              let c = [];
+              for (let d = 0; d < a.length; d += 1) j(a[d]) && i["E"](h[d], b) ? g += 1 : c.push(d);
+              f.targets = c.map(b => a[b]), f.expressions = c.map(a => h[a]);
+            }
+          } else if (f.kind === c["CallStatement"]) {
+            if (i["Es"](f.expression, b) && i["E"](f.expression, b)) {
+              g += 1;
+              continue;
+            }
+          } else if (f.kind === c["Do"] && !(f.body && f.body.statements || []).length) {
+            g += 1;
+            continue;
+          }
+          e.push(f);
+        }
+        a.statements = e;
+      }
+    }), e.eliminated += g, g;
+  }
+  function an(a, b) {
+    let e = 0;
+    return f(a, {
+      enter(a) {
+        if (a.kind === c["Block"]) for (let b = 0; b + 1 < a.statements.length; b += 1) {
+          let g = a.statements[b];
+          if (g.kind !== c["LocalDeclaration"] || (g.expressions || []).length) continue;
+          let h = a.statements[b + 1];
+          if (!h || h.kind !== c["Assignment"]) continue;
+          let i = h.targets || [],
+            j = h.expressions || [];
+          if (!i.length || i.length !== j.length) continue;
+          let k = new Set(g.bindings || []);
+          if (!i.every(a => a.kind === c["Name"] && k.has(a.binding))) continue;
+          let l = !1;
+          for (let a of j) f(a, {
+            enter(a) {
+              a.kind === c["Name"] && k.has(a.binding) && (l = !0);
+            }
+          });
+          if (l) continue;
+          let m = new Set(i.map(a => a.binding)),
+            n = [],
+            o = [];
+          (g.bindings || [])["forEach"]((a, b) => {
+            m.has(a) || (n.push(g.names[b]), o.push(a));
+          });
+          let p = d["R"](i.map(a => a.name), j);
+          p.bindings = i.map(a => a.binding);
+          let q = n.length ? [p, Object.assign(g, {
+            names: n,
+            bindings: o
+          })] : [p];
+          a.statements.splice(b, 2, ...q), e += 1, b -= 1;
+        }
+      }
+    }), b.merged += e, e;
+  }
+  function ap(a, b) {
+    let e = 0;
+    return h(a, a => {
+      if (a.kind !== c["Paren"]) return a;
+      let b = a.expression;
+      return !b || d.d(b) ? a : b.kind === c["Name"] || b.kind === c["Paren"] || d["Y"](b) || b.kind === c["Table"] || b.kind === c["Index"] ? (e += 1, b) : a;
+    }), b.parens += e, e;
+  }
+  function aq(a) {
+    let b = new Set();
+    return f(a, {
+      enter(a) {
+        (a.kind === c["Index"] || a.kind === c["Call"] || a.kind === c["MethodCall"]) && b.add(a.base);
+      }
+    }), b;
+  }
+  function ar(a, b) {
+    let e = new Map();
+    f(a, {
+      enter(a) {
+        let b = (a, b, c, d) => {
+          if (!n(a)) return;
+          let f = e.get(a);
+          f || (f = {
+            count: 0,
+            bare: 0,
+            valued: 0,
+            value: null,
+            at: null
+          }, e.set(a, f)), f.count += 1, b ? (f.valued += 1, f.value = b, f.at = c) : d && (f.bare += 1);
+        };
+        if (a.kind === c["LocalDeclaration"]) {
+          let c = a.expressions || [],
+            d = c.length === (a.names || []).length;
+          (a.bindings || [])["forEach"]((e, f) => {
+            b(e, d ? c[f] : null, a, !c.length);
+          });
+        } else if (a.kind === c["Assignment"]) {
+          let d = a.targets || [],
+            e = a.expressions || [],
+            f = d.length === e.length;
+          d["forEach"]((d, g) => {
+            d.kind === c["Name"] && b(d.binding, f ? e[g] : null, a, !1);
+          });
+        } else if (a.kind === c["LocalFunction"]) b(a.binding, null, a, !1);else if (a.kind === c["NumericFor"]) b(a.binding, null, a, !1);else if (a.kind === c["GenericFor"] || a.kind === c["Function"]) for (let c of a.bindings || []) b(c, null, a, !1);
+      }
+    });
+    let g = new Map(),
+      i = null,
+      j = null,
+      k = new Map();
+    for (let [a, b] of e) {
+      if (!b.value || b.valued !== 1 || b.bare !== b.count - 1) continue;
+      let e = d.unparen(b.value);
+      e.kind === c["Name"] && (!n(e.binding) || e.binding === a || k.set(e, a));
+    }
+    let l = (a, b) => {
+      let c = [];
+      for (let d of a.reads || []) {
+        let a = k.get(d);
+        a && !b.has(a) ? (b.add(a), c.push(...l(a, b))) : c.push(d);
+      }
+      return c;
+    };
+    for (let [b, f] of e) {
+      if (!f.value || f.valued !== 1 || !d["Y"](f.value) || f.value.kind === c["Vararg"]) continue;
+      let e = b.reads || [];
+      if (!e.length || f.count !== 1 && (f.bare !== f.count - 1 || (i || (i = new aa(a)), !e.every(a => i.precedes(f.at, a))))) continue;
+      let h = l(b, new Set([b]));
+      h.length > 1 && (j || (j = aq(a)), h.some(a => j.has(a))) || g.set(b, f.value);
+    }
+    if (!g.size) return 0;
+    let m = new Set();
+    for (let a of g.keys()) for (let b of a.writes || []) m.add(b);
+    let o = 0;
+    return h(a, a => {
+      if (a.kind !== c["Name"] || !a.binding || m.has(a)) return a;
+      let b = g.get(a.binding);
+      return b ? (o += 1, {
+        ...b
+      }) : a;
+    }), b.propagated += o, o;
+  }
+  function as(a, b) {
+    let e = new Set();
+    f(a, {
+      enter(a) {
+        n(a.binding) && e.add(a.name);
+      }
+    });
+    let g = 0;
+    return h(a, a => {
+      if (a.kind !== c["Index"]) return a;
+      let b = a.base;
+      if (!m(b) || b.name !== "_ENV") return a;
+      let f = a.index;
+      return !f || f.kind !== c["String"] || !k(f.value) || e.has(f.value) ? a : (g += 1, d.name(f.value));
+    }), b.globals += g, g;
+  }
+  function at(a, b) {
+    let d = 0;
+    return f(a, {
+      enter(a) {
+        a.kind === c["NumericFor"] && a.step && a.step.kind === c["Number"] && a.step.value === 1 && (a.step = null, d += 1);
+      }
+    }), b.loops += d, d;
+  }
+  function au(a) {
+    let b = {
+      eliminated: 0,
+      merged: 0,
+      parens: 0,
+      idioms: 0,
+      propagated: 0,
+      loops: 0,
+      globals: 0,
+      stores: 0,
+      decided: 0,
+      unwanted: 0
+    };
+    for (let c = 0; c < 24; c += 1) {
+      a.resolve();
+      let c = 0;
+      c += o.run(a, b), a.resolve(), c += ar(a.chunk, b), a.resolve(), c += as(a.chunk, b), a.resolve();
+      let d = new i["Facts"](a.chunk),
+        e = ab.ar(a.chunk, {
+          binary: ab["BINARY"],
+          unary: ab["LOGIC"]
+        });
+      b.decided += e, c += e, c += ae(a.chunk, d, b), a.resolve();
+      let f = a.stats["guards.constants"] || 0;
+      ac.run(a), c += (a.stats["guards.constants"] || 0) - f, a.resolve(), c += am(a.chunk, d, b), a.resolve();
+      let g = u(a.chunk, new p(a.chunk, s, t), new i["Facts"](a.chunk));
+      b.stores += g, c += g, a.resolve();
+      let h = v(a.chunk);
+      b.stores += h, c += h, a.resolve();
+      let j = y(a.chunk, new i["Facts"](a.chunk));
+      b.unwanted += j, c += j, a.resolve(), c += an(a.chunk, b), c += ap(a.chunk, b);
+      let k = a.stats["fold.count"] || 0;
+      if (ab.run(a), c += (a.stats["fold.count"] || 0) - k, !c) break;
+    }
+    at(a.chunk, b), a.resolve();
+    let c = Object.values(b).reduce((a, b) => a + b, 0);
+    c && a.note(`removed ${b.eliminated + b.stores} dead write(s), ${b.unwanted} unwanted statement(s), merged ${b.merged} declaration(s), rebuilt ${b.idioms} idiom(s)`, c);
+    for (let c of Object.keys(b)) b[c] && a.bump(`simplify.${c}`, b[c]);
+  }
+  b.exports = {
+    name: "07-opt",
+    run: au,
+    eliminate: am,
+    "Bs": an,
+    ht: ap
+  };
+});
+var aq = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    {
+      walk: d
+    } = l(),
+    {
+      y: f
+    } = g(),
+    {
+      "D": h
+    } = j(),
+    i = ["i", "j", "k", "m", "n"];
+  function k(a) {
+    let b = new Set(["and", "break", "do", "else", "elseif", "end", "false", "for", "function", "goto", "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while", "self", "_ENV"]);
+    return d(a, {
+      enter(a) {
+        h(a) && b.add(a.name);
+      }
+    }), b;
+  }
+  function m(a) {
+    let b = {
+      p: 0,
+      f: 0,
+      v: 0,
+      i: 0
+    };
+    return c => {
+      for (let d = 0; d < 1e5; d += 1) {
+        b[c] += 1;
+        let d = b[c],
+          e = c === "i" && d <= i.length ? i[d - 1] : `${c}${d}`;
+        if (!a.has(e) && f(e)) return a.add(e), e;
+      }
+      throw new Error("rename: name pool exhausted");
+    };
+  }
+  function n(a) {
+    let b = new Map(),
+      e = (a, d) => {
+        if (!a || a.kind !== c["Name"] || !a.binding) return;
+        let e = b.get(a.binding) || {
+          functions: 0,
+          other: 0
+        };
+        d && d.kind === c["Function"] ? e.functions += 1 : e.other += 1, b.set(a.binding, e);
+      };
+    d(a, {
+      enter(a) {
+        if (a.kind === c["FunctionDeclaration"]) e(a.target, a.body);else if (a.kind === c["Assignment"]) {
+          let b = a.expressions || [],
+            c = a.targets || [],
+            d = b.length === c.length;
+          c["forEach"]((a, c) => e(a, d ? b[c] : null));
+        }
+      }
+    });
+    let f = new Set();
+    for (let [a, c] of b) c.functions && !c.other && f.add(a);
+    return f;
+  }
+  function o(a) {
+    let b = new Map(),
+      e = n(a),
+      f = (a, c) => {
+        !a || b.has(a) || b.set(a, c);
+      };
+    return d(a, {
+      enter(a) {
+        if (a.kind === c["Function"]) (a.bindings || [])["forEach"]((b, c) => {
+          (a.params || [])[c] !== "self" && f(b, "p");
+        });else if (a.kind === c["LocalFunction"]) f(a.binding, "f");else if (a.kind === c["NumericFor"]) f(a.binding, "i");else if (a.kind === c["GenericFor"]) (a.bindings || [])["forEach"](a => f(a, "v"));else if (a.kind === c["LocalDeclaration"]) {
+          let b = a.expressions || [],
+            d = b.length === (a.names || []).length;
+          (a.bindings || [])["forEach"]((a, g) => {
+            let h = d ? b[g] : null,
+              i = h && h.kind === c["Function"] || e.has(a);
+            f(a, i ? "f" : "v");
+          });
+        }
+      }
+    }), b;
+  }
+  function p(a, b) {
+    let c = new Map();
+    for (let [d, e] of o(a)) c.set(d, b(e));
+    return c;
+  }
+  function q(a, b) {
+    let e = 0,
+      f = (a, c) => {
+        if (!(!a || !c)) for (let d = 0; d < c.length && d < a.length; d += 1) {
+          let e = b.get(c[d]);
+          e && (a[d] = e);
+        }
+      };
+    return d(a, {
+      enter(a) {
+        if (a.kind === c["Function"]) f(a.params, a.bindings);else if (a.kind === c["LocalDeclaration"]) f(a.names, a.bindings);else if (a.kind === c["GenericFor"]) f(a.variables, a.bindings);else if (a.kind === c["LocalFunction"]) {
+          let c = b.get(a.binding);
+          c && (a.name = c);
+        } else if (a.kind === c["NumericFor"]) {
+          let c = b.get(a.binding);
+          c && (a.variable = c);
+        } else if (a.kind === c["Name"] && a.binding) {
+          let c = b.get(a.binding);
+          c && a.name !== c && (a.name = c, e += 1);
+        }
+      }
+    }), e;
+  }
+  function r(a) {
+    a.resolve();
+    let b = k(a.chunk),
+      c = p(a.chunk, m(b));
+    if (!c.size) return;
+    let d = q(a.chunk, c);
+    a.resolve(), a.note(`renamed ${c.size} local(s)`, c.size), a.bump("rename.bindings", c.size), a.bump("rename.mentions", d);
+  }
+  b.exports = {
+    name: "08-vars",
+    run: r,
+    reserved: k,
+    namer: m,
+    categories: o,
+    plan: p,
+    apply: q
+  };
+});
+var ar = a((a, b) => {
+  "use strict";
+
+  var c = e(),
+    {
+      "Kind": d
+    } = c,
+    {
+      walk: f,
+      transform: g,
+      collect: h
+    } = l(),
+    {
+      c: i
+    } = j(),
+    {
+      bare: k
+    } = y(),
+    m = "GetService";
+  function n(a) {
+    if (!a || a.kind !== d["MethodCall"] || a.method !== m) return null;
+    let b = a.args || [];
+    if (b.length !== 1) return null;
+    let c = k(b[0]);
+    if (!c || c.kind !== d["String"]) return null;
+    let e = k(a.base);
+    return !e || e.kind !== d["Name"] || i(e.binding) ? null : c.value;
+  }
+  var o = a => n(k(a)) !== null;
+  function p(a) {
+    if (!a || a.kind !== d["LocalDeclaration"] || (a.names || []).length !== 1 || (a.expressions || []).length !== 1) return null;
+    let b = n(k(a.expressions[0]));
+    return b === null ? null : {
+      service: b,
+      name: a.names[0],
+      initializer: k(a.expressions[0])
+    };
+  }
+  function q(a) {
+    let b = 0;
+    for (; b < a.length && p(a[b]);) b += 1;
+    return b;
+  }
+  function r(a) {
+    let b = new Set();
+    return f(a, {
+      enter(a) {
+        a.kind === d["Name"] && b.add(a.name);
+        for (let c of ["names", "params", "variables"]) for (let d of a[c] || []) b.add(d);
+        (a.kind === d["LocalFunction"] || a.kind === d["NumericFor"]) && b.add(a.name || a.variable);
+      }
+    }), b;
+  }
+  function s(a) {
+    let b = a.body ? a.body.statements : null;
+    if (!b) return 0;
+    let e = h(a, a => n(a) !== null);
+    if (!e.length) return 0;
+    let i = new Map();
+    for (let a of e) {
+      let b = n(a),
+        c = i.get(b);
+      c || i.set(b, c = []), c.push(a);
+    }
+    let j = q(b),
+      l = new Map();
+    for (let a = 0; a < j; a += 1) {
+      let c = p(b[a]);
+      l.has(c.service) || l.set(c.service, c);
+    }
+    let o = a => {
+      let b = l.get(a),
+        c = i.get(a);
+      return !!b && c.length === 1 && c[0] === b.initializer;
+    };
+    if ([...i.keys()].every(o)) return 0;
+    let s = r(a),
+      t = () => {
+        let a = 0;
+        for (;;) {
+          a += 1;
+          let b = `service${a}`;
+          if (!s.has(b)) return s.add(b), b;
+        }
+      },
+      u = [],
+      v = new Map();
+    for (let [a, b] of i) {
+      let d = l.get(a);
+      if (!d) {
+        let e = k(b[0].base).name;
+        d = {
+          service: a,
+          name: t(),
+          initializer: null
+        }, u.push(c["R"]([d.name], [c["Le"](c.name(e), m, [c.string(a)])])), l.set(a, d);
+      }
+      for (let a of b) a !== d.initializer && v.set(a, c.name(d.name));
+    }
+    let w = new Set();
+    f(a, {
+      enter(a) {
+        if (a.kind === d["Block"]) for (let b of a.statements) {
+          if (b.kind !== d["CallStatement"]) continue;
+          let a = k(b.expression);
+          v.has(a) && (v.delete(a), w.add(b));
+        }
+      }
+    });
+    let x = v.size + u.length + w.size;
+    if (!x) return 0;
+    if (g(a, a => v.get(a) || a), w.size && f(a, {
+      enter(a) {
+        if (a.kind === d["Block"]) for (let b = a.statements.length - 1; b >= 0; b -= 1) w.has(a.statements[b]) && a.statements.splice(b, 1);
+      }
+    }), u.length) {
+      let b = a.body.statements;
+      b.splice(q(b), 0, ...u);
+    }
+    return x;
+  }
+  b.exports = {
+    gather: s,
+    "Rs": o
+  };
+});
+var as = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    {
+      walk: d,
+      collect: f
+    } = l(),
+    {
+      bare: g
+    } = y();
+  function h(a) {
+    if (!a) return !0;
+    switch (a.kind) {
+      case c["Nil"]:
+      case c["True"]:
+      case c["False"]:
+      case c["Number"]:
+      case c["String"]:
+      case c["Vararg"]:
+      case c["Name"]:
+      case c["Function"]:
+        return !0;
+      case c["Paren"]:
+        return h(a.expression);
+      case c["Table"]:
+        return (a.entries || []).every(a => (a.type !== "key" || h(a.key)) && h(a.value));
+      default:
+        return !1;
+    }
+  }
+  function i(a, b) {
+    return f(a, a => a === b).length > 0;
+  }
+  function j(a) {
+    let b = new Set();
+    return d(a, {
+      enter(a) {
+        if (a.kind === c["Assignment"]) for (let d of a.targets || []) {
+          let a = g(d);
+          a && a.kind === c["Index"] && b.add(a);
+        }
+      }
+    }), b;
+  }
+  function k(a, b) {
+    let e = j(a),
+      f = [],
+      g = [],
+      h = !1;
+    return d(a, {
+      enter(a) {
+        if (h) return !1;
+        if (a === b) {
+          h = !0;
+          for (let a of g) {
+            let b = f["indexOf"](a);
+            b >= 0 && f.splice(b, 1);
+          }
+          return !1;
+        }
+        if (e.has(a) || f.push(a), a.kind === c["Function"] && !i(a, b)) return !1;
+        g.push(a);
+      },
+      leave(a) {
+        !h && g[g.length - 1] === a && g.pop();
+      }
+    }), h ? f : null;
+  }
+  function m(a, b) {
+    let c = k(a, b);
+    return c ? c.every(a => h(a)) : !1;
+  }
+  function n(a) {
+    let b = new Set(),
+      e = new Set();
+    return d(a, {
+      enter(a) {
+        if (a.kind === c["Assignment"]) for (let b of a.targets || []) {
+          let a = g(b);
+          a && a.kind === c["Name"] && e.add(a);
+        }
+        a.kind === c["Name"] && a.binding && !e.has(a) && b.add(a.binding);
+      }
+    }), b;
+  }
+  function o(a) {
+    let b = new Map(),
+      e = new Set(),
+      f = (a, c) => {
+        !a || e.has(a) || (e.add(a), b.set(c, (b.get(c) || 0) + 1));
+      };
+    return d(a, {
+      enter(a) {
+        a.kind === c["Function"] ? (a.bindings || [])["forEach"]((b, c) => f(b, (a.params || [])[c])) : a.kind === c["LocalDeclaration"] ? (a.bindings || [])["forEach"]((b, c) => f(b, (a.names || [])[c])) : a.kind === c["LocalFunction"] ? f(a.binding, a.name) : a.kind === c["NumericFor"] ? f(a.binding, a.variable) : a.kind === c["GenericFor"] && (a.bindings || [])["forEach"]((b, c) => f(b, (a.variables || [])[c]));
+      }
+    }), b;
+  }
+  function p(a, b) {
+    return a.get(b) === 1;
+  }
+  function q(a) {
+    if (!a || a.kind !== c["Assignment"]) return null;
+    let b = a.targets || [],
+      d = a.expressions || [];
+    if (b.length !== 1 || d.length !== 1) return null;
+    let e = g(b[0]);
+    return !e || e.kind !== c["Name"] || !e.binding ? null : {
+      target: e,
+      value: d[0]
+    };
+  }
+  function r(a) {
+    if (!a || a.kind !== c["LocalDeclaration"]) return null;
+    let b = a.names || [],
+      d = a.expressions || [];
+    if (b.length !== 1 || d.length !== 1) return null;
+    let e = (a.bindings || [])[0];
+    return e ? {
+      binding: e,
+      name: b[0],
+      value: d[0]
+    } : null;
+  }
+  function s(a) {
+    return !a || a.kind !== c["Do"] ? !1 : !(a.body && a.body.statements || []).length;
+  }
+  b.exports = {
+    quiet: h,
+    "Ds": m,
+    "Ps": n,
+    gt: o,
+    unshadowed: p,
+    js: q,
+    sn: r,
+    zs: s
+  };
+});
+var at = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c,
+      d: d
+    } = e(),
+    {
+      walk: f,
+      transform: g,
+      collect: h,
+      children: i
+    } = l(),
+    {
+      "Positions": k
+    } = x(),
+    {
+      c: m
+    } = j(),
+    {
+      bare: n
+    } = y(),
+    o = ar(),
+    p = as();
+  function q(a) {
+    if (!a) return null;
+    let b = a.declaration;
+    return b ? b.kind === c["LocalDeclaration"] ? "after" : b.kind === c["LocalFunction"] ? "from" : "inside" : null;
+  }
+  function r(a, b, c) {
+    let d = q(b);
+    if (!d) return !1;
+    let e = a.path(b.declaration),
+      f = a.path(c);
+    if (!e || !f || f.depth < e.depth) return !1;
+    let g = f;
+    for (; g.depth > e.depth;) g = g.up;
+    return g.up !== e.up || g.block !== e.block ? !1 : d === "after" ? g.at > e.at : d === "from" ? g.at >= e.at : g.at === e.at && f.depth > e.depth;
+  }
+  function s(a) {
+    let b = new Map(),
+      d = a => {
+        let c = b.get(a);
+        return c || (c = {
+          valued: 0,
+          opaque: 0,
+          empty: 0,
+          value: null,
+          at: null
+        }, b.set(a, c)), c;
+      };
+    return f(a, {
+      enter(a) {
+        if (a.kind === c["LocalDeclaration"]) {
+          let b = a.expressions || [],
+            c = b.length === (a.names || []).length;
+          (a.bindings || [])["forEach"]((e, f) => {
+            if (!m(e)) return;
+            let g = d(e);
+            b.length ? c ? (g.valued += 1, g.value = b[f], g.at = a) : g.opaque += 1 : g.empty += 1;
+          });
+        } else if (a.kind === c["Assignment"]) {
+          let b = a.targets || [],
+            e = a.expressions || [],
+            f = b.length === e.length;
+          b["forEach"]((b, g) => {
+            let h = n(b);
+            if (!h || h.kind !== c["Name"] || !m(h.binding)) return;
+            let i = d(h.binding);
+            f ? (i.valued += 1, i.value = e[g], i.at = a) : i.opaque += 1;
+          });
+        } else if (a.kind === c["LocalFunction"]) {
+          let b = d(a.binding);
+          b.valued += 1, b.value = null, b.at = a;
+        } else if (a.kind === c["FunctionDeclaration"]) {
+          let b = n(a.target);
+          if (b && b.kind === c["Name"] && m(b.binding)) {
+            let c = d(b.binding);
+            c.valued += 1, c.value = null, c.at = a;
+          }
+        } else if (a.kind === c["NumericFor"] || a.kind === c["GenericFor"] || a.kind === c["Function"]) for (let b of a.bindings || []) m(b) && (d(b).opaque += 1);
+      }
+    }), b;
+  }
+  function t(a) {
+    return a && a.reads || [];
+  }
+  function u(a) {
+    let b = new Map();
+    return f(a, {
+      enter(a) {
+        for (let c of i(a)) b.set(c.node, a);
+      }
+    }), b;
+  }
+  function v(a, b) {
+    let d = b,
+      e = a.get(d);
+    for (; e && e.kind !== c["Block"];) d = e, e = a.get(d);
+    return e ? d : null;
+  }
+  function w(a, b) {
+    if (!a) return null;
+    if (a.kind === c["LocalFunction"]) return a.body === b ? a.binding : null;
+    let d = a.expressions || [];
+    if (d.length !== 1 || n(d[0]) !== b) return null;
+    if (a.kind === c["LocalDeclaration"]) return (a.names || []).length === 1 ? (a.bindings || [])[0] : null;
+    if (a.kind !== c["Assignment"]) return null;
+    let e = a.targets || [];
+    if (e.length !== 1) return null;
+    let f = n(e[0]);
+    return f && f.kind === c["Name"] ? f.binding : null;
+  }
+  function z(a, b) {
+    let d = new Set();
+    for (let e of a && a.expressions || []) {
+      let a = n(e);
+      a && a.kind === c["Name"] && a.binding === b && d.add(a);
+    }
+    return d;
+  }
+  function aa(a, b, d, e) {
+    if (!m(b) || b.declaration !== d) return !1;
+    let f = a.path(d),
+      g = a.path(e);
+    if (!f || !g || f.depth !== g.depth || f.up !== g.up) return !1;
+    let i = f.block;
+    if (i !== g.block) return !1;
+    let j = f.at,
+      k = g.at;
+    if (j >= k) return !1;
+    let l = i.statements || [];
+    if (l.some(a => a.kind === c["Label"])) return !1;
+    let n = z(e, b);
+    for (let a = j + 1; a <= k; a += 1) {
+      let d = h(l[a], a => a.kind === c["Name"] && a.binding === b);
+      if (a === k ? d.some(a => !n.has(a)) : d.length) return !1;
+    }
+    return !0;
+  }
+  function ab(a, b, d, e) {
+    let f = b.path(e);
+    if (!f) return !1;
+    let g = f.block,
+      h = a.get(d);
+    for (; h;) {
+      if (h.kind === c["Function"]) {
+        let c = v(a, h),
+          d = c ? b.path(c) : null;
+        if (d && d.depth === f.depth && d.block === g) {
+          let a = w(c, h);
+          return !!a && aa(b, a, c, e);
+        }
+      }
+      h = a.get(h);
+    }
+    return !1;
+  }
+  function ac(a, b, c, d) {
+    if (!c || c.valued !== 1 || c.opaque) return !1;
+    let e = t(b);
+    return e.length ? c.empty ? e.every(b => b === c.at || a.precedes(c.at, b) || d && ab(d, a, b, c.at)) : !0 : !1;
+  }
+  function ad(a, b) {
+    let d = a.get(b);
+    for (; d;) {
+      if (d.kind === c["Function"]) return d;
+      d = a.get(d);
+    }
+    return null;
+  }
+  function ae(a, b) {
+    let d = new Set(),
+      e = b;
+    for (; e;) (e.kind === c["While"] || e.kind === c["Repeat"] || e.kind === c["NumericFor"] || e.kind === c["GenericFor"]) && d.add(e), e = a.get(e);
+    return d;
+  }
+  function af(a, b, d, e) {
+    let f = ae(a, e),
+      g = (d.writes || []).slice(),
+      h = d.declaration;
+    h && (h.kind === c["NumericFor"] || h.kind === c["GenericFor"]) && g.push(h);
+    for (let c of g) {
+      for (let b of ae(a, c)) if (f.has(b)) return !0;
+      if (c !== e && !b.precedes(c, e)) return !0;
+    }
+    return !1;
+  }
+  function ag(a) {
+    let b = new k(a),
+      d = u(a),
+      e = s(a),
+      h = p.gt(a),
+      i = new Map();
+    for (let [a, f] of e) {
+      if (!ac(b, a, f, d)) continue;
+      let g = n(f.value);
+      if (!g || g.kind !== c["Name"]) continue;
+      let j = g.binding;
+      if (!m(j) || j === a || !p.unshadowed(h, j.name)) continue;
+      let k = e.get(j);
+      if (k && k.valued > 1 || k && k.opaque > 1 || k && k.valued === 1 && k.at !== f.at && !b.precedes(k.at, f.at)) continue;
+      let l = t(a);
+      l.every(a => r(b, j, a)) && (l.some(a => ad(d, a) !== ad(d, f.at)) && af(d, b, j, f.at) || i.set(a, j));
+    }
+    if (!i.size) return 0;
+    let j = a => {
+        let b = a;
+        for (let a = 0; a < 1e3 && i.has(b); a += 1) b = i.get(b);
+        return b;
+      },
+      l = 0,
+      o = new Set();
+    return f(a, {
+      enter(a) {
+        if (a.kind === c["Assignment"]) for (let b of a.targets || []) {
+          let a = n(b);
+          a && a.kind === c["Name"] && o.add(a);
+        }
+      }
+    }), g(a, a => {
+      if (a.kind !== c["Name"] || !a.binding || o.has(a) || !i.has(a.binding)) return a;
+      let b = j(a.binding);
+      return b === a.binding ? a : (l += 1, {
+        kind: c["Name"],
+        name: b.name,
+        binding: b
+      });
+    }), l;
+  }
+  function ah(a, b) {
+    for (let c = b + 1; c < a.length; c += 1) if (!p.zs(a[c])) return c;
+    return -1;
+  }
+  function ai(a, b) {
+    let c = null;
+    return f(a, {
+      enter(a, d) {
+        a === b && d && (c = d.parent);
+      }
+    }), c;
+  }
+  function aj(a, b) {
+    let d = ai(a, b);
+    return !d || !d.kind ? !1 : d.kind === c["Unary"] || d.kind === c["Binary"] || d.kind === c["Index"] ? !0 : d.kind === c["Call"] || d.kind === c["MethodCall"] ? n(d.base) === b || d.base === b : !1;
+  }
+  function ak(a) {
+    if (!a || a.kind !== c["LocalFunction"]) return null;
+    let b = a.binding;
+    return !b || !a.body || h(a.body, b => b.kind === c["Name"] && b.name === a.name).length ? null : {
+      binding: b,
+      name: a.name,
+      value: a.body
+    };
+  }
+  function al(a, b) {
+    let d = !1,
+      e = a => {
+        if (!(d || !a || !a.kind || a.kind === c["Block"])) {
+          if (a === b) {
+            d = !0;
+            return;
+          }
+          for (let b of i(a)) e(b.node);
+        }
+      };
+    return e(a), d;
+  }
+  function am(a, b) {
+    let e = a.statements,
+      f = p.js(e[b]) || p.sn(e[b]) || ak(e[b]);
+    if (!f) return !1;
+    let i = f.binding || f.target.binding;
+    if (!m(i) || o["Rs"](f.value)) return !1;
+    let j = t(i);
+    if (j.length !== 1) return !1;
+    let k = ah(e, b);
+    if (k < 0) return !1;
+    let l = j[0],
+      q = e[k];
+    if (q.kind === c["While"] || q.kind === c["Repeat"] || q.kind === c["Assignment"] && (q.targets || []).some(a => h(a, a => a === l).length) || !al(q, l) || !p["Ds"](q, l)) return !1;
+    let r = n(f.value);
+    if (r && (r.kind === c["Table"] || r.kind === c["Function"]) && aj(q, l)) return !1;
+    let s = d(n(f.value)) ? {
+      kind: c["Paren"],
+      expression: f.value
+    } : f.value;
+    return g(q, a => a === l ? s : a), e[b] = {
+      kind: c["Do"],
+      body: {
+        kind: c["Block"],
+        statements: []
+      }
+    }, !0;
+  }
+  function an(a) {
+    let b = 0;
+    return f(a, {
+      enter(a) {
+        if (a.kind === c["Block"]) for (let c = 0; c < a.statements.length; c += 1) am(a, c) && (b += 1);
+      }
+    }), b;
+  }
+  b.exports = {
+    qi: q,
+    on: r,
+    "Gs": u,
+    sealed: aa,
+    rewritten: af,
+    propagate: ag,
+    "Ks": ak,
+    "Mi": ai,
+    "Us": aj,
+    "Ws": an
+  };
+});
+var au = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    {
+      walk: d,
+      collect: f
+    } = l(),
+    {
+      y: h
+    } = g(),
+    {
+      c: i
+    } = j(),
+    {
+      bare: k
+    } = y(),
+    {
+      "Positions": m
+    } = x(),
+    {
+      on: n
+    } = at(),
+    o = as();
+  function p(a) {
+    return (a.statements || []).some(a => a.kind === c["Label"]);
+  }
+  function q(a, b) {
+    return f(a, a => a.kind === c["Name"] && a.binding === b);
+  }
+  function r(a, b) {
+    let e = new Map();
+    return (a.statements || [])["forEach"]((a, f) => {
+      d(a, {
+        enter(a) {
+          if (b && a.kind === c["Function"]) return !1;
+          if (a.kind !== c["Name"] || !a.binding) return;
+          let d = e.get(a.binding);
+          d ? d[d.length - 1].at === f ? d[d.length - 1].nodes.push(a) : d.push({
+            at: f,
+            nodes: [a]
+          }) : e.set(a.binding, [{
+            at: f,
+            nodes: [a]
+          }]);
+        }
+      });
+    }), e;
+  }
+  function s(a, b) {
+    let c = a && a.get(b);
+    if (c) return c;
+    let d = r(b, !0);
+    return a && a.set(b, d), d;
+  }
+  function t(a, b, c) {
+    for (let d of a.get(b) || []) if (d.at > c) return d;
+    return null;
+  }
+  function u(a) {
+    let b = a.statements || [],
+      d = new Map();
+    if (p(a)) return d;
+    let e = null;
+    return b["forEach"]((f, g) => {
+      f.kind === c["LocalDeclaration"] && ((f.expressions || []).length || (f.bindings || [])["forEach"]((h, j) => {
+        if (!i(h)) return;
+        e || (e = r(a));
+        let l = t(e, h, g);
+        if (!l) return;
+        let m = b[l.at];
+        if (m.kind !== c["Assignment"]) return;
+        let n = (m.targets || []).map(a => k(a)),
+          o = l.nodes.filter(a => n["indexOf"](a) >= 0);
+        if (o.length !== l.nodes.length || o.length !== 1) return;
+        let p = d.get(l.at);
+        p || (p = [], d.set(l.at, p)), p.push({
+          binding: h,
+          declaration: f,
+          slot: j,
+          target: o[0]
+        });
+      }));
+    }), d;
+  }
+  function v(a, b, c) {
+    a.declaration = b, a.initializer = b;
+    let d = a.writes["indexOf"](c);
+    d >= 0 && a.writes.splice(d, 1);
+  }
+  function w(a) {
+    let b = 0;
+    return d(a, {
+      enter(a) {
+        if (a.kind !== c["Block"]) return;
+        let d = u(a);
+        for (let [e, f] of d) {
+          let d = a.statements[e],
+            g = (d.targets || []).map(a => k(a));
+          if (g.length !== f.length) continue;
+          let h = g.map(a => f.find(b => b.target === a));
+          if (h.some(a => !a)) continue;
+          let i = {
+            kind: c["LocalDeclaration"],
+            names: h.map(a => a.binding.name),
+            expressions: d.expressions || [],
+            bindings: h.map(a => a.binding)
+          };
+          a.statements[e] = i;
+          for (let a of h) {
+            let c = a.declaration.names || [],
+              d = c["indexOf"](a.binding.name);
+            d >= 0 && (c.splice(d, 1), (a.declaration.bindings || []).splice(d, 1)), v(a.binding, i, a.target), b += 1;
+          }
+        }
+      }
+    }), b;
+  }
+  function z(a) {
+    let b = a.statements || [],
+      d = new Map();
+    if (p(a)) return d;
+    let e = null;
+    return b["forEach"]((f, g) => {
+      f.kind === c["LocalDeclaration"] && ((f.expressions || []).length || (f.bindings || [])["forEach"](c => {
+        if (!i(c)) return;
+        e || (e = r(a));
+        let h = t(e, c, g);
+        if (!h || h.at === g + 1) return;
+        for (let a = g + 1; a < h.at; a += 1) if (!al(b[a], c.name)) return;
+        let j = d.get(h.at);
+        j || (j = [], d.set(h.at, j)), j.push({
+          binding: c,
+          declaration: f
+        });
+      }));
+    }), d;
+  }
+  function aa(a) {
+    let b = 0;
+    return d(a, {
+      enter(a) {
+        if (a.kind !== c["Block"]) return;
+        let d = z(a);
+        if (!d.size) return;
+        let e = [];
+        a.statements["forEach"]((a, f) => {
+          let g = d.get(f);
+          if (g && g.length) {
+            let a = {
+              kind: c["LocalDeclaration"],
+              names: g.map(a => a.binding.name),
+              expressions: [],
+              bindings: g.map(a => a.binding)
+            };
+            for (let c of g) {
+              let d = c.declaration.names || [],
+                e = d["indexOf"](c.binding.name);
+              e >= 0 && (d.splice(e, 1), (c.declaration.bindings || []).splice(e, 1)), c.binding.declaration = a, c.binding.initializer = a, b += 1;
+            }
+            e.push(a);
+          }
+          e.push(a);
+        }), a.statements = e;
+      }
+    }), b;
+  }
+  function ab(a, b) {
+    let e = new Set(b),
+      f = [],
+      g = null;
+    return d(a, {
+      enter(a) {
+        if (a.kind === c["Block"] && f.push(a), !!e.has(a)) if (!g) g = [...f];else {
+          let a = 0;
+          for (; a < g.length && g[a] === f[a];) a += 1;
+          g.length = a;
+        }
+      },
+      leave(a) {
+        a.kind === c["Block"] && f.pop();
+      }
+    }), g && g.length ? g[g.length - 1] : null;
+  }
+  function ac(a) {
+    let b = new Set();
+    return d(a, {
+      enter(a) {
+        if (a.kind === c["Function"]) return !1;
+        a.kind === c["Block"] && b.add(a);
+      }
+    }), b;
+  }
+  function ad(a) {
+    let b = new Map(),
+      e = [];
+    return d(a, {
+      enter(a) {
+        if (a.kind === c["Block"]) e.push(a);else if (a.kind === c["Name"] && a.binding) {
+          let c = b.get(a.binding);
+          if (!c) b.set(a.binding, {
+            nodes: [a],
+            path: e.slice()
+          });else {
+            c.nodes.push(a);
+            let b = 0;
+            for (; b < c.path.length && c.path[b] === e[b];) b += 1;
+            c.path.length = b;
+          }
+        }
+      },
+      leave(a) {
+        a.kind === c["Block"] && e.pop();
+      }
+    }), b;
+  }
+  function ae(a, b, d) {
+    let e = a.statements || [],
+      f = [];
+    if (p(a) || !e.some(a => a.kind === c["LocalDeclaration"] && !(a.expressions || []).length)) return f;
+    let g = null;
+    return e["forEach"](e => {
+      e.kind === c["LocalDeclaration"] && ((e.expressions || []).length || (e.bindings || [])["forEach"](h => {
+        if (!i(h)) return;
+        let j = b ? b.get(h) : null,
+          l = j ? j.nodes : q(a, h);
+        if (!l.length) return;
+        let m = j ? j.path[j.path.length - 1] : ab(a, l);
+        if (g || (g = ac(a)), !m || m === a || !g.has(m) || p(m)) return;
+        let n = s(d, m).get(h) || [],
+          o = 0;
+        for (let a of n) o += a.nodes.length;
+        if (o !== l.length) return;
+        let r = n[0];
+        if (!r) return;
+        let t = (m.statements || [])[r.at];
+        if (!t || t.kind !== c["Assignment"]) return;
+        let u = (t.targets || []).map(a => k(a)),
+          v = r.nodes.filter(a => u["indexOf"](a) >= 0);
+        v.length !== 1 || v.length !== r.nodes.length || f.push({
+          binding: h,
+          declaration: e,
+          target: m,
+          at: r.at
+        });
+      }));
+    }), f;
+  }
+  function af(a) {
+    let b = [],
+      e = ad(a),
+      f = new Map();
+    if (d(a, {
+      enter(a) {
+        a.kind === c["Block"] && b.push(...ae(a, e, f));
+      }
+    }), !b.length) return 0;
+    let g = new Map();
+    for (let a of b) {
+      let b = g.get(a.target);
+      b || (b = new Map(), g.set(a.target, b));
+      let c = b.get(a.at);
+      c || (c = [], b.set(a.at, c)), c.push(a);
+    }
+    let h = 0;
+    for (let [a, b] of g) for (let d of [...b.keys()].sort((a, b) => b - a)) {
+      let e = b.get(d),
+        f = {
+          kind: c["LocalDeclaration"],
+          names: e.map(a => a.binding.name),
+          expressions: [],
+          bindings: e.map(a => a.binding)
+        };
+      for (let a of e) {
+        let b = a.declaration.names || [],
+          c = b["indexOf"](a.binding.name);
+        c >= 0 && (b.splice(c, 1), (a.declaration.bindings || []).splice(c, 1)), a.binding.declaration = f, a.binding.initializer = f, h += 1;
+      }
+      a.statements.splice(d, 0, f);
+    }
+    return h;
+  }
+  function ag(a) {
+    return a.kind === c["LocalFunction"] ? !0 : a.kind === c["LocalDeclaration"] ? (a.expressions || []).every(a => o.quiet(a)) : a.kind !== c["Assignment"] ? !1 : (a.targets || []).every(a => {
+      let b = k(a);
+      return b && b.kind === c["Name"] && i(b.binding);
+    }) && (a.expressions || []).every(a => o.quiet(a));
+  }
+  function ah(a, b) {
+    return f(a, a => a.kind === c["Assignment"] && (a.targets || []).some(a => {
+      let d = k(a);
+      return d && d.kind === c["Name"] && b.has(d.binding);
+    })).length > 0;
+  }
+  function ai(a, b) {
+    let d = a.statements || [],
+      e = [];
+    if (p(a)) return e;
+    let g = null;
+    return d["forEach"]((h, j) => {
+      h.kind === c["LocalDeclaration"] && ((h.expressions || []).length || (h.bindings || [])["forEach"](l => {
+        if (!i(l)) return;
+        g || (g = r(a, !0));
+        let m = t(g, l, j);
+        if (!m) return;
+        let p = m.at,
+          q = d[p];
+        if (q.kind !== c["Assignment"] || (q.targets || []).length !== 1 || (q.expressions || []).length !== 1) return;
+        let s = k(q.targets[0]);
+        if (!s || s.kind !== c["Name"] || s.binding !== l || m.nodes.length !== 1) return;
+        let u = q.expressions[0];
+        if (!o.quiet(u)) return;
+        let v = f(u, a => a.kind === c["Name"]);
+        if (!v.every(a => i(a.binding) && n(b, a.binding, h))) return;
+        let w = new Set(v.map(a => a.binding));
+        for (let a = j + 1; a < p; a += 1) if (!ag(d[a]) || ah(d[a], w)) return;
+        e.push({
+          binding: l,
+          declaration: h,
+          store: q,
+          value: u,
+          block: a
+        });
+      }));
+    }), e;
+  }
+  function aj(a) {
+    let b = new m(a),
+      e = [];
+    if (d(a, {
+      enter(a) {
+        a.kind === c["Block"] && e.push(...ai(a, b));
+      }
+    }), !e.length) return 0;
+    let f = new Map();
+    for (let a of e) f.has(a.block) || f.set(a.block, []), f.get(a.block).push(a);
+    let g = 0;
+    for (let [a, b] of f) {
+      let d = new Set(b.map(a => a.store)),
+        e = new Map();
+      for (let a of b) {
+        let b = {
+            kind: c["LocalDeclaration"],
+            names: [a.binding.name],
+            expressions: [a.value],
+            bindings: [a.binding]
+          },
+          d = a.declaration.names || [],
+          f = d["indexOf"](a.binding.name);
+        f >= 0 && (d.splice(f, 1), (a.declaration.bindings || []).splice(f, 1)), v(a.binding, b, k(a.store.targets[0])), e.has(a.declaration) || e.set(a.declaration, []), e.get(a.declaration).push(b), g += 1;
+      }
+      let f = [];
+      for (let b of a.statements || []) {
+        let a = e.get(b);
+        a && f.push(...a), d.has(b) || f.push(b);
+      }
+      a.statements = f;
+    }
+    return g;
+  }
+  function ak(a) {
+    let b = 0;
+    return d(a, {
+      enter(a) {
+        if (a.kind !== c["Block"]) return;
+        let d = a.statements.filter(a => {
+          let d = a.kind === c["LocalDeclaration"] && !(a.names || []).length;
+          return d && (b += 1), !d;
+        });
+        a.statements = d;
+      }
+    }), b;
+  }
+  function al(a, b) {
+    return !f(a, a => a.kind === c["Name"] && a.name === b).length;
+  }
+  function am(a) {
+    let b = 0;
+    return d(a, {
+      enter(a) {
+        if (a.kind !== c["Block"] || p(a)) return;
+        let d = a.statements,
+          e = null;
+        d["forEach"]((f, g) => {
+          if (f.kind === c["LocalDeclaration"] && !(f.expressions || []).length) for (let j of [...(f.bindings || [])]) {
+            if (!i(j) || !h(j.name)) continue;
+            e || (e = r(a));
+            let l = t(e, j, g);
+            if (!l) continue;
+            let m = d[l.at];
+            if (m.kind !== c["Assignment"] || (m.targets || []).length !== 1 || (m.expressions || []).length !== 1 || k(m.targets[0]) !== l.nodes[0]) continue;
+            let n = k(m.expressions[0]);
+            if (!n || n.kind !== c["Function"] || q(n.body, j).length !== l.nodes.length - 1) continue;
+            let o = !0;
+            for (let a = g + 1; a < l.at; a += 1) al(d[a], j.name) || (o = !1);
+            if (!o) continue;
+            let p = {
+              kind: c["LocalFunction"],
+              name: j.name,
+              body: n,
+              binding: j
+            };
+            d[l.at] = p;
+            let s = f.names || [],
+              u = s["indexOf"](j.name);
+            u >= 0 && (s.splice(u, 1), (f.bindings || []).splice(u, 1)), v(j, p, l.nodes[0]), b += 1;
+          }
+        });
+      }
+    }), b;
+  }
+  function an(a) {
+    let b = 0;
+    return d(a, {
+      enter(a) {
+        a.kind === c["Block"] && a.statements["forEach"]((d, e) => {
+          let f = o.sn(d);
+          if (!f) return;
+          let g = k(f.value);
+          if (!g || g.kind !== c["Function"] || !h(f.name) || !al(g.body, f.name)) return;
+          let i = {
+            kind: c["LocalFunction"],
+            name: f.name,
+            body: g,
+            binding: f.binding
+          };
+          f.binding.declaration = i, f.binding.initializer = i, a.statements[e] = i, b += 1;
+        });
+      }
+    }), b;
+  }
+  function ao(a) {
+    let b = 0;
+    return d(a, {
+      enter(a) {
+        a.kind === c["Block"] && a.statements["forEach"]((d, e) => {
+          if (d.kind !== c["Assignment"]) return;
+          let f = d.targets || [],
+            g = d.expressions || [];
+          if (f.length !== 1 || g.length !== 1) return;
+          let i = k(f[0]),
+            j = k(g[0]);
+          !i || i.kind !== c["Name"] || !j || j.kind !== c["Function"] || h(i.name) && (a.statements[e] = {
+            kind: c["FunctionDeclaration"],
+            target: i,
+            ee: !1,
+            body: j
+          }, b += 1);
+        });
+      }
+    }), b;
+  }
+  function ap(a) {
+    let b = new Set();
+    return d(a, {
+      enter(a) {
+        a.kind === c["MethodCall"] && b.add(a.method);
+      }
+    }), b;
+  }
+  function aq(a) {
+    if (!a || a.kind !== c["Index"]) return null;
+    let b = k(a.index);
+    return !b || b.kind !== c["String"] || !h(b.value) ? null : b.value;
+  }
+  function ar(a) {
+    let b = a;
+    for (; b && b.kind === c["Index"];) {
+      if (!aq(b)) return !1;
+      b = k(b.base);
+    }
+    return !!b && b.kind === c["Name"];
+  }
+  function au(a) {
+    let b = ap(a),
+      e = 0;
+    return d(a, {
+      enter(a) {
+        a.kind === c["Block"] && a.statements["forEach"]((d, f) => {
+          if (d.kind !== c["Assignment"]) return;
+          let g = d.targets || [],
+            h = d.expressions || [];
+          if (g.length !== 1 || h.length !== 1) return;
+          let i = k(g[0]),
+            j = k(h[0]);
+          if (!j || j.kind !== c["Function"]) return;
+          let l = aq(i);
+          if (!l || !ar(i)) return;
+          let m = j.params || [],
+            n = b.has(l) && m.length > 0 && al(j.body, "self");
+          if (n) {
+            let a = (j.bindings || [])[0];
+            if (a) {
+              for (let b of q(j.body, a)) b.name = "self";
+              a.name = "self";
+            }
+            m[0] = "self";
+          }
+          a.statements[f] = {
+            kind: c["FunctionDeclaration"],
+            target: i,
+            ee: n,
+            body: j
+          }, e += 1;
+        });
+      }
+    }), e;
+  }
+  b.exports = {
+    "Vs": p,
+    mentions: q,
+    sink: w,
+    slide: aa,
+    "Hs": af,
+    harmless: ag,
+    fill: aj,
+    "Ys": ak,
+    "Xs": am,
+    "Zs": an,
+    "Js": ao,
+    "Qs": au
+  };
+});
+var av = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c,
+      unparen: d
+    } = e(),
+    {
+      walk: f,
+      collect: g
+    } = l(),
+    {
+      c: h
+    } = j(),
+    {
+      "Positions": i
+    } = x(),
+    {
+      on: k
+    } = at(),
+    {
+      "Vs": m
+    } = au();
+  function n(a) {
+    let b = new Set();
+    return f(a, {
+      enter(a) {
+        if (a.kind === c["Name"]) b.add(a.name);else if (a.kind === c["LocalFunction"]) b.add(a.name);else if (a.kind === c["NumericFor"]) b.add(a.variable);else if (a.kind === c["LocalDeclaration"]) for (let c of a.names || []) b.add(c);else if (a.kind === c["GenericFor"]) for (let c of a.variables || []) b.add(c);else if (a.kind === c["Function"]) for (let c of a.params || []) b.add(c);
+      }
+    }), b;
+  }
+  function o(a, b = "f") {
+    for (let c = 1;; c += 1) {
+      let d = `${b}${c}`;
+      if (!a.has(d)) return a.add(d), d;
+    }
+  }
+  function p(a, b, d) {
+    let e = new Set(g(a, () => !0));
+    for (let f of g(a, a => a.kind === c["Name"])) {
+      let a = f.binding;
+      if (h(a) && !(!a.declaration || e.has(a.declaration)) && !k(b, a, d)) return !1;
+    }
+    return !0;
+  }
+  function q(a, b) {
+    let e = [];
+    return f(a, {
+      enter(a) {
+        if (a.kind !== c["Call"]) return;
+        let f = d(a.base);
+        if (!f || f.kind !== c["Function"]) return;
+        let g = b.path(a);
+        if (!g) return;
+        let {
+            block: h,
+            at: i
+          } = g,
+          j = (h.statements || [])[i];
+        !j || m(h) || p(f, b, j) && e.push({
+          block: h,
+          host: j,
+          call: a,
+          fn: f
+        });
+      }
+    }), e;
+  }
+  function r(a) {
+    let b = new i(a),
+      d = q(a, b);
+    if (!d.length) return 0;
+    let e = n(a),
+      f = new Map();
+    for (let a of d) {
+      f.has(a.block) || f.set(a.block, new Map());
+      let b = f.get(a.block);
+      b.has(a.host) || b.set(a.host, []);
+      let d = o(e);
+      b.get(a.host).push({
+        kind: c["LocalFunction"],
+        name: d,
+        body: a.fn
+      }), a.call.base = {
+        kind: c["Name"],
+        name: d
+      };
+    }
+    let g = 0;
+    for (let [a, b] of f) {
+      let c = [];
+      for (let d of a.statements || []) {
+        let a = b.get(d);
+        a && (c.push(...a), g += a.length), c.push(d);
+      }
+      a.statements = c;
+    }
+    return g;
+  }
+  b.exports = {
+    spoken: n,
+    fresh: o,
+    carries: p,
+    ei: r
+  };
+});
+var aw = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c,
+      d: d
+    } = e(),
+    {
+      walk: f,
+      transform: g
+    } = l(),
+    {
+      c: h
+    } = j(),
+    {
+      "Gs": i
+    } = at(),
+    {
+      spoken: k,
+      fresh: m
+    } = av(),
+    n = 8;
+  function o(a) {
+    if (!a || a.kind !== c["Number"]) return 0;
+    let b = a.value;
+    return typeof b != "number" || !Number["isInteger"](b) || b < 1 ? 0 : b;
+  }
+  function p(a) {
+    if (!a || a.kind !== c["Table"]) return null;
+    let b = a.entries || [];
+    if (b.length !== 1 || b[0].type !== "item") return null;
+    let e = b[0].value;
+    return d(e) ? e : null;
+  }
+  function q(a, b) {
+    let d = new Map();
+    for (let e of b.reads || []) {
+      let b = a.get(e);
+      if (!b || b.kind !== c["Index"] || b.base !== e) return null;
+      let f = o(b.index);
+      if (!f || f > n) return null;
+      let g = a.get(b);
+      if (g && g.kind === c["Assignment"] && (g.targets || [])["indexOf"](b) >= 0) return null;
+      d.set(b, f);
+    }
+    return d.size ? d : null;
+  }
+  function r(a, b) {
+    let d = [];
+    return f(a, {
+      enter(a) {
+        if (a.kind !== c["LocalDeclaration"] || (a.names || []).length !== 1 || (a.expressions || []).length !== 1) return;
+        let e = p(a.expressions[0]);
+        if (!e) return;
+        let f = (a.bindings || [])[0];
+        if (!h(f) || (f.writes || []).length) return;
+        let g = q(b, f);
+        if (!g) return;
+        let i = new Set(g.values()),
+          j = Math.max(...i);
+        i.size === j && d.push({
+          declaration: a,
+          call: e,
+          reads: g,
+          highest: j
+        });
+      }
+    }), d;
+  }
+  function s(a) {
+    let b = i(a),
+      d = r(a, b);
+    if (!d.length) return 0;
+    let e = k(a),
+      f = new Map(),
+      h = 0;
+    for (let a of d) {
+      let b = [a.declaration.names[0]];
+      for (let c = 2; c <= a.highest; c += 1) b.push(m(e, "v"));
+      for (let [d, e] of a.reads) f.set(d, {
+        kind: c["Name"],
+        name: b[e - 1]
+      });
+      a.declaration.names = b, a.declaration.bindings = [], a.declaration.expressions = [a.call], h += 1;
+    }
+    return g(a, a => f.get(a) || a), h;
+  }
+  b.exports = {
+    packed: r,
+    ni: s
+  };
+});
+var ax = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c,
+      d: d
+    } = e(),
+    {
+      walk: f
+    } = l();
+  function g(a) {
+    let b = a && a.statements || [],
+      d = b[b.length - 1];
+    return !!d && d.kind === c["Return"] && !(d.expressions || []).length;
+  }
+  function h(a) {
+    let b = 0,
+      d = a => {
+        g(a) && (a.statements.pop(), b += 1);
+      };
+    return f(a, {
+      enter(a) {
+        (a.kind === c["Chunk"] || a.kind === c["Function"]) && d(a.body);
+      }
+    }), b;
+  }
+  function i(a) {
+    let b = a && a.statements || [];
+    if (b.length !== 1) return null;
+    let d = b[0];
+    return d && d.kind === c["If"] ? d : null;
+  }
+  function j(a) {
+    let b = 0;
+    return f(a, {
+      enter(a) {
+        if (a.kind === c["If"]) for (let c = 0; c < 1e3; c += 1) {
+          let c = i(a.e);
+          if (!c) break;
+          a.s = (a.s || []).concat([{
+            condition: c.condition,
+            body: c.body
+          }], c.s || []), a.e = c.e || null, b += 1;
+        }
+      }
+    }), b;
+  }
+  function k(a) {
+    return a && a.kind === c["Paren"] && d(a.expression);
+  }
+  function m(a, b) {
+    return k(a[b]) ? (a[b] = a[b].expression, 1) : 0;
+  }
+  function n(a, b) {
+    let c = 0;
+    for (let d = 0; d < b && d < (a || []).length; d += 1) k(a[d]) && (a[d] = a[d].expression, c += 1);
+    return c;
+  }
+  function o(a, b) {
+    let c = (a || []).length;
+    return c ? b !== null && b - c + 1 <= 1 ? c : c - 1 : 0;
+  }
+  function p(a) {
+    let b = 0;
+    return f(a, {
+      enter(a) {
+        switch (a.kind) {
+          case c["Index"]:
+            b += m(a, "base") + m(a, "index");
+            break;
+          case c["Call"]:
+          case c["MethodCall"]:
+            b += m(a, "base"), b += n(a.args, o(a.args, null));
+            break;
+          case c["Binary"]:
+            b += m(a, "lhs") + m(a, "rhs");
+            break;
+          case c["Unary"]:
+            b += m(a, "argument");
+            break;
+          case c["Paren"]:
+            b += m(a, "expression");
+            break;
+          case c["Table"]:
+            (a.entries || [])["forEach"]((c, d) => {
+              c.type === "key" && (b += m(c, "key")), (!(d === a.entries.length - 1) || c.type === "key") && (b += m(c, "value"));
+            });
+            break;
+          case c["If"]:
+            b += m(a, "condition");
+            for (let c of a.s || []) b += m(c, "condition");
+            break;
+          case c["While"]:
+          case c["Repeat"]:
+            b += m(a, "condition");
+            break;
+          case c["NumericFor"]:
+            b += m(a, "start") + m(a, "limit") + m(a, "step");
+            break;
+          case c["Return"]:
+            b += n(a.expressions, o(a.expressions, null));
+            break;
+          case c["GenericFor"]:
+            b += n(a.expressions, o(a.expressions, 3));
+            break;
+          case c["LocalDeclaration"]:
+            b += n(a.expressions, o(a.expressions, (a.names || []).length));
+            break;
+          case c["Assignment"]:
+            b += n(a.expressions, o(a.expressions, (a.targets || []).length));
+            break;
+          default:
+            break;
+        }
+      }
+    }), b;
+  }
+  function q(a) {
+    return (a && a.statements || []).every(a => a.kind !== c["Label"] && a.kind !== c["LocalDeclaration"] && a.kind !== c["LocalFunction"]);
+  }
+  function r(a) {
+    let b = 0;
+    return f(a, {
+      enter(a) {
+        if (a.kind !== c["Block"]) return;
+        let d = [];
+        for (let e of a.statements) {
+          let a = e.kind === c["Do"] ? e.body : null;
+          if (a && q(a)) {
+            for (let b of a.statements || []) d.push(b);
+            b += 1;
+          } else d.push(e);
+        }
+        a.statements = d;
+      }
+    }), b;
+  }
+  var s = new Set([c["Return"], c["Break"], c["Continue"]]);
+  function t(a) {
+    let b = a && a.statements || [],
+      c = b[b.length - 1];
+    return !!c && s.has(c.kind);
+  }
+  function u(a) {
+    let b = 0;
+    return f(a, {
+      enter(a) {
+        if (a.kind !== c["Block"]) return;
+        let d = a.statements;
+        for (let a = 0; a < d.length; a += 1) {
+          let e = d[a];
+          if (!e || e.kind !== c["If"] || !t(e.body) || (e.s || []).length) continue;
+          let f = e.e;
+          !f || !q(f) || i(f) || (e.e = null, d.splice(a + 1, 0, ...(f.statements || [])), b += 1);
+        }
+      }
+    }), b;
+  }
+  function v(a) {
+    let b = 0;
+    return f(a, {
+      enter(a) {
+        a.kind !== c["If"] || !a.e || (a.e.statements || []).length || (a.e = null, b += 1);
+      }
+    }), b;
+  }
+  b.exports = {
+    "EXITS": s,
+    ti: u,
+    ri: h,
+    si: v,
+    ii: j,
+    ht: p,
+    flatten: r
+  };
+});
+var ay = a((a, b) => {
+  "use strict";
+
+  var c = e(),
+    {
+      "Kind": d
+    } = e(),
+    {
+      walk: f,
+      collect: g
+    } = l(),
+    {
+      diverges: h,
+      zn: i
+    } = y(),
+    j = new Set([d["While"], d["Repeat"], d["NumericFor"], d["GenericFor"]]),
+    k = new Set([d["Return"], d["Break"], d["Continue"]]);
+  function m(a) {
+    let b = [];
+    return f(a, {
+      enter(a) {
+        (a.kind === d["Chunk"] || a.kind === d["Function"]) && b.push(a.body);
+      }
+    }), b;
+  }
+  function n(a) {
+    let b = new Map(),
+      c = new Map(),
+      e = new Map(),
+      f = [],
+      g = {
+        kind: "leave"
+      },
+      h = (a, g) => {
+        let i = a && a.statements || [];
+        for (let a = 0; a < i.length; a += 1) {
+          let j = i[a],
+            k = a + 1;
+          for (; k < i.length && i[k].kind === d["Label"];) k += 1;
+          let l = k < i.length ? {
+            kind: "statement",
+            node: i[k]
+          } : g;
+          if (b.set(j, l), c.set(j, i), j.kind === d["Label"] ? e.set(j.name, j) : j.kind === d["Goto"] && f.push(j), j.kind === d["If"]) {
+            h(j.body, l);
+            for (let a of j.s || []) h(a.body, l);
+            j.e && h(j.e, l);
+          } else j.kind === d["Do"] ? h(j.body, l) : new Set(["While", "Repeat", "NumericFor", "GenericFor"]).has(j.kind) && h(j.body, {
+            kind: "loop",
+            node: j
+          });
+        }
+      };
+    return h(a, g), {
+      after: b,
+      holder: c,
+      labels: e,
+      gotos: f
+    };
+  }
+  function o(a, b) {
+    return !a || !b ? !1 : a === b ? !0 : a.kind !== b.kind ? !1 : a.node === b.node;
+  }
+  function p(a, b) {
+    let c = a["indexOf"](b);
+    return c < 0 ? !1 : (a.splice(c, 1), !0);
+  }
+  function q(a, b, c) {
+    let d = a["indexOf"](b);
+    return d < 0 ? !1 : (a[d] = c, !0);
+  }
+  function r(a, b) {
+    let c = a["indexOf"](b);
+    if (c <= 0) return !1;
+    let e = a[c - 1];
+    return e.kind === d["Label"] ? !1 : e.kind === d["Goto"] ? !0 : new Set(["Return", "Break", "Continue"]).has(e.kind) || h(e);
+  }
+  function s(a) {
+    if (Array["isArray"](a)) return a.map(s);
+    if (!a || typeof a != "object") return a;
+    let b = {};
+    for (let c of Object.keys(a)) c === "binding" || c === "bindings" || (b[c] = s(a[c]));
+    return b;
+  }
+  function t(a, b) {
+    let c = !1;
+    return f(a, {
+      enter(a) {
+        a === b && (c = !0);
+      }
+    }), c;
+  }
+  function u(a, b) {
+    if (a.kind === d["LocalDeclaration"]) for (let c of a.bindings || []) c && b.add(c);else a.kind === d["LocalFunction"] && a.binding && b.add(a.binding);
+  }
+  function v(a, b) {
+    if (a.kind === d["NumericFor"] && a.binding) b.add(a.binding);else if (a.kind === d["GenericFor"]) for (let c of a.bindings || []) c && b.add(c);
+  }
+  function w(a) {
+    if (a.kind === d["If"]) {
+      let b = [a.body];
+      for (let c of a.s || []) b.push(c.body);
+      return a.e && b.push(a.e), b;
+    }
+    return a.kind === d["Do"] || new Set(["While", "Repeat", "NumericFor", "GenericFor"]).has(a.kind) ? [a.body] : [];
+  }
+  function x(a, b) {
+    let c = new Set(),
+      d = a => {
+        for (let e of a.statements || []) {
+          if (e === b) return !0;
+          if (t(e, b)) {
+            v(e, c);
+            for (let a of w(e)) if (a && t(a, b)) return d(a);
+            return !1;
+          }
+          u(e, c);
+        }
+        return !1;
+      };
+    return d(a) ? c : null;
+  }
+  function z(a) {
+    let b = new Set();
+    for (let c of a) f(c, {
+      enter(a) {
+        if (u(a, b), v(a, b), a.kind === d["Function"]) for (let c of a.bindings || []) c && b.add(c);
+      }
+    });
+    return b;
+  }
+  function aa(a, b = 0) {
+    let c = a && a.statements || [];
+    if (!c.length || b > 48) return !1;
+    let e = c[c.length - 1];
+    if (e.kind === d["Return"]) return !0;
+    if (e.kind === d["Do"]) return aa(e.body, b + 1);
+    if (e.kind === d["If"]) {
+      if (!e.e || !aa(e.body, b + 1)) return !1;
+      for (let a of e.s || []) if (!aa(a.body, b + 1)) return !1;
+      return aa(e.e, b + 1);
+    }
+    return i(a, b + 1);
+  }
+  function ab(a, b) {
+    let c = a["indexOf"](b);
+    if (c < 0) return null;
+    let e = a.slice(c + 1);
+    if (!e.length || e.length > tailstatements || !aa({
+      kind: d["Block"],
+      statements: e
+    })) return null;
+    let f = 0;
+    for (let a of e) for (let b of g(a, () => !0)) {
+      if (b.kind === d["Goto"] || b.kind === d["Label"] || b.kind === d["Break"] || b.kind === d["Continue"]) return null;
+      f += 1;
+    }
+    return f > tailnodes ? null : e;
+  }
+  function ac(a, b, c) {
+    let e = x(a, b);
+    if (!e) return !1;
+    let g = z(c),
+      h = new Set();
+    for (let a of c) f(a, {
+      enter(a) {
+        a.kind === d["Name"] && a.binding && h.add(a.binding);
+      }
+    });
+    let i = new Set();
+    for (let b of a.statements || []) f(b, {
+      enter(a) {
+        u(a, i), v(a, i);
+      }
+    });
+    for (let a of h) if (!(g.has(a) || e.has(a)) && i.has(a)) return !1;
+    return !0;
+  }
+  function ad(a) {
+    if (!a || a.kind !== d["Return"]) return null;
+    let b = a.expressions || [];
+    return b.every(a => {
+      let b = c.unparen(a);
+      return b.kind === d["Name"] || c["LITERALS"].has(b.kind);
+    }) ? c["I"](b.map(a => s(a))) : null;
+  }
+  function ae(a) {
+    let b = a && a.statements || [];
+    return b.length ? b[b.length - 1] : null;
+  }
+  function af(a) {
+    let b = ae(a);
+    return b && (new Set(["Return", "Break", "Continue"]).has(b.kind) || b.kind === d["Goto"]) ? !0 : aa(a);
+  }
+  function ag(a, b) {
+    let c = ae(a);
+    return c && c.kind === d["Goto"] && c.label === b ? c : null;
+  }
+  function ah(a) {
+    let b = new Set();
+    for (let c of a) if (c.kind === d["LocalDeclaration"]) for (let a of c.names || []) b.add(a);else c.kind === d["LocalFunction"] && c.name && b.add(c.name);
+    return b;
+  }
+  function ai(a) {
+    let b = new Set();
+    for (let c of a) f(c, {
+      enter(a) {
+        a.kind === d["Name"] && a.binding && b.add(a.binding);
+      }
+    });
+    return b;
+  }
+  function aj(a) {
+    let b = new Map(),
+      c = new Map(),
+      e = a => {
+        for (let b of a && a.statements || []) c.set(b, a);
+      };
+    return e(a), f(a, {
+      enter(a) {
+        if (a.kind === d["Function"]) return !1;
+        for (let c of w(a)) c && (b.set(c, a), e(c));
+      }
+    }), {
+      owners: b,
+      blocks: c
+    };
+  }
+  function ak(a, b, c, e) {
+    let f = new Set(),
+      g = e.get(a),
+      h = a;
+    for (let i = 0; i < 64; i += 1) {
+      let i = c.get(g);
+      if (!i) return null;
+      let j = e.get(i);
+      if (!j) return null;
+      let k = j.statements || [];
+      if (k[k.length - 1] !== i) return null;
+      if (i.kind === d["If"]) {
+        if (!i.e) return null;
+        for (let b of w(i)) {
+          if (b === g) continue;
+          let c = ag(b, a.name);
+          if (c) {
+            f.add(c);
+            continue;
+          }
+          if (!af(b)) return null;
+        }
+      } else if (i.kind !== d["Do"]) return null;
+      if (h = i, g = j, f.size === b) return {
+        seat: i,
+        list: k,
+        dropping: f
+      };
+    }
+    return null;
+  }
+  function al(a, b, c, e) {
+    let f = (e.get(a) || {}).statements || [],
+      h = f["indexOf"](a);
+    if (h < 0) return !1;
+    let i = f.slice(h + 1);
+    if (!i.length) return !1;
+    let j = b.filter(b => b.label === a.name);
+    if (!j.length) return !1;
+    let k = ak(a, j.length, c, e);
+    if (!k) return !1;
+    for (let a of j) if (!k.dropping.has(a)) return !1;
+    let l = new Set(),
+      m = new Set();
+    for (let a of i) {
+      for (let b of g(a, a => a.kind === d["Label"])) l.add(b.name), m.add(b);
+      for (let b of g(a, a => a.kind === d["Goto"])) m.add(b);
+    }
+    for (let a of b) if (!(m.has(a) || k.dropping.has(a)) && l.has(a.label)) return !1;
+    let n = g(k.seat, a => a.kind === d["Label"]).filter(b => !m.has(b) && b !== a);
+    for (let a of m) if (a.kind === d["Goto"] && n.some(b => b.name === a.label)) return !1;
+    let o = z(i),
+      p = z([k.seat]);
+    for (let a of o) p.delete(a);
+    for (let a of ai(i)) if (!o.has(a) && p.has(a)) return !1;
+    let q = k.list["indexOf"](k.seat);
+    if (q < 0) return !1;
+    let r = ah(i);
+    if (r.size) {
+      for (let a = q + 1; a < k.list.length; a += 1) for (let b of g(k.list[a], a => a.kind === d["Name"])) if (r.has(b.name)) return !1;
+    }
+    f.splice(h, i.length + 1);
+    for (let a of k.dropping) {
+      let b = (e.get(a) || {}).statements;
+      b && b.splice(b["indexOf"](a), 1);
+    }
+    return k.list.splice(q + 1, 0, ...i), !0;
+  }
+  function am(a) {
+    let b = 0;
+    for (let c of m(a)) for (let a = 0; a < 64; a += 1) {
+      let {
+        gotos: a
+      } = n(c);
+      if (!a.length) break;
+      let {
+          owners: e,
+          blocks: f
+        } = aj(c),
+        h = !1;
+      for (let b of g(c, a => a.kind === d["Label"])) if (f.has(b) && al(b, a, e, f)) {
+        h = !0;
+        break;
+      }
+      if (!h) break;
+      b += 1;
+    }
+    return b;
+  }
+  function an(a) {
+    let b = 0;
+    for (let e of m(a)) {
+      let {
+        after: a,
+        holder: g,
+        labels: h,
+        gotos: i
+      } = n(e);
+      if (!i.length && !h.size) continue;
+      for (let d of i) {
+        let f = g.get(d);
+        if (!f) continue;
+        if (r(f, d)) {
+          p(f, d) && (b += 1);
+          continue;
+        }
+        let i = h.get(d.label);
+        if (!i) continue;
+        let j = a.get(i);
+        if (o(j, a.get(d))) {
+          p(f, d) && (b += 1);
+          continue;
+        }
+        if (j && j.kind === "leave") {
+          q(f, d, c["I"]([])) && (b += 1);
+          continue;
+        }
+        if (j && j.kind === "statement") {
+          let a = ad(j.node);
+          if (a && ac(e, d, [j.node]) && q(f, d, a)) {
+            b += 1;
+            continue;
+          }
+          let c = ab(g.get(i) || [], i);
+          if (!c || !ac(e, d, c)) continue;
+          let h = f["indexOf"](d);
+          if (h < 0) continue;
+          f.splice(h, 1, ...c.map(s)), b += 1;
+        }
+      }
+      let j = new Set();
+      f(e, {
+        enter(a) {
+          if (a.kind === d["Function"]) return !1;
+          a.kind === d["Goto"] && j.add(a.label);
+        }
+      });
+      for (let [a, c] of h) {
+        if (j.has(a)) continue;
+        let d = g.get(c);
+        d && p(d, c) && (b += 1);
+      }
+    }
+    return b;
+  }
+  b.exports = {
+    ye: s,
+    leaves: aa,
+    on: x,
+    movable: ac,
+    survey: n,
+    same: o,
+    unreachable: r,
+    stops: af,
+    pull: am,
+    clean: an
+  };
+});
+var az = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c,
+      unparen: d,
+      d: f
+    } = e(),
+    {
+      walk: g
+    } = l(),
+    {
+      c: h
+    } = j(),
+    {
+      "TABLES": i
+    } = ak(),
+    {
+      jn: k
+    } = y(),
+    m = {
+      ipairs: [null, null, {
+        kind: c["Number"],
+        value: 0
+      }],
+      pairs: [null, null, {
+        kind: c["Nil"]
+      }],
+      gmatch: [null],
+      gfind: [null],
+      lines: [null]
+    },
+    n = 3;
+  function o(a) {
+    return !a || a.kind !== c["Name"] ? !1 : !a.binding || !h(a.binding);
+  }
+  function p(a) {
+    if (!a || a.kind !== c["Call"]) return null;
+    let b = d(a.base);
+    if (!b) return null;
+    if (o(b)) return b.name;
+    if (b.kind !== c["Index"]) return null;
+    let e = d(b.base);
+    if (!o(e) || !i.has(e.name)) return null;
+    let f = b.index;
+    return !f || f.kind !== c["String"] ? null : f.value;
+  }
+  function q(a, b) {
+    let e = d(a);
+    return !e || !b || e.kind !== b.kind ? !1 : e.kind !== c["Number"] ? !0 : e.value === b.value;
+  }
+  function r(a, b, d) {
+    let e = a.expressions || [];
+    if (e.length < d || e.length > n) return !1;
+    if (e.length === n && d === n) return !0;
+    let f = m[p(b)];
+    if (!f) return !1;
+    for (let a = d; a < n; a += 1) {
+      let b = a < f.length ? f[a] : {
+        kind: c["Nil"]
+      };
+      if (!b) return !1;
+      if (a < e.length) {
+        if (!q(e[a], b)) return !1;
+      } else if (b.kind !== c["Nil"]) return !1;
+    }
+    return !0;
+  }
+  function s(a, b) {
+    let c = a.bindings || [],
+      e = a.names || [];
+    if (!c.length || c.length !== e.length) return !1;
+    let f = b.expressions || [];
+    return f.length < c.length ? !1 : c.every((a, b) => {
+      if (!a || !h(a) || (a.writes || []).length) return !1;
+      let c = a.reads || [];
+      return c.length !== 1 ? !1 : d(f[b]) === c[0];
+    });
+  }
+  function t(a) {
+    if (!a || a.kind !== c["LocalDeclaration"]) return null;
+    let b = a.expressions || [];
+    if (b.length !== 1) return null;
+    let e = d(b[0]);
+    return f(e) ? e : null;
+  }
+  function u(a) {
+    let b = [];
+    return g(a, {
+      enter(a) {
+        if (a.kind !== c["Block"]) return;
+        let d = a.statements || [];
+        d["forEach"]((e, f) => {
+          let g = d[f + 1];
+          if (!g || g.kind !== c["GenericFor"]) return;
+          let h = t(e);
+          h && s(e, g) && r(g, h, (e.bindings || []).length) && b.push({
+            block: a,
+            declaration: e,
+            loop: g,
+            call: h
+          });
+        });
+      }
+    }), b;
+  }
+  function v(a) {
+    let b = u(a);
+    if (!b.length) return 0;
+    let c = new Set();
+    for (let a of b) a.loop.expressions = [a.call], c.add(a.declaration);
+    for (let a of b) a.block.statements = a.block.statements.filter(a => !c.has(a));
+    return b.length;
+  }
+  function w(a) {
+    return a && a.kind === c["Unary"] && a.operator === "not" ? a.argument : {
+      kind: c["Unary"],
+      operator: "not",
+      argument: a
+    };
+  }
+  function x(a) {
+    if ((a.s || []).length) return null;
+    let b = a => {
+      let b = a && a.statements || [];
+      return b.length === 1 && b[0].kind === c["Break"];
+    };
+    return a.e ? b(a.e) && !b(a.body) ? {
+      condition: a.condition,
+      body: a.body
+    } : b(a.body) && !b(a.e) ? {
+      condition: w(a.condition),
+      body: a.e
+    } : null : null;
+  }
+  function z(a) {
+    let b = 0;
+    return g(a, {
+      enter(a) {
+        if (a.kind !== c["While"] || !k(a.condition)) return;
+        let d = a.body && a.body.statements || [];
+        if (d.length !== 1 || d[0].kind !== c["If"]) return;
+        let e = x(d[0]);
+        e && (a.condition = e.condition, a.body = e.body, b += 1);
+      }
+    }), b;
+  }
+  b.exports = {
+    oi: v,
+    negated: w,
+    ui: z
+  };
+});
+var ba = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c
+    } = e(),
+    {
+      walk: d,
+      transform: f
+    } = l(),
+    {
+      c: g
+    } = j(),
+    {
+      bare: h
+    } = y(),
+    i = at(),
+    k = as();
+  function m(a) {
+    let b = i["Ks"](a);
+    if (b) return b;
+    let d = k.sn(a);
+    if (!d) return null;
+    let e = h(d.value);
+    return !e || e.kind !== c["Function"] ? null : {
+      binding: d.binding,
+      name: d.name,
+      value: e
+    };
+  }
+  function n(a) {
+    let b = new Set(),
+      e = a => {
+        a && b.add(a);
+      };
+    return d(a, {
+      enter(a) {
+        for (let b of a.bindings || []) e(b);
+        (a.kind === c["LocalFunction"] || a.kind === c["NumericFor"]) && e(a.binding);
+      }
+    }), b;
+  }
+  function o(a, b) {
+    let c = n(a);
+    for (let d of k["Ps"](a)) {
+      if (c.has(d)) continue;
+      let a = d.name;
+      if (!a || (g(d) ? !k.unshadowed(b, a) : b.has(a))) return !1;
+    }
+    return !0;
+  }
+  function p(a) {
+    let b = new Map();
+    return a.statements["forEach"]((a, e) => {
+      let f = 0;
+      d(a, {
+        enter(a) {
+          if (a.kind === c["Block"]) f += 1;else if (a.kind === c["Name"] && a.binding) {
+            let c = b.get(a.binding);
+            c ? c.count += 1 : b.set(a.binding, {
+              count: 1,
+              node: a,
+              at: e,
+              direct: f === 0
+            });
+          }
+        },
+        leave(a) {
+          a.kind === c["Block"] && (f -= 1);
+        }
+      });
+    }), b;
+  }
+  function q(a, b, d, e, g) {
+    let h = a.statements,
+      j = e.get(d.binding);
+    if (!j || j.count !== 1 || !j.direct || j.at <= b) return !1;
+    let k = j.node;
+    if (h.some(a => a.kind === c["Label"])) return !1;
+    let l = h[j.at];
+    return l.kind === c["While"] || l.kind === c["Repeat"] || i["Us"](l, k) || !o(d.value, g) ? !1 : (f(l, a => a === k ? d.value : a), h[b] = {
+      kind: c["Do"],
+      body: {
+        kind: c["Block"],
+        statements: []
+      }
+    }, !0);
+  }
+  function r(a) {
+    let b = 0,
+      e = k.gt(a);
+    return d(a, {
+      enter(a) {
+        if (a.kind !== c["Block"]) return;
+        let d = null;
+        for (let c = 0; c < a.statements.length; c += 1) {
+          let f = m(a.statements[c]);
+          !f || !g(f.binding) || (d || (d = p(a)), q(a, c, f, d, e) && (b += 1));
+        }
+      }
+    }), b;
+  }
+  b.exports = {
+    li: r
+  };
+});
+var bb = a((a, b) => {
+  "use strict";
+
+  var c = ak(),
+    {
+      dt: d
+    } = ao(),
+    e = aj(),
+    f = ap(),
+    g = at(),
+    h = av(),
+    i = aw(),
+    j = au(),
+    k = ar(),
+    l = ax(),
+    m = ay(),
+    n = az(),
+    o = ba(),
+    p = 8,
+    q = [["named", a => h.ei(a)], ["tuples", a => i.ni(a)], ["services", a => k.gather(a)], ["copies", a => g.propagate(a)], ["temporaries", a => g["Ws"](a)], ["declarations", a => j.sink(a)], ["filled", a => j.fill(a)], ["pushed", a => j["Hs"](a)], ["moved", a => j.slide(a)], ["husks", a => j["Ys"](a)], ["functions", a => j["Zs"](a)], ["recursions", a => j["Xs"](a)], ["assigned", a => j["Js"](a)], ["methods", a => j["Qs"](a)], ["callbacks", a => o.li(a)], ["iterators", a => n.oi(a)], ["tests", a => n.ui(a)], ["jumps", a => m.clean(a)], ["tails", a => m.pull(a)], ["returns", a => l.ri(a)], ["otherwise", a => l.si(a)], ["guards", a => l.ti(a)], ["branches", a => l.ii(a)], ["parens", a => l.ht(a)], ["blocks", a => l.flatten(a)]];
+  function r(a, b) {
+    let g = 0;
+    g += e.run(a, b), a.resolve(), g += f.eliminate(a.chunk, new c["Facts"](a.chunk), b), a.resolve();
+    let h = d(a.chunk, new c["Facts"](a.chunk));
+    return b.unwanted += h, g += h, a.resolve(), g += f["Bs"](a.chunk, b), a.resolve(), g;
+  }
+  function s(a) {
+    let b = {
+      eliminated: 0,
+      merged: 0,
+      idioms: 0,
+      unwanted: 0
+    };
+    for (let [a] of q) b[a] = 0;
+    a.resolve();
+    for (let c = 0; c < p; c += 1) {
+      let c = 0;
+      for (let [d, e] of q) {
+        let f = e(a.chunk);
+        f && (b[d] += f, c += f, a.resolve());
+      }
+      if (c += r(a, b), !c) break;
+    }
+    let c = q.reduce((a, [c]) => a + b[c], 0);
+    c && a.note(`put back ${b.copies + b.temporaries} value(s), ${b.declarations + b.filled} declaration(s), ${b.named + b.functions + b.assigned + b.methods} function form(s)`, c);
+    for (let c of Object.keys(b)) b[c] && a.bump(`beautify.${c}`, b[c]);
+  }
+  b.exports = {
+    name: "09-fmt",
+    run: s,
+    "PASSES": q
+  };
+});
+var bc = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": d
+    } = e(),
+    {
+      walk: f,
+      collect: h
+    } = l(),
+    {
+      y: i
+    } = g(),
+    {
+      c: k
+    } = j(),
+    {
+      m: m,
+      bt: n,
+      mt: o
+    } = c(),
+    {
+      bare: p
+    } = y();
+  function q(a) {
+    let b = [],
+      c = 0;
+    for (; c < a.length;) {
+      let d = a[c];
+      if (!o(d) && !n(d) && !m(d)) {
+        c += 1;
+        continue;
+      }
+      let e = c;
+      if (o(d)) {
+        for (; e < a.length && o(a[e]);) e += 1;
+        let b = e - c;
+        if (b >= 3 && e < a.length && n(a[e])) e -= 1;else if (b === 1) for (; e < a.length && (n(a[e]) || m(a[e]));) e += 1;else if (e < a.length && n(a[e])) for (; e < a.length && (n(a[e]) || m(a[e]));) e += 1;
+      } else for (; e < a.length && (n(a[e]) || m(a[e]));) e += 1;
+      b.push(a.slice(c, e)), c = e;
+    }
+    return b;
+  }
+  function r(a) {
+    let b = q(String(a || ""));
+    if (!b.length) return null;
+    let c = b[0]["toLowerCase"](),
+      d = b.slice(1).map(a => a === a["toUpperCase"]() && a.length > 1 ? a : a[0]["toUpperCase"]() + a.slice(1)),
+      e = c + d.join("");
+    return i(e) ? e : null;
+  }
+  function s(a) {
+    let b = a.length;
+    for (; b > 1 && m(a[b - 1]);) b -= 1;
+    return a.slice(0, b);
+  }
+  function t(a) {
+    let b = p(a);
+    return !b || b.kind !== d["String"] ? null : r(b.value);
+  }
+  function u(a) {
+    if (!a || a.kind !== d["Index"]) return null;
+    let b = p(a.index);
+    return !b || b.kind !== d["String"] ? null : b.value;
+  }
+  var v = ["Create", "New", "Make", "Build"];
+  function w(a) {
+    let b = String(a || "");
+    for (let a of v) if (!(b.length <= a.length) && b.slice(0, a.length) === a && o(b[a.length])) return b.slice(a.length);
+    return null;
+  }
+  function x(a) {
+    let b = p(a);
+    if (!b || b.kind !== d["Table"]) return null;
+    for (let a of ["Title", "Name"]) for (let c of b.entries || []) {
+      if (c.type !== "key") continue;
+      let b = p(c.key);
+      if (!b || b.kind !== d["String"] || b.value !== a) continue;
+      let e = p(c.value);
+      if (e && e.kind === d["String"]) return e.value;
+    }
+    return null;
+  }
+  var z = 2;
+  function aa(a) {
+    let b = (a || [])[0];
+    if (!b) return null;
+    let c = p(b),
+      e = c && c.kind === d["String"] ? c.value : x(b);
+    if (!e) return null;
+    let f = q(String(e));
+    return !f.length || f.length > z ? null : f.join(" ");
+  }
+  function ab(a) {
+    if (!a || a.type !== "key") return null;
+    let b = p(a.key);
+    return b && b.kind === d["String"] ? b.value : null;
+  }
+  var ac = new Set(["Callback", "OnCallback", "OnChanged", "OnChange", "OnClick", "OnToggle", "OnFocusLost"]),
+    ad = ["Title", "Name", "Flag"];
+  function ae(a) {
+    for (let b of ad) for (let c of a.entries || []) {
+      if (ab(c) !== b) continue;
+      let a = p(c.value);
+      if (!a || a.kind !== d["String"]) continue;
+      let e = q(a.value);
+      if (!(!e.length || e.length > z)) return e.join(" ");
+    }
+    return null;
+  }
+  function af(a) {
+    let b = [];
+    return f(a, {
+      enter(a) {
+        if (a.kind === d["Table"]) for (let c of a.entries || []) {
+          if (!ac.has(ab(c))) continue;
+          let e = p(c.value);
+          !e || e.kind !== d["Function"] || b.push({
+            word: ae(a),
+            fn: e
+          });
+        }
+      }
+    }), b;
+  }
+  function ag(a) {
+    let b = new Set();
+    f(a, {
+      enter(a) {
+        for (let c of a.bindings || []) b.add(c);
+        (a.kind === d["LocalFunction"] || a.kind === d["NumericFor"]) && b.add(a.binding);
+      }
+    });
+    let c = new Set(h(a, a => a.kind === d["Name"])),
+      e = new Set();
+    for (let a of c) {
+      let d = a.binding;
+      if (!d || !k(d) || b.has(d)) continue;
+      let f = d.writes || [];
+      !f.length || !f.every(a => c.has(a)) || e.add(d);
+    }
+    return e.size === 1 ? [...e][0] : null;
+  }
+  var ah = new Set(["loadstring", "load"]),
+    ai = new Set(["raw", "main", "master", "latest", "download", "releases", "release", "blob", "refs", "heads", "tags", "archive", "files", "file", "lua", "init", "source", "dl", "api", "v1", "v2"]);
+  function aj(a) {
+    let b = String(a).split("?")[0].split("#")[0],
+      c = b["indexOf"]("://"),
+      d = (c < 0 ? b : b.slice(c + 3)).split("/").filter(a => a.length > 0);
+    for (let a = d.length - 1; a >= 1; a -= 1) {
+      let b = d[a].split(".")[0];
+      if (!b || ai.has(b["toLowerCase"]())) continue;
+      let c = r(b);
+      if (c) return c;
+    }
+    return null;
+  }
+  function ak(a) {
+    if (a.kind !== d["Call"] || (a.args || []).length) return null;
+    let b = p(a.base);
+    if (!b || b.kind !== d["Call"]) return null;
+    let c = p(b.base);
+    if (!c || c.kind !== d["Name"] || k(c.binding) || !ah.has(c.name)) return null;
+    let e = null;
+    return f(b, {
+      enter(a) {
+        e === null && a.kind === d["String"] && a.value["indexOf"]("://") >= 0 && (e = a.value);
+      }
+    }), e === null ? null : aj(e);
+  }
+  var al = {
+    and: ["rhs", "lhs"],
+    or: ["lhs", "rhs"]
+  };
+  function am(a) {
+    let b = p(a);
+    if (!b) return null;
+    if (b.kind === d["Binary"]) {
+      let a = al[b.operator];
+      if (!a) return null;
+      for (let c of a) {
+        let a = am(b[c]);
+        if (a) return a;
+      }
+      return null;
+    }
+    if (b.kind === d["Call"] || b.kind === d["MethodCall"]) {
+      let a = b.args || [],
+        c = ak(b);
+      if (c) return c;
+      let e = b.kind === d["MethodCall"] ? w(b.method) : null,
+        f = aa(a);
+      if (e) {
+        let a = r(f === null ? e : `${f} ${e}`);
+        if (a) return a;
+      }
+      if (a.length === 1) {
+        let b = t(a[0]);
+        if (b) return b;
+      }
+      if (b.kind === d["MethodCall"]) {
+        if (f !== null && x(a[0]) !== null) {
+          let a = r(`${f} ${b.method}`);
+          if (a) return a;
+        }
+        return r(b.method);
+      }
+      let g = p(b.base),
+        h = g && g.kind === d["Index"] ? p(g.base) : null;
+      return h && h.kind === d["Name"] && !k(h.binding) ? r(s(h.name)) : null;
+    }
+    if (b.kind === d["Index"]) {
+      let a = u(b);
+      return a ? r(a) : null;
+    }
+    return b.kind === d["Name"] && !k(b.binding) ? r(b.name) : null;
+  }
+  var an = {
+    "InputBegan": "input",
+    "InputChanged": "input",
+    "InputEnded": "input",
+    "PlayerAdded": "player",
+    "PlayerRemoving": "player",
+    "CharacterAdded": "character",
+    "CharacterRemoving": "character",
+    "ChildAdded": "child",
+    "ChildRemoved": "child",
+    "DescendantAdded": "descendant",
+    "DescendantRemoving": "descendant",
+    "Touched": "part",
+    "TouchEnded": "part",
+    "Chatted": "message",
+    "Heartbeat": "delta",
+    "Stepped": "delta",
+    "RenderStepped": "delta",
+    "PromptButtonHoldBegan": "player"
+  };
+  function ao(a) {
+    return !a || a.kind !== d["MethodCall"] || a.method !== "Connect" ? null : u(p(a.base));
+  }
+  var ap = {
+    ipairs: ["index", "value"],
+    pairs: ["key", "value"],
+    next: ["key", "value"],
+    gmatch: ["match"],
+    gfind: ["match"],
+    lines: ["line"]
+  };
+  function aq(a) {
+    let b = p((a || [])[0]);
+    if (!b) return null;
+    if (b.kind === d["MethodCall"]) return b.method;
+    if (b.kind === d["Call"]) {
+      let a = p(b.base);
+      return a ? a.kind === d["Name"] ? k(a.binding) ? null : a.name : u(a) : null;
+    }
+    return b.kind === d["Name"] && !k(b.binding) ? b.name : null;
+  }
+  var ar = {
+    "__index": ["object", "key"],
+    "__newindex": ["object", "key", "value"],
+    "__call": ["object"],
+    "__tostring": ["object"],
+    "__len": ["object"],
+    "__unm": ["object"],
+    "__gc": ["object"],
+    "__close": ["object"],
+    "__add": ["lhs", "rhs"],
+    "__sub": ["lhs", "rhs"],
+    "__mul": ["lhs", "rhs"],
+    "__div": ["lhs", "rhs"],
+    "__idiv": ["lhs", "rhs"],
+    "__mod": ["lhs", "rhs"],
+    "__pow": ["lhs", "rhs"],
+    "__concat": ["lhs", "rhs"],
+    "__eq": ["lhs", "rhs"],
+    "__lt": ["lhs", "rhs"],
+    "__le": ["lhs", "rhs"]
+  };
+  function as(a) {
+    let b = [],
+      c = (a, c) => {
+        let e = p(a),
+          f = p(c);
+        !e || e.kind !== d["String"] || !f || f.kind !== d["Function"] || b.push([e.value, f]);
+      };
+    return f(a, {
+      enter(a) {
+        if (a.kind === d["Table"]) for (let b of a.entries || []) b.type === "key" && c(b.key, b.value);else if (a.kind === d["Assignment"]) {
+          let b = a.expressions || [];
+          if (b.length !== (a.targets || []).length) return;
+          a.targets["forEach"]((a, e) => {
+            let f = p(a);
+            f && f.kind === d["Index"] && c(f.index, b[e]);
+          });
+        } else if (a.kind === d["FunctionDeclaration"] && !a.ee) {
+          let b = p(a.target);
+          b && b.kind === d["Index"] && c(b.index, a.body);
+        }
+      }
+    }), b;
+  }
+  function at(a) {
+    let b = new Map(),
+      c = new Set(),
+      e = new Map(),
+      g = (a, b, c) => {
+        let d = a.get(b);
+        d ? d.push(c) : a.set(b, [c]);
+      };
+    return f(a, {
+      enter(a) {
+        if (a.kind === d["Table"]) for (let c of a.entries || []) c.type === "key" && b.set(p(c.value), p(c.key));else if (a.kind === d["Call"]) {
+          let b = p(a.base);
+          b && c.add(b);
+        } else if (a.kind === d["Assignment"]) {
+          let c = a.expressions || [],
+            f = a.targets || [],
+            h = c.length === f.length;
+          f["forEach"]((a, f) => {
+            let i = h ? p(c[f]) : null;
+            if (a.kind === d["Name"] && a.binding && g(e, a.binding, i), !h) return;
+            let j = p(a);
+            j && j.kind === d["Index"] && b.set(i, p(j.index));
+          });
+        }
+      }
+    }), {
+      fields: b,
+      called: c,
+      steps: e
+    };
+  }
+  function au(a, b, c) {
+    let e = b && b.reads || [];
+    if (!e.length) return null;
+    let {
+        fields: f
+      } = c || at(a),
+      g = new Set(),
+      h = 0;
+    for (let a of e) {
+      let b = f.get(a);
+      b !== void 0 && (b && b.kind === d["String"] && g.add(b.value), h += 1);
+    }
+    return h !== e.length || g.size !== 1 ? null : r([...g][0]);
+  }
+  function av(a, b, c) {
+    let d = b && b.reads || [];
+    if (!d.length) return !1;
+    let {
+        called: e
+      } = c || at(a),
+      f = 0;
+    for (let a of d) e.has(a) && (f += 1);
+    return f === d.length;
+  }
+  var aw = {
+    "+": ["count", "total"],
+    "..": [null, "text"]
+  };
+  function ax(a) {
+    let b = p(a);
+    return b ? b.kind === d["Number"] && b.value === 0 ? "+" : b.kind === d["String"] && b.value === "" ? ".." : null : null;
+  }
+  function ay(a, b, c, e) {
+    let [f, g] = aw[c],
+      h = (e || at(a)).steps.get(b) || [],
+      i = 0,
+      j = 0,
+      k = 0;
+    for (let a of h) {
+      if (!a || a.kind !== d["Binary"] || a.operator !== c) {
+        k += 1;
+        continue;
+      }
+      let e = p(a.lhs),
+        f = p(a.rhs),
+        g = e && e.kind === d["Name"] && e.binding === b ? f : f && f.kind === d["Name"] && f.binding === b ? e : null;
+      if (!g) {
+        k += 1;
+        continue;
+      }
+      i += 1, g.kind === d["Number"] && g.value === 1 && (j += 1);
+    }
+    return !i || k ? null : j === i ? f : g;
+  }
+  function az(a) {
+    let b = new Map(),
+      c = (a, c) => {
+        !c || !a || !k(a) || b.has(a) || b.set(a, c);
+      },
+      e = new Map();
+    f(a, {
+      enter(a) {
+        if (a.kind !== d["Assignment"]) return;
+        let b = a.targets || [],
+          c = a.expressions || [];
+        b.length === c.length && b["forEach"]((a, b) => {
+          let f = p(a);
+          if (u(f) !== "Name") return;
+          let g = p(f.base);
+          if (!g || g.kind !== d["Name"] || !k(g.binding)) return;
+          let h = t(c[b]);
+          h && !e.has(g.binding) && e.set(g.binding, h);
+        });
+      }
+    });
+    for (let [a, b] of e) c(a, b);
+    f(a, {
+      enter(a) {
+        if (a.kind === d["LocalDeclaration"]) {
+          let b = a.expressions || [];
+          if (b.length !== (a.names || []).length) return;
+          (a.bindings || [])["forEach"]((a, d) => {
+            c(a, am(b[d]));
+          });
+        } else if (a.kind === d["Assignment"]) {
+          let b = a.targets || [],
+            e = a.expressions || [];
+          if (b.length !== e.length) return;
+          b["forEach"]((a, b) => {
+            let f = p(a);
+            !f || f.kind !== d["Name"] || c(f.binding, am(e[b]));
+          });
+        } else if (a.kind === d["GenericFor"]) {
+          let b = ap[aq(a.expressions)] || [];
+          (a.bindings || [])["forEach"]((a, d) => c(a, b[d]));
+        } else if (a.kind === d["MethodCall"]) {
+          let b = ao(a),
+            e = b && an[b];
+          if (!e) return;
+          for (let b of a.args || []) {
+            let a = p(b);
+            !a || a.kind !== d["Function"] || (a.params || [])[0] !== "self" && c((a.bindings || [])[0], e);
+          }
+        }
+      }
+    });
+    for (let {
+      word: b,
+      fn: d
+    } of af(a)) {
+      (d.params || [])[0] !== "self" && c((d.bindings || [])[0], "value");
+      let a = b === null ? null : r(b);
+      a && c(ag(d), a);
+    }
+    for (let [b, d] of as(a)) {
+      let a = ar[b];
+      a && (d.bindings || [])["forEach"]((b, d) => c(b, a[d]));
+    }
+    let g = new Map();
+    f(a, {
+      enter(a) {
+        if (a.kind === d["LocalDeclaration"]) {
+          let b = a.expressions || [];
+          if (b.length !== (a.names || []).length) return;
+          (a.bindings || [])["forEach"]((a, c) => {
+            let d = ax(b[c]);
+            d && k(a) && g.set(a, d);
+          });
+        }
+      }
+    });
+    let h = [];
+    f(a, {
+      enter(a) {
+        let c = a.kind === d["Function"];
+        if (!(!c && a.kind !== d["LocalDeclaration"])) for (let d of a.bindings || []) d && k(d) && !b.has(d) && h.push([d, c]);
+      }
+    });
+    let i = h.length ? at(a) : null;
+    for (let [b, d] of h) {
+      let e = au(a, b, i);
+      if (e) {
+        c(b, e);
+        continue;
+      }
+      if (d && av(a, b, i)) {
+        c(b, "fn");
+        continue;
+      }
+      let f = g.get(b);
+      f && c(b, ay(a, b, f, i));
+    }
+    return b;
+  }
+  function ba(a) {
+    return b => {
+      if (!a.has(b) && i(b)) return a.add(b), b;
+      for (let c = 2; c < 1e5; c += 1) {
+        let d = `${b}${c}`;
+        if (!a.has(d) && i(d)) return a.add(d), d;
+      }
+      throw new Error("names: candidate pool exhausted");
+    };
+  }
+  b.exports = {
+    spelled: t,
+    $i: u,
+    et: ab,
+    suggest: az,
+    allocator: ba
+  };
+});
+var bd = a((a, b) => {
+  "use strict";
+
+  var c = aq(),
+    d = bc();
+  function e(a, b, e) {
+    let f = new Set(e),
+      g = c.namer(e),
+      h = d.allocator(e),
+      i = new Map(),
+      j = 0;
+    for (let [d, e] of c.categories(a)) {
+      let a = b.get(d);
+      a && !f.has(a) ? (i.set(d, h(a)), j += 1) : i.set(d, g(e));
+    }
+    return {
+      chosen: i,
+      described: j
+    };
+  }
+  function f(a) {
+    a.resolve();
+    let b = d.suggest(a.chunk),
+      f = c.reserved(a.chunk),
+      {
+        chosen: g,
+        described: h
+      } = e(a.chunk, b, f);
+    if (!g.size) return;
+    let i = c.apply(a.chunk, g);
+    a.resolve(), a.note(`named ${h} local(s) from the code`, h), a.bump("name.described", h), a.bump("name.bindings", g.size), a.bump("name.mentions", i);
+  }
+  b.exports = {
+    name: "10-name",
+    run: f,
+    plan: e
+  };
+});
+var be = a((a, b) => {
+  "use strict";
+
+  var {
+      "Kind": c,
+      block: d,
+      "N": f,
+      "R": g,
+      assignment: h,
+      name: i
+    } = e(),
+    {
+      walk: j
+    } = l(),
+    k = 180,
+    m = 24,
+    n = 12;
+  function o(a) {
+    return a.kind === c["LocalDeclaration"] ? a.names.length : a.kind === c["LocalFunction"] ? 1 : 0;
+  }
+  function p(a) {
+    return a.kind === c["LocalDeclaration"] ? a.bindings || [] : a.kind === c["LocalFunction"] && a.binding ? [a.binding] : [];
+  }
+  function q(a) {
+    switch (a.kind) {
+      case c["Do"]:
+      case c["While"]:
+        return [{
+          body: a.body,
+          extra: 0
+        }];
+      case c["Repeat"]:
+        return [{
+          body: a.body,
+          extra: 0,
+          sealed: !0
+        }];
+      case c["NumericFor"]:
+        return [{
+          body: a.body,
+          extra: 4
+        }];
+      case c["GenericFor"]:
+        return [{
+          body: a.body,
+          extra: a.variables.length + 3
+        }];
+      case c["If"]:
+        {
+          let b = [{
+            body: a.body,
+            extra: 0
+          }];
+          for (let c of a.s || []) b.push({
+            body: c.body,
+            extra: 0
+          });
+          return a.e && b.push({
+            body: a.e,
+            extra: 0
+          }), b;
+        }
+      default:
+        return [];
+    }
+  }
+  function r(a, b) {
+    let c = [],
+      d = b,
+      e = (a, b, f) => {
+        let g = b,
+          h = 0;
+        for (let b of a.statements) {
+          g += o(b), h += o(b), g > d && (d = g);
+          for (let a of q(b)) e(a.body, g + a.extra, a.sealed);
+        }
+        c.push({
+          block: a,
+          base: b,
+          direct: h,
+          sealed: f
+        });
+      };
+    return e(a, b, !1), {
+      peak: d,
+      blocks: c
+    };
+  }
+  function s(a) {
+    let b = [a];
+    for (; b.length;) {
+      let a = b.pop();
+      if (!(!a || typeof a != "object")) {
+        if (Array["isArray"](a)) {
+          for (let c of a) b.push(c);
+          continue;
+        }
+        if (a.kind !== c["Function"]) {
+          if (a.kind === c["Label"] || a.kind === c["Goto"]) return !0;
+          for (let c of Object.keys(a)) c === "binding" || c === "bindings" || b.push(a[c]);
+        }
+      }
+    }
+    return !1;
+  }
+  function t(a) {
+    let b = new Map();
+    return a.statements["forEach"]((a, c) => {
+      j(a, {
+        enter(a) {
+          b.has(a) || b.set(a, c);
+        }
+      });
+    }), b;
+  }
+  function u(a, b) {
+    let c = a.statements.length - 1,
+      d = new Map();
+    return a.statements["forEach"]((a, e) => {
+      let f = p(a);
+      if (!f.length) return;
+      let g = e;
+      for (let a of f) for (let d of a.reads.concat(a.writes)) {
+        let a = b.get(d);
+        a === void 0 ? g = c : a > g && (g = a);
+      }
+      d.set(e, g);
+    }), d;
+  }
+  function v(a) {
+    let b = new Map(),
+      d = (a, c) => {
+        let d = b.get(a);
+        d || (d = new Set(), b.set(a, d)), d.add(c);
+      };
+    for (let b of a.statements) for (let a of p(b)) d(a.name, a.id);
+    j(a, {
+      enter(a) {
+        if (a.kind === c["Name"] && a.binding && d(a.name, a.binding.id), a.kind === c["LocalDeclaration"]) for (let b of a.bindings || []) d(b.name, b.id);
+        if (a.kind === c["LocalFunction"] && a.binding && d(a.binding.name, a.binding.id), a.kind === c["Function"]) for (let b of a.bindings || []) d(b.name, b.id);
+        if (a.kind === c["GenericFor"]) for (let b of a.bindings || []) d(b.name, b.id);
+        a.kind === c["NumericFor"] && a.binding && d(a.binding.name, a.binding.id);
+      }
+    });
+    let e = new Set();
+    for (let [a, c] of b) c.size > 1 && e.add(a);
+    return e;
+  }
+  function w(a, b, c, d) {
+    let e = new Set(a);
+    for (let a = 0; a < d; a += 1) {
+      let a = !1,
+        f = d;
+      for (let g = d - 1; g >= 0; g -= 1) {
+        if (e.has(g)) {
+          f = g;
+          continue;
+        }
+        if (c.has(g)) continue;
+        let d = b.get(g);
+        d !== void 0 && d >= f && (e.add(g), f = g, a = !0);
+      }
+      if (!a) break;
+    }
+    return e;
+  }
+  function x(a, b, c, d) {
+    let e = a.statements.length,
+      f = [],
+      g = 0,
+      h = -1,
+      i = 0,
+      j = a => {
+        i && a > g && f.push([g, a]), g = a + 1, h = a, i = 0;
+      };
+    for (let f = 0; f < e; f += 1) {
+      if (c.has(f)) {
+        j(f - 1), g = f + 1, h = f, i = 0;
+        continue;
+      }
+      if (!d.has(f)) {
+        let c = b.get(f);
+        c !== void 0 && (c > h && (h = c), i += o(a.statements[f]));
+      }
+      f >= h && f - g + 1 >= n && j(f);
+    }
+    return j(e - 1), f;
+  }
+  function y(a, b) {
+    if (b.has(a) || (b.add(a), a.statements.length < n * 2) || s(a)) return 0;
+    let e = t(a),
+      j = u(a, e);
+    if (!j.size) return 0;
+    let k = v(a),
+      l = new Set(),
+      o = new Set();
+    for (let [b, d] of j) {
+      if (d - b <= m) continue;
+      let e = a.statements[b];
+      if (e.kind !== c["LocalDeclaration"] || e.names.some(a => k.has(a))) {
+        o.add(b);
+        continue;
+      }
+      l.add(b);
+    }
+    let p = w(o, j, l, a.statements.length);
+    for (let a of p) l.delete(a);
+    let q = x(a, j, p, l);
+    if (!q.length) return 0;
+    let r = [],
+      y = new Map();
+    for (let b of l) {
+      let c = a.statements[b];
+      for (let a of c.names) r.push(a);
+      y.set(b, c.expressions.length ? h(c.names.map(a => i(a)), c.expressions) : null);
+    }
+    let z = [];
+    r.length && z.push(g(r));
+    let aa = (b, c) => {
+        let d = y.has(c) ? y.get(c) : a.statements[c];
+        d && b.push(d);
+      },
+      ab = 0;
+    for (let [a, b] of q) {
+      for (; ab < a;) aa(z, ab), ab += 1;
+      let c = [];
+      for (; ab <= b;) aa(c, ab), ab += 1;
+      c.length && z.push(f(d(c)));
+    }
+    for (; ab < a.statements.length;) aa(z, ab), ab += 1;
+    return a.statements = z, q.length;
+  }
+  function z(a, b, d = k) {
+    let e = 0,
+      f = [{
+        body: a.body,
+        base: 0
+      }];
+    j(a, {
+      enter(a) {
+        a.kind === c["Function"] && f.push({
+          body: a.body,
+          base: (a.params || []).length
+        });
+      }
+    });
+    let g = new Set();
+    for (let a of f) for (let c = 0; c < 16; c += 1) {
+      let c = r(a.body, a.base);
+      if (c.peak <= d) break;
+      let f = c.blocks.filter(a => !a.sealed && a.direct > 0 && !g.has(a.block)).sort((a, b) => b.direct - a.direct)[0];
+      if (!f) break;
+      let h = y(f.block, g);
+      h && (e += h, b());
+    }
+    return e;
+  }
+  b.exports = {
+    fit: z,
+    survey: r,
+    "LIMIT": k
+  };
+});
+var bf = a((a, b) => {
+  "use strict";
+
+  var c = be();
+  function d(a) {
+    a.resolve();
+    let b = c.fit(a.chunk, () => a.resolve());
+    b && (a.note(`narrowed ${b} scope(s) to fit the local limit`, b), a.bump("scope.narrowed", b));
+  }
+  b.exports = {
+    name: "11-scope",
+    run: d
+  };
+});
+var bg = a((a, b) => {
+  "use strict";
+
+  var {
+      resolve: c
+    } = j(),
+    {
+      unparse: d
+    } = i(),
+    {
+      "Ht": e
+    } = k(),
+    {
+      detect: f
+    } = m(),
+    g = class {
+      constructor(a, b = {}) {
+        this.chunk = a, this.options = b, this.notes = [], this.stats = {}, this.warnings = [], this.step = null, this.resolved = null;
+      }
+      note(a, b) {
+        this.notes.push({
+          step: this.step,
+          message: a,
+          count: b
+        });
+      }
+      warn(a) {
+        this.warnings.push({
+          step: this.step,
+          message: a
+        });
+      }
+      bump(a, b = 1) {
+        this.stats[a] = (this.stats[a] || 0) + b;
+      }
+      resolve() {
+        return this.resolved = c(this.chunk), this.resolved;
+      }
+      "V"(a, b = {}) {
+        if (typeof this.options.pt == "function") try {
+          this.options.pt(a, {
+            step: this.step,
+            ...b,
+            stats: this.stats
+          });
+        } catch {}
+      }
+      source() {
+        return d(this.chunk, this.options.print);
+      }
+    },
+    h = [k(), r(), aa(), am(), ai(), an(), ap(), aq(), bb(), bd(), bf()],
+    l = ["03-str", "06-proxy", "07-opt"],
+    n = ["08-vars", "09-fmt", "10-name", "11-scope"],
+    o = 4,
+    p = 8;
+  function q(a, b, c, d, e) {
+    a.step = b.name, a["V"]("start", {
+      step: b.name,
+      pass: d,
+      layer: e
+    });
+    let f = Date.now();
+    try {
+      b.run(a);
+    } catch (b) {
+      if (c.strict) throw b;
+      a.warn(`step failed: ${b.message}`), c.verbose && console.error(b.stack);
+    }
+    if (a.bump(`time.${b.name}`, Date.now() - f), a["V"]("end", {
+      step: b.name,
+      pass: d,
+      layer: e
+    }), c.trace) {
+      let f = require("fs"),
+        g = require("path");
+      f["mkdirSync"](c.trace, {
+        recursive: !0
+      });
+      let h = e > 1 ? `.layer${e}` : "",
+        i = d > 1 ? `.pass${d}` : "";
+      f["writeFileSync"](g.join(c.trace, `${b.name}${h}${i}.lua`), a.source(), "latin1");
+    }
+  }
+  function s(a, b, c, d) {
+    let e = new Set(["03-str", "06-proxy"]);
+    for (let f = 2; f <= o; f += 1) {
+      let g = a.notes.length,
+        h = !1;
+      for (let g of b) {
+        let b = a.notes.length;
+        q(a, g, c, f, d), e.has(g.name) && a.notes.length > b && (h = !0);
+      }
+      if (a.notes.length === g || !h) return;
+    }
+  }
+  function t(a) {
+    if (e(a.chunk.body)) return !0;
+    a.resolve();
+    try {
+      return f(a.chunk).instances.length > 0;
+    } catch {
+      return !1;
+    }
+  }
+  function u(a, b = {}) {
+    let c = new g(a, b),
+      d = b.only ? new Set(b.only) : null,
+      e = b.skip ? new Set(b.skip) : new Set(),
+      f = h.filter(a => (!d || d.has(a.name)) && !e.has(a.name)),
+      i = f.filter(a => !n.includes(a.name)),
+      j = f.filter(a => n.includes(a.name)),
+      k = l.map(a => i.find(b => b.name === a)).filter(Boolean),
+      m = k.length ? Math.max(...k.map(a => i["indexOf"](a))) : -1;
+    for (let a = 1; a <= p && i.length; a += 1) {
+      let d = c.notes.length;
+      for (let d = 0; d < i.length; d += 1) q(c, i[d], b, 1, a), d === m && s(c, k, b, a);
+      if (c.notes.length === d || !t(c)) break;
+      c.bump("layers.stacked");
+    }
+    for (let a of j) q(c, a, b, 1, 1);
+    return c.step = null, c;
+  }
+  b.exports = {
+    "Context": g,
+    "STEPS": h,
+    run: u
+  };
+});
+var bh = a((a, b) => {
+  "use strict";
+
+  var {
+      "Lexer": c,
+      "TokenKind": f,
+      "LuaSyntaxError": g
+    } = d(),
+    {
+      "Kind": h
+    } = e(),
+    {
+      walk: i,
+      collect: j
+    } = l(),
+    k = a => a !== void 0 && a !== "" && (a >= "a" && a <= "z" || a >= "A" && a <= "Z" || a >= "0" && a <= "9" || a === "_"),
+    m = a => a >= "0" && a <= "9",
+    n = "\\",
+    o = `\n`,
+    p = "\r",
+    q = "\t",
+    r = new Set(["n", "r", "t", "a", "b", "v", '"', "'"]),
+    s = new Set([7, 8, 9, 10, 11, 13, 32, 34, 39, 45, 126]),
+    t = new Set([" ", "-", "~"]),
+    u = new Set([n, "n", "r", '"', "'"]),
+    v = new Set([n, '"', "'"]),
+    w = [{
+      literal: a => t.has(a),
+      named: r,
+      numeric: a => !s.has(a)
+    }, {
+      literal: a => {
+        let b = a["charCodeAt"](0);
+        return b >= 32 && b <= 126 && !v.has(a);
+      },
+      named: u,
+      numeric: a => a < 32 ? a !== 10 && a !== 13 : a > 126
+    }];
+  function x(a, b, c) {
+    let d = a.length - 1,
+      e = 1;
+    for (; e < d;) {
+      let d = a[e];
+      if (d !== n) {
+        if (!b.literal(d)) return {
+          at: e,
+          message: `unescaped ${z(d)} in string`
+        };
+        c["Ne"] += 1, e += 1;
+        continue;
+      }
+      let f = a[e + 1];
+      if (b.named.has(f)) {
+        c["Ce"] += 1, e += 2;
+        continue;
+      }
+      if (!m(f)) return {
+        at: e,
+        message: `invalid escape \\${f}`
+      };
+      if (!m(a[e + 2]) || !m(a[e + 3])) return {
+        at: e,
+        message: "short decimal escape"
+      };
+      let g = Number(a.slice(e + 1, e + 4));
+      if (g > 255) return {
+        at: e,
+        message: `decimal escape > 255 (\\${a.slice(e + 1, e + 4)})`
+      };
+      if (!b.numeric(g)) return {
+        at: e,
+        message: `redundant byte escape \\${a.slice(e + 1, e + 4)}`
+      };
+      c.le += 1, e += 4;
+    }
+    return null;
+  }
+  function y(a, b, c) {
+    if (a[0] !== '"') {
+      b(a["startsWith"]("[") ? "bracket string" : "single-quoted string");
+      return;
+    }
+    let d = null;
+    for (let b of w) {
+      let e = {
+          "Ne": 0,
+          "Ce": 0,
+          le: 0
+        },
+        f = x(a, b, e);
+      if (f) {
+        (!d || f.at > d.at) && (d = f);
+        continue;
+      }
+      c["Ne"] += e["Ne"], c["Ce"] += e["Ce"], c.le += e.le, e.le > 0 && (c.un += 1);
+      return;
+    }
+    b(d.message);
+  }
+  function z(a) {
+    if (a === void 0) return "EOF";
+    let b = a["charCodeAt"](0);
+    return b < 32 || b > 126 ? `byte ${b}` : `'${a}'`;
+  }
+  function aa(a, b, c, d) {
+    let e = a["toLowerCase"]();
+    if (e["startsWith"]("0x")) {
+      a !== e && a !== a["toUpperCase"]() && (d["Fe"] += 1);
+      return;
+    }
+    if (e["startsWith"]("0b")) {
+      c("binary literal");
+      return;
+    }
+    if (a !== e) {
+      c(`uppercase in number ${a}`);
+      return;
+    }
+    if (a["endsWith"](".")) {
+      c(`trailing decimal point in ${a}`);
+      return;
+    }
+    if (a.length > 1 && a[0] === "0" && m(a[1])) {
+      c(`zero-padded number ${a}`);
+      return;
+    }
+    a["startsWith"]("0.") && !(b && b.kind === f["Symbol"] && b.value === "-") && c(`leading zero in ${a}`);
+  }
+  var ab = 12;
+  function ac(a, b, c, d, e) {
+    if (a === "") return;
+    if (a !== " ") {
+      a.includes("--") ? e("comment") : a.includes(o) || a.includes(p) ? e("newline") : a.includes(q) ? e("tab character") : e("excess whitespace");
+      return;
+    }
+    let f = b[b.length - 1],
+      g = d[0];
+    k(f) || k(g) || e(`unexpected space between ${z(f)} and ${z(g)}`);
+  }
+  function ad(a) {
+    let b = [],
+      d = a => {
+        b.length < ab && b.push(a);
+      },
+      e = {
+        tokens: 0,
+        strings: 0,
+        numbers: 0,
+        ln: 0,
+        qe: 0,
+        un: 0,
+        "Fe": 0,
+        "Ce": 0,
+        le: 0,
+        "Ne": 0,
+        banner: 0
+      },
+      h = new c(a),
+      i = [],
+      j = null,
+      k = "",
+      l = 0,
+      m = null;
+    for (;;) {
+      let c;
+      try {
+        c = h.next();
+      } catch (a) {
+        if (!(a instanceof g)) throw a;
+        return d(`lexer error: ${a.message}`), {
+          violations: b,
+          counts: e,
+          truncated: !0
+        };
+      }
+      let n = c.kind === f["Eof"] ? "" : a.slice(c.offset, h.pos),
+        o = a.slice(l, c.offset);
+      if (j === null || c.kind === f["Eof"] ? e.banner += o.length : ac(o, k, c, n, d), m) {
+        if (!(c.kind === f["Symbol"] && c.value === "(")) {
+          let a = m.frame;
+          a && a.ch === "{" ? (e.ln += 1, a.semi = !0, a.comma && !a.mixed && (a.mixed = !0, e.qe += 1)) : d("unexpected ';'");
+        }
+        m = null;
+      }
+      if (c.kind === f["Eof"]) break;
+      if (e.tokens += 1, c.kind === f["String"]) e.strings += 1, y(n, d, e);else if (c.kind === f["Number"]) e.numbers += 1, aa(c.text, j, d, e);else if (c.kind === f["Symbol"]) {
+        if (c.value === "(" || c.value === "[" || c.value === "{") i.push({
+          ch: c.value,
+          comma: !1,
+          semi: !1,
+          mixed: !1
+        });else if (c.value === ")" || c.value === "]" || c.value === "}") i.pop();else if (c.value === ";") m = {
+          frame: i[i.length - 1] || null
+        };else if (c.value === ",") {
+          let a = i[i.length - 1];
+          a && a.ch === "{" && (a.comma = !0, a.semi && !a.mixed && (a.mixed = !0, e.qe += 1));
+        }
+      }
+      if (b.length >= ab) return {
+        violations: b,
+        counts: e,
+        truncated: !0
+      };
+      j = c, k = n, l = h.pos;
+    }
+    return {
+      violations: b,
+      counts: e,
+      truncated: !1
+    };
+  }
+  function ae(a) {
+    let b = [new Set()],
+      c = new Set(),
+      d = 0,
+      e = 0,
+      f = 0,
+      g = 0,
+      j = a => a >= "a" && a <= "z" || a >= "A" && a <= "Z",
+      k = a => {
+        if (!(typeof a != "string" || a.length === 0)) {
+          d += 1, j(a[0]) && (e += 1), a.length <= 2 && (f += 1), a.length === 1 && c.add(a);
+          for (let c = 0; c < b.length; c += 1) if (b[c].has(a)) {
+            g += 1;
+            break;
+          }
+          b[b.length - 1].add(a);
+        }
+      },
+      l = new Set([h["Function"], h["Block"], h["NumericFor"], h["GenericFor"], h["Repeat"]]);
+    return i(a, {
+      enter: a => {
+        switch (l.has(a.kind) && b.push(new Set()), a.kind) {
+          case h["Function"]:
+            for (let b of a.params || []) k(b);
+            break;
+          case h["LocalDeclaration"]:
+            for (let b of a.names || []) k(b);
+            break;
+          case h["LocalFunction"]:
+            k(a.name);
+            break;
+          case h["NumericFor"]:
+            k(a.variable);
+            break;
+          case h["GenericFor"]:
+            for (let b of a.variables || []) k(b);
+            break;
+          default:
+            break;
+        }
+      },
+      leave: a => {
+        l.has(a.kind) && b.pop();
+      }
+    }), {
+      declared: d,
+      kt: e,
+      short: f,
+      shadowed: g,
+      breadth: c.size
+    };
+  }
+  var af = a => {
+      let b = a;
+      for (; b && b.kind === h["Paren"];) b = b.expression;
+      return b;
+    },
+    ag = (a, b) => !!a && a.kind === h["Number"] && a.value === b;
+  function ah(a) {
+    if (a.kind !== h["Return"] || a.expressions.length !== 1) return !1;
+    let b = af(a.expressions[0]);
+    if (!b || b.kind !== h["Call"] || b.args.length !== 1 || af(b.args[0]).kind !== h["Vararg"]) return !1;
+    let c = af(b.base);
+    return !c || c.kind !== h["Function"] ? !1 : c.w === !0 && (c.params || []).length === 0;
+  }
+  function ai(a) {
+    if (a.kind !== h["GenericFor"] || a.expressions.length !== 1 || (a.variables || []).length !== 2) return !1;
+    let b = af(a.expressions[0]);
+    if (!b || b.kind !== h["Call"] || b.args.length !== 1) return !1;
+    let c = af(b.base);
+    if (!c || c.kind !== h["Name"] || c.name !== "ipairs") return !1;
+    let d = af(b.args[0]);
+    if (!d || d.kind !== h["Table"] || d.entries.length !== 3) return !1;
+    for (let a of d.entries) {
+      if (a.key) return !1;
+      let b = af(a.value);
+      if (!b || b.kind !== h["Table"] || b.entries.length !== 2 || b.entries[0].key || b.entries[1].key) return !1;
+    }
+    let e = a.body ? a.body.statements : [];
+    if (e.length !== 1 || e[0].kind !== h["While"]) return !1;
+    let f = e[0].body ? e[0].body.statements : [];
+    return f.length !== 1 || f[0].kind !== h["Assignment"] ? !1 : f[0].targets.length === 4 && f[0].expressions.length === 4;
+  }
+  var aj = new Set(["__add", "__sub", "__index", "__mul", "__div", "__pow", "__concat"]);
+  function ak(a) {
+    if (a.kind !== h["Table"] || a.entries.length !== 3) return !1;
+    for (let b of a.entries) {
+      let a = b.key;
+      if (!a || a.kind !== h["String"] || !aj.has(a.value)) return !1;
+    }
+    return !0;
+  }
+  var al = 35184372088832,
+    am = 257,
+    an = new Set(["<", ">", "<=", ">="]);
+  function ao(a) {
+    let b = af(a.condition);
+    return !b || b.kind !== h["Name"] ? null : {
+      name: b.name,
+      ifs: 0,
+      assigns: !1,
+      compares: !1
+    };
+  }
+  var ap = a => a.ifs >= 2 && a.assigns && a.compares;
+  function aq(a) {
+    let b = {
+        wrapper: !1,
+        rotate: !1,
+        proxy: !1,
+        dispatcher: !1,
+        an: !1,
+        cn: !1,
+        dn: !1,
+        stepless: !1
+      },
+      c = [];
+    return i(a, {
+      enter: a => {
+        switch (a.kind) {
+          case h["While"]:
+            c.push(ao(a));
+            break;
+          case h["If"]:
+            for (let a of c) a && (a.ifs += 1);
+            break;
+          case h["Assignment"]:
+            for (let b of c) if (!(!b || b.assigns)) for (let c of a.targets) {
+              let a = af(c);
+              a && a.kind === h["Name"] && a.name === b.name && (b.assigns = !0);
+            }
+            break;
+          case h["Binary"]:
+            if (an.has(a.operator)) {
+              let b = af(a.lhs),
+                d = af(a.rhs);
+              for (let a of c) !a || a.compares || (b && b.kind === h["Name"] && b.name === a.name || d && d.kind === h["Name"] && d.name === a.name) && (a.compares = !0);
+            }
+            break;
+          case h["Return"]:
+            !b.wrapper && ah(a) && (b.wrapper = !0);
+            break;
+          case h["Number"]:
+            a.value === al ? b.an = !0 : a.value === am && (b.cn = !0);
+            break;
+          case h["Table"]:
+            !b.proxy && ak(a) && (b.proxy = !0);
+            break;
+          case h["GenericFor"]:
+            !b.rotate && ai(a) && (b.rotate = !0);
+            break;
+          case h["NumericFor"]:
+            a.step ? ag(af(a.step), 1) && (b.dn = !0) : b.stepless = !0;
+            break;
+          default:
+            break;
+        }
+      },
+      leave: a => {
+        if (a.kind !== h["While"]) return;
+        let d = c.pop();
+        d && ap(d) && (b.dispatcher = !0);
+      }
+    }), b;
+  }
+  var ar = {
+      declared: 0,
+      kt: 0,
+      short: 0,
+      shadowed: 0,
+      breadth: 0
+    },
+    as = {
+      wrapper: !1,
+      rotate: !1,
+      proxy: !1,
+      dispatcher: !1,
+      an: !1,
+      cn: !1,
+      dn: !1,
+      stepless: !1
+    };
+  function at(a, b, c) {
+    let d = [],
+      e = (a, b) => d.push({
+        weight: a,
+        label: b
+      }),
+      f = a.counts;
+    return c.dispatcher && e(2, "a register machine dispatch loop"), c.an && c.cn && e(2, "the string cipher's 2^45 modulus and 257 prime"), c.rotate && e(2, "the constant table's rotation loop"), f.un > 0 && e(2, `${f.un} string(s) carrying numeric escapes for printable text`), f["Fe"] > 0 && e(f["Fe"] > 1 ? 2 : 1, `${f["Fe"]} hexadecimal number(s) in mixed case`), c.wrapper && e(1, "the vararg wrapper around the whole program"), f.qe > 0 ? e(1, `${f.qe} table(s) separated by both ',' and ';'`) : f.ln > 0 && e(1, `${f.ln} table entries separated by ';'`), c.proxy && e(1, "a three metamethod proxy metatable"), c.dn && e(1, "a numeric for loop with its default step written out"), b.breadth >= 12 && e(1, `${b.breadth} distinct single letter local names`), b.shadowed > 0 && e(1, `${b.shadowed} local name(s) shadowing a name already in scope`), b.declared >= 2 && b.short === b.declared && b.kt === b.declared && e(1, `${b.declared} local names, all one or two letters`), d;
+  }
+  function au(a) {
+    return a >= 2e3 ? 4 : a >= 300 ? 2 : 1;
+  }
+  function av(a, b) {
+    let c = a.trim(),
+      d = ad(c),
+      e = b ? ae(b) : ar,
+      f = b ? aq(b) : as,
+      g = at(d, e, f),
+      h = g.reduce((a, b) => a + b.weight, 0),
+      i = au(d.counts.tokens),
+      j = d.violations.slice();
+    return !j.length && f.stepless && j.push("for loop without step"), !j.length && h < i && j.push("insufficient Prometheus signatures" + (g.length ? ` (${g.map(a => a.label).join(", ")})` : "")), {
+      prometheus: j.length === 0,
+      reasons: j,
+      evidence: g,
+      weight: h,
+      required: i,
+      names: e,
+      shapes: f,
+      counts: d.counts
+    };
+  }
+  b.exports = {
+    identify: av
+  };
+});
+var bi = a((a, b) => {
+  "use strict";
+
+  var {
+      parse: c
+    } = f(),
+    {
+      unparse: d
+    } = i(),
+    {
+      "Context": g,
+      "STEPS": h,
+      run: j
+    } = bg(),
+    {
+      identify: k
+    } = bh(),
+    l = class extends Error {
+      constructor(a) {
+        super(`unsupported Prometheus payload: ${a.reasons.join("; ")}`), this.name = "NotPrometheusError", this.report = a;
+      }
+    };
+  function n(a, b = {}) {
+    let d = b.name || "chunk",
+      e = null,
+      f = null;
+    try {
+      e = c(a, {
+        name: d
+      });
+    } catch (a) {
+      f = a;
+    }
+    let g = null;
+    if (b.detect !== !1 && (g = k(a, e), !g.prometheus && !bl(a))) throw new l(g);
+    if (f) throw f;
+    let h = j(e, b);
+    return {
+      code: h.source(),
+      chunk: e,
+      notes: h.notes,
+      warnings: h.warnings,
+      stats: h.stats,
+      context: h,
+      detected: g
+    };
+  }
+  b.exports = {
+    deobfuscate: n,
+    "NotPrometheusError": l,
+    identify: k,
+    parse: c,
+    unparse: d,
+    run: j,
+    "Context": g,
+    "STEPS": h,
+    ast: e(),
+    detect: m().detect,
+    tn: ah().tn
+  };
+});
+const bj = bi();
+const bk = bj.identify;
+function bl(a) {
+  if (typeof a !== "string") return false;
+  const b = /local\s+function\s+[A-Za-z_]\w*\s*\([^)]*\)\s*local\s+\w+\s*=\s*\{\s*\}/.test(a) && /unknown VM opcode/.test(a) && /\[[ ]*4[ ]*\]/.test(a);
+  const c = /getfenv/.test(a) && /setfenv/.test(a) && /newproxy/.test(a) && /tonumber/.test(a) && /ipairs/.test(a) && /return\s*\(\s*function/.test(a);
+  const d = /getfenv/.test(a) && /setfenv/.test(a) && /return\s*\(\s*function/.test(a) && /local\s+\w+\s*=\s*\{[^\n]{0,240}__len[^\n]{0,240}__index/.test(a);
+  return b || c || d;
+}
+bj.identify = function (a, b) {
+  let c = bk(a, b);
+  if (!c.prometheus && bl(a)) {
+    c = {
+      ...c,
+      prometheus: true,
+      reasons: [],
+      evidence: (c.evidence || []).concat([{
+        weight: 4,
+        label: "new Prometheus VM data/rebuild dispatcher"
+      }]),
+      weight: Math.max(c.weight || 0, 4),
+      required: c.required || 1
+    };
+  }
+  return c;
+};
+module.exports = bj;
